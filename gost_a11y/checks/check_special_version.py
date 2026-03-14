@@ -373,11 +373,16 @@ class CheckSpecialVersion(GostCheck):
             title=self.title,
         )
 
-        # START_NOT_APPLICABLE: [Нет кнопки спецверсии.]
+        # START_NOT_APPLICABLE: [Нет кнопки спецверсии — FAIL, не UNCERTAIN.
+        # Если кнопки нет, панель настроек недоступна пользователю.
+        # LLM не нужен — это детерминированный вердикт.]
         if not info.get("applicable"):
+            log_check(self.gost_ref, self.wcag_ref, "JUDGE", "Issue",
+                      "Кнопка/ссылка спецверсии не найдена — панель недоступна",
+                      "FAIL")
             return CheckResult(
-                verdict=Verdict.UNCERTAIN,
-                reason="Кнопка/ссылка спецверсии не найдена — проверка не применима",
+                verdict=Verdict.FAIL,
+                reason="Кнопка/ссылка спецверсии не найдена — панель настроек недоступна",
                 details=info,
                 **base_kwargs,
             )
