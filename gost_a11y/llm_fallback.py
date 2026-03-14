@@ -87,10 +87,21 @@ def _build_user_message(
     if context.a11y_tree_fragment:
         evidence["a11y_tree"] = context.a11y_tree_fragment
 
+    # START_FORMATTED_SUSPECTS: [Если extra содержит suspects_formatted — добавляем
+    # как отдельный блок, более читаемый для LLM чем raw JSON.]
+    suspects_block = ""
+    if context.extra and context.extra.get("suspects_formatted"):
+        suspects_block = (
+            f"\nПОДОЗРИТЕЛЬНЫЕ МЕСТА (найдены скриптом):\n"
+            f"{context.extra['suspects_formatted']}\n"
+        )
+    # END_FORMATTED_SUSPECTS
+
     text = (
         f"ПУНКТ ГОСТА: {context.gost_ref} (WCAG {context.wcag_ref})\n\n"
         f"ТРЕБОВАНИЕ:\n{gost_requirement}\n\n"
         f"ПРИЧИНА НЕОПРЕДЕЛЁННОСТИ:\n{context.reason_uncertain}\n\n"
+        f"{suspects_block}"
         f"ДАННЫЕ ОТ СКРИПТА:\n{json.dumps(evidence, ensure_ascii=False, indent=2)}\n\n"
         f"Вынеси вердикт: PASS или FAIL. Ответь строго в JSON."
     )
@@ -197,10 +208,15 @@ async def call_llm(
         )
     # END_CHECK_KEY
 
-    # START_BUILD_REQUEST: [Формируем запрос.]
+    # START_BUILD_REQUEST: [Формируем запрос.
+    # Если в extra есть llm_system_prompt — используем его вместо дефолтного.]
+    system_prompt = SYSTEM_PROMPT
+    if context.extra and context.extra.get("llm_system_prompt"):
+        system_prompt = context.extra["llm_system_prompt"]
+
     user_content = _build_user_message(context, gost_requirement)
     messages = [
-        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": system_prompt},
         {"role": "user", "content": user_content},
     ]
 

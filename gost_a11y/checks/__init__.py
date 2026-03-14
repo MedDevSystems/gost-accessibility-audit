@@ -10,6 +10,7 @@ from gost_a11y.checks.check_accessibility_link import CheckAccessibilityLink
 from gost_a11y.checks.check_aria import CheckAria
 from gost_a11y.checks.check_autoplay import CheckAutoplay
 from gost_a11y.checks.check_captcha import CheckCaptcha
+from gost_a11y.checks.check_color_only import CheckColorOnly
 from gost_a11y.checks.check_contrast import CheckContrast
 from gost_a11y.checks.check_focus_order import CheckFocusOrder
 from gost_a11y.checks.check_focus_trap import CheckFocusTrap
@@ -33,6 +34,7 @@ __all__ = [
     "CheckAria",
     "CheckAutoplay",
     "CheckCaptcha",
+    "CheckColorOnly",
     "CheckContrast",
     "CheckFocusOrder",
     "CheckFocusTrap",

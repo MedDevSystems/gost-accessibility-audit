@@ -28,6 +28,7 @@ from gost_a11y.checks import (
     CheckAria,
     CheckAutoplay,
     CheckCaptcha,
+    CheckColorOnly,
     CheckContrast,
     CheckFocusOrder,
     CheckFocusTrap,
@@ -73,8 +74,9 @@ ALL_CHECKS: List[GostCheck] = [
     CheckFocusTrap(),
     CheckFocusOrder(),
     CheckFormErrors(),
-    # Фаза 5: AI-only (vision)
+    # Фаза 5: AI-only (vision) / гибридные с LLM
     CheckTextInImages(),
+    CheckColorOnly(),
 ]
 
 
