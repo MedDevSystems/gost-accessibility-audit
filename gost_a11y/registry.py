@@ -23,11 +23,55 @@ from __future__ import annotations
 from typing import List
 
 from gost_a11y.base_check import GostCheck
-from gost_a11y.checks import CheckAccessibilityLink
+from gost_a11y.checks import (
+    CheckAccessibilityLink,
+    CheckAria,
+    CheckAutoplay,
+    CheckCaptcha,
+    CheckContrast,
+    CheckFocusOrder,
+    CheckFocusTrap,
+    CheckFocusVisible,
+    CheckFormErrors,
+    CheckFormLabels,
+    CheckHeadingStructure,
+    CheckImgAlt,
+    CheckKeyboardAccess,
+    CheckLinkText,
+    CheckPageLang,
+    CheckPageTitle,
+    CheckSkipLink,
+    CheckSpecialVersion,
+    CheckValidHTML,
+    CheckViewportZoom,
+)
 
 
 ALL_CHECKS: List[GostCheck] = [
+    # Фаза 1: чистый скрипт
     CheckAccessibilityLink(),
+    CheckPageLang(),
+    CheckPageTitle(),
+    CheckImgAlt(),
+    CheckFormLabels(),
+    CheckSkipLink(),
+    CheckViewportZoom(),
+    CheckCaptcha(),
+    # Фаза 3: спецверсия
+    CheckSpecialVersion(),
+    # Фаза 2: axe-core
+    CheckContrast(),
+    CheckValidHTML(),
+    CheckAria(),
+    CheckFocusVisible(),
+    CheckLinkText(),
+    CheckAutoplay(),
+    # Фаза 4: гибридные (скриптовая часть)
+    CheckHeadingStructure(),
+    CheckKeyboardAccess(),
+    CheckFocusTrap(),
+    CheckFocusOrder(),
+    CheckFormErrors(),
 ]
 
 
