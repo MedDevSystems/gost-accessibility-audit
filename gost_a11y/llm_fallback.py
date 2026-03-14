@@ -229,17 +229,37 @@ async def call_llm(
         response = client.chat.completions.create(
             model=MODEL_ID,
             messages=messages,
-            max_tokens=500,
+            max_tokens=32000,
             temperature=0.1,
         )
 
-        raw_text = response.choices[0].message.content or ""
+        msg = response.choices[0].message
+        raw_text = msg.content or ""
         model_used = response.model or MODEL_ID
+
+        # START_LOG_REASONING: [Логирование thinking и content раздельно.
+        # Qwen3.5 — thinking-модель: reasoning содержит цепочку рассуждений,
+        # content — финальный JSON-ответ. Оба полезны для отладки.]
+        thinking = getattr(msg, "reasoning", None) or msg.model_extra.get("reasoning", "") if hasattr(msg, "model_extra") else ""
+        usage = response.usage
 
         logger.info(
             f"[LLM][{context.gost_ref}][WCAG_{context.wcag_ref}]"
-            f"[RESPONSE] raw='{raw_text[:150]}' model={model_used} [SUCCESS]"
+            f"[RESPONSE] content='{raw_text[:150]}' "
+            f"thinking_len={len(thinking)} model={model_used} [SUCCESS]"
         )
+        if thinking:
+            logger.debug(
+                f"[LLM][{context.gost_ref}][WCAG_{context.wcag_ref}]"
+                f"[THINKING] {thinking[:300]}"
+            )
+        if usage:
+            logger.debug(
+                f"[LLM][{context.gost_ref}][WCAG_{context.wcag_ref}]"
+                f"[USAGE] reasoning_tokens={getattr(usage.completion_tokens_details, 'reasoning_tokens', '?')} "
+                f"completion_tokens={usage.completion_tokens} total={usage.total_tokens}"
+            )
+        # END_LOG_REASONING
 
     except Exception as e:
         logger.error(
