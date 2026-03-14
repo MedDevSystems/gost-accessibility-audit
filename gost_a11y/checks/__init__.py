@@ -24,6 +24,7 @@ from gost_a11y.checks.check_page_lang import CheckPageLang
 from gost_a11y.checks.check_page_title import CheckPageTitle
 from gost_a11y.checks.check_skip_link import CheckSkipLink
 from gost_a11y.checks.check_special_version import CheckSpecialVersion
+from gost_a11y.checks.check_text_in_images import CheckTextInImages
 from gost_a11y.checks.check_valid_html import CheckValidHTML
 from gost_a11y.checks.check_viewport_zoom import CheckViewportZoom
 
@@ -46,6 +47,7 @@ __all__ = [
     "CheckPageTitle",
     "CheckSkipLink",
     "CheckSpecialVersion",
+    "CheckTextInImages",
     "CheckValidHTML",
     "CheckViewportZoom",
 ]

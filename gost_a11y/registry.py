@@ -42,6 +42,7 @@ from gost_a11y.checks import (
     CheckPageTitle,
     CheckSkipLink,
     CheckSpecialVersion,
+    CheckTextInImages,
     CheckValidHTML,
     CheckViewportZoom,
 )
@@ -72,6 +73,8 @@ ALL_CHECKS: List[GostCheck] = [
     CheckFocusTrap(),
     CheckFocusOrder(),
     CheckFormErrors(),
+    # Фаза 5: AI-only (vision)
+    CheckTextInImages(),
 ]
 
 
