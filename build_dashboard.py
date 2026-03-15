@@ -663,7 +663,7 @@ header p {{
 }}
 .cat-stats {{
   font-weight: normal;
-  color: #555;
+  color: #3a3a3a;
   font-size: 0.9375rem;
 }}
 
@@ -708,7 +708,7 @@ thead th {{
   padding: 0.4rem 0;
   cursor: pointer;
   font-size: 0.875rem;
-  color: #555;
+  color: #3a3a3a;
 }}
 
 /* === CHECKS TABLE === */
@@ -721,7 +721,7 @@ thead th {{
 
 /* === VERDICTS === */
 .verdict-pass {{
-  color: #006400;
+  color: #004d00;
   font-weight: 600;
 }}
 .verdict-fail {{
@@ -729,11 +729,11 @@ thead th {{
   font-weight: 600;
 }}
 .verdict-uncertain {{
-  color: #856404;
+  color: #6b5000;
   font-weight: 600;
 }}
-.pct-good {{ color: #006400; font-weight: 600; }}
-.pct-mid {{ color: #856404; font-weight: 600; }}
+.pct-good {{ color: #004d00; font-weight: 600; }}
+.pct-mid {{ color: #6b5000; font-weight: 600; }}
 .pct-bad {{ color: #8b0000; font-weight: 600; }}
 
 /* === REF BADGE === */
@@ -755,7 +755,7 @@ footer {{
   padding: 1.5rem 0;
   margin-top: 2rem;
   font-size: 0.875rem;
-  color: #555;
+  color: #3a3a3a;
 }}
 footer p {{
   margin: 0.25rem 0;

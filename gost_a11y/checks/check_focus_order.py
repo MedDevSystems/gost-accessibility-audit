@@ -46,6 +46,19 @@ JS_COLLECT_FOCUS_ORDER = r"""
         const isVisible = rect.width > 0 && rect.height > 0;
         if (!isVisible) continue;
 
+        // Пропускаем элементы внутри закрытых <details> —
+        // они не в tab-order, не влияют на порядок фокуса
+        let insideClosedDetails = false;
+        let parent = el.parentElement;
+        while (parent) {
+            if (parent.tagName === 'DETAILS' && !parent.open) {
+                insideClosedDetails = true;
+                break;
+            }
+            parent = parent.parentElement;
+        }
+        if (insideClosedDetails) continue;
+
         const tabindex = el.hasAttribute('tabindex')
             ? parseInt(el.getAttribute('tabindex'), 10)
             : 0;
@@ -61,9 +74,13 @@ JS_COLLECT_FOCUS_ORDER = r"""
         });
     }
 
-    // START_VISUAL_ORDER_CHECK: [Проверка: DOM-порядок vs визуальный (top).]
+    // START_VISUAL_ORDER_CHECK: [Проверка: DOM-порядок vs визуальный (top).
+    // Исключаем элементы за экраном (top < 0, left < -100) — skip-link'и
+    // и другие offscreen-элементы видимые только при фокусе.]
     let visualOrderViolations = 0;
-    const domOrder = elements.filter(e => e.tabindex === 0);
+    const domOrder = elements.filter(e =>
+        e.tabindex === 0 && e.top >= 0 && e.left >= -100
+    );
     for (let i = 1; i < domOrder.length; i++) {
         const prev = domOrder[i - 1];
         const curr = domOrder[i];
