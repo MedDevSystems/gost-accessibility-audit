@@ -6,6 +6,8 @@
 #           Все проверки наследуются от GostCheck.]
 # SCOPE: [Базовый класс, абстракция, пайплайн проверок]
 # KEYWORDS_MODULE: [base, check, abstract, pipeline, gost, wcag]
+# DEPENDS: [M-MODELS, M-LOGGER, M-LLM]
+# LINKS: [M-BASE-CHECK]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:
@@ -75,6 +77,13 @@ class GostCheck(ABC):
 
     # --- Конкретные методы ---
 
+    # START_FUNCTION_build_fallback_context
+    # CONTRACT:
+    # PURPOSE: [Формирование контекста для LLM при UNCERTAIN.]
+    # INPUTS: classified: List[Any], reason: str
+    # OUTPUTS: FallbackContext
+    # SIDE_EFFECTS: [none]
+    # KEYWORDS: [fallback, context, uncertain, llm]
     def build_fallback_context(
         self,
         classified: List[Any],
@@ -91,7 +100,15 @@ class GostCheck(ABC):
             candidates=[],
             reason_uncertain=reason,
         )
+    # END_FUNCTION_build_fallback_context
 
+    # START_FUNCTION_invoke_llm
+    # CONTRACT:
+    # PURPOSE: [Вызов LLM-агента при UNCERTAIN через llm_fallback.call_llm.]
+    # INPUTS: context: FallbackContext
+    # OUTPUTS: LLMVerdict
+    # SIDE_EFFECTS: [HTTP-вызов к OpenRouter API.]
+    # KEYWORDS: [llm, invoke, fallback, verdict]
     async def invoke_llm(self, context: FallbackContext) -> LLMVerdict:
         """ШАГ 4b: Вызов LLM-агента.
 
@@ -99,6 +116,7 @@ class GostCheck(ABC):
         """
         from gost_a11y.llm_fallback import call_llm
         return await call_llm(context, self.description)
+    # END_FUNCTION_invoke_llm
 
     # --- Оркестрация ---
 

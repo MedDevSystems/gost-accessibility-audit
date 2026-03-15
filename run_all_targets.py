@@ -6,6 +6,8 @@
 #           Сводная таблица в консоль и в batch_summary.json.]
 # SCOPE: [Batch, runner, targets, отчёт, изолированные файлы]
 # KEYWORDS_MODULE: [batch, run, all, targets, report, isolated]
+# DEPENDS: [M-BROWSER, M-REGISTRY, M-TARGETS, M-MODELS]
+# LINKS: [M-BATCH]
 # END_MODULE_CONTRACT
 
 # START_CHANGE_SUMMARY

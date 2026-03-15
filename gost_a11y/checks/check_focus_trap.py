@@ -6,6 +6,8 @@
 #           Скриптовая часть: обнаружение паттернов focus trap в DOM.]
 # SCOPE: [Проверка, ГОСТ, фокус, ловушка, trap]
 # KEYWORDS_MODULE: [check, focus, trap, keyboard, wcag_2_1_2]
+# DEPENDS: [M-BASE-CHECK, M-LLM, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:

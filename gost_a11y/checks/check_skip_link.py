@@ -1,11 +1,13 @@
 # FILE: gost_a11y/checks/check_skip_link.py
-# VERSION: 0.1.0
+# VERSION: 0.3.0
 # MODULE_CONTRACT:
 # PURPOSE: [Проверка наличия skip-link и landmark-ролей.
 #           ГОСТ Р 52872-2019 → WCAG 2.4.1 (A): механизм пропуска
 #           повторяющихся блоков контента.]
 # SCOPE: [Проверка, ГОСТ, skip-link, landmarks, навигация]
 # KEYWORDS_MODULE: [check, skip_link, landmarks, wcag_2_4_1]
+# DEPENDS: [M-BASE-CHECK, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:
@@ -14,8 +16,11 @@
 # END_MODULE_MAP
 
 # START_CHANGE_SUMMARY
-# LAST_CHANGE: [Первоначальная реализация.]
-# CHANGE_SUMMARY: [v0.1.0 — создание проверки.]
+# LAST_CHANGE: [Учёт видимости landmarks: скрытый nav = мобильное меню, не считается отсутствующим.
+#               Подробные вердикты с объяснением последствий для пользователя.]
+# CHANGE_SUMMARY: [v0.1.0 — создание проверки.
+#                  v0.2.0 — networkidle wait перед collect.
+#                  v0.3.0 — видимость landmarks, скрытый nav, подробные вердикты.]
 # END_CHANGE_SUMMARY
 
 from __future__ import annotations
@@ -108,10 +113,34 @@ JS_COLLECT_SKIP_AND_LANDMARKS = r"""
         for (const el of els) {
             const tag = el.tagName.toLowerCase();
             const ariaLabel = el.getAttribute('aria-label') || '';
+
+            // START_LANDMARK_VISIBILITY: [Определяем видимость landmark.]
+            let isVisible = el.offsetWidth > 0 && el.offsetHeight > 0;
+            let hiddenBy = '';
+            if (!isVisible) {
+                let ancestor = el;
+                while (ancestor && ancestor !== document.body) {
+                    const cs = window.getComputedStyle(ancestor);
+                    if (cs.display === 'none') {
+                        hiddenBy = 'display:none на ' + ancestor.tagName.toLowerCase() +
+                            (ancestor.className ? '.' + ancestor.className.split(' ')[0] : '');
+                        break;
+                    }
+                    if (cs.visibility === 'hidden') {
+                        hiddenBy = 'visibility:hidden';
+                        break;
+                    }
+                    ancestor = ancestor.parentElement;
+                }
+            }
+            // END_LANDMARK_VISIBILITY
+
             result.landmarks.push({
                 role: lm.role,
                 tag: tag,
                 aria_label: ariaLabel.substring(0, 100),
+                visible: isVisible,
+                hidden_by: hiddenBy,
             });
         }
     }
@@ -120,6 +149,10 @@ JS_COLLECT_SKIP_AND_LANDMARKS = r"""
     result.has_nav = result.landmarks.some(l => l.role === 'navigation');
     result.has_banner = result.landmarks.some(l => l.role === 'banner');
     result.has_contentinfo = result.landmarks.some(l => l.role === 'contentinfo');
+    // Отдельно: видимые landmarks
+    result.has_visible_main = result.landmarks.some(l => l.role === 'main' && l.visible);
+    result.has_visible_nav = result.landmarks.some(l => l.role === 'navigation' && l.visible);
+    result.has_hidden_nav = result.landmarks.some(l => l.role === 'navigation' && !l.visible);
     // END_LANDMARKS
 
     return result;
@@ -157,6 +190,13 @@ class CheckSkipLink(GostCheck):
         log_check(self.gost_ref, self.wcag_ref, "COLLECT", "Info",
                   "Поиск skip-link и landmark-ролей", "ATTEMPT")
 
+        # START_WAIT_NETWORKIDLE: [Ожидание networkidle для JS-heavy сайтов, где nav/landmarks рендерятся клиентским JS.]
+        try:
+            await page.wait_for_load_state("networkidle", timeout=5000)
+        except Exception:
+            pass
+        # END_WAIT_NETWORKIDLE
+
         data = await page.evaluate(JS_COLLECT_SKIP_AND_LANDMARKS)
 
         # START_LOG_DETAILS: [Детальное логирование найденных элементов.]
@@ -169,15 +209,12 @@ class CheckSkipLink(GostCheck):
                 "INFO"
             )
 
-        landmark_summary = {}
         for lm in data["landmarks"]:
-            role = lm["role"]
-            landmark_summary[role] = landmark_summary.get(role, 0) + 1
-
-        for role, count in landmark_summary.items():
+            vis_status = "видимый" if lm.get("visible") else f"скрытый ({lm.get('hidden_by', '?')})"
+            label_info = f" aria-label='{lm['aria_label']}'" if lm.get("aria_label") else ""
             log_check(
                 self.gost_ref, self.wcag_ref, "COLLECT", "Landmark",
-                f"landmark role={role}: {count} шт",
+                f"<{lm['tag']}> role={lm['role']}: {vis_status}{label_info}",
                 "INFO"
             )
         # END_LOG_DETAILS
@@ -206,9 +243,13 @@ class CheckSkipLink(GostCheck):
         ]
         # END_CLASSIFY_SKIP
 
-        # START_CLASSIFY_LANDMARKS: [Анализ landmarks.]
-        landmark_roles = set(lm["role"] for lm in raw["landmarks"])
-        has_sufficient_landmarks = "main" in landmark_roles and len(landmark_roles) >= 2
+        # START_CLASSIFY_LANDMARKS: [Анализ landmarks — видимые и скрытые отдельно.]
+        all_roles = set(lm["role"] for lm in raw["landmarks"])
+        visible_roles = set(lm["role"] for lm in raw["landmarks"] if lm.get("visible"))
+        hidden_roles = set(lm["role"] for lm in raw["landmarks"] if not lm.get("visible")) - visible_roles
+
+        # Достаточно если main + ещё хотя бы 1 (считаем и видимые, и скрытые — скрытый nav = мобильное меню)
+        has_sufficient_landmarks = "main" in all_roles and len(all_roles) >= 2
         # END_CLASSIFY_LANDMARKS
 
         classified = {
@@ -216,10 +257,14 @@ class CheckSkipLink(GostCheck):
             "landmarks": raw["landmarks"],
             "valid_skip_link_count": len(valid_skip_links),
             "any_skip_link_count": len(any_skip_links),
-            "landmark_roles": sorted(landmark_roles),
+            "landmark_roles": sorted(all_roles),
+            "visible_roles": sorted(visible_roles),
+            "hidden_roles": sorted(hidden_roles),
             "landmark_count": len(raw["landmarks"]),
             "has_main": raw["has_main"],
             "has_nav": raw["has_nav"],
+            "has_visible_nav": raw.get("has_visible_nav", False),
+            "has_hidden_nav": raw.get("has_hidden_nav", False),
             "has_banner": raw["has_banner"],
             "has_contentinfo": raw["has_contentinfo"],
             "has_sufficient_landmarks": has_sufficient_landmarks,
@@ -246,81 +291,109 @@ class CheckSkipLink(GostCheck):
 
         has_skip = info["valid_skip_link_count"] > 0
         has_landmarks = info["has_sufficient_landmarks"]
+        visible_roles = info.get("visible_roles", [])
+        hidden_roles = info.get("hidden_roles", [])
 
-        # START_VERDICT_LOGIC: [WCAG 2.4.1 допускает skip-link ИЛИ landmarks.]
+        # START_BUILD_DESCRIPTION: [Формируем подробное описание ситуации.]
+        parts = []
+
+        # Описание skip-link
+        if has_skip:
+            parts.append(f"Skip-link найден ({info['valid_skip_link_count']} шт) — "
+                         f"пользователь клавиатуры может перейти к основному контенту")
+        else:
+            parts.append("Skip-link отсутствует — пользователь клавиатуры "
+                         "вынужден проходить Tab через всю навигацию")
+
+        # Описание landmarks
+        if visible_roles:
+            parts.append(f"Видимые landmarks: {', '.join(visible_roles)}")
+        if hidden_roles:
+            hidden_details = []
+            for lm in info.get("landmarks", []):
+                if not lm.get("visible") and lm["role"] in hidden_roles:
+                    why = lm.get("hidden_by", "скрыт")
+                    hidden_details.append(f"{lm['role']} ({why})")
+            parts.append(f"Скрытые landmarks: {', '.join(hidden_details)} — "
+                         f"вероятно мобильное меню")
+
+        if not visible_roles and not hidden_roles:
+            parts.append("Семантические области (landmarks) не найдены — "
+                         "screen reader не может построить карту страницы")
+
+        description = ". ".join(parts)
+        # END_BUILD_DESCRIPTION
+
+        # START_VERDICT_LOGIC: [Достаточно skip-link ИЛИ landmarks (main + ещё 1).]
         if has_skip and has_landmarks:
+            log_check(self.gost_ref, self.wcag_ref, "JUDGE", "Info",
+                      description, "SUCCESS")
             return CheckResult(
                 verdict=Verdict.PASS,
-                reason=(
-                    f"Skip-link найден ({info['valid_skip_link_count']} шт) "
-                    f"и landmarks: {', '.join(info['landmark_roles'])}"
-                ),
+                reason=description,
                 details=info,
                 **base_kwargs,
             )
 
         if has_skip:
+            log_check(self.gost_ref, self.wcag_ref, "JUDGE", "Info",
+                      description, "SUCCESS")
             return CheckResult(
                 verdict=Verdict.PASS,
-                reason=f"Skip-link найден ({info['valid_skip_link_count']} шт)",
+                reason=description,
                 details=info,
                 **base_kwargs,
             )
 
         if has_landmarks:
-            log_check(
-                self.gost_ref, self.wcag_ref, "JUDGE", "Info",
-                f"Skip-link не найден, но landmarks достаточны: "
-                f"{', '.join(info['landmark_roles'])}",
-                "INFO"
-            )
+            log_check(self.gost_ref, self.wcag_ref, "JUDGE", "Info",
+                      description, "SUCCESS")
             return CheckResult(
                 verdict=Verdict.PASS,
-                reason=(
-                    f"Skip-link не найден, но landmarks достаточны: "
-                    f"{', '.join(info['landmark_roles'])} "
-                    f"({info['landmark_count']} элементов)"
-                ),
+                reason=description,
                 details=info,
                 **base_kwargs,
             )
 
-        # START_PARTIAL: [Частичные landmarks без main — FAIL.]
+        # START_PARTIAL: [Landmarks есть, но не достаточны (нет main).]
         if info["landmark_count"] > 0:
             missing = []
             if not info["has_main"]:
-                missing.append("main")
+                missing.append("main (основное содержимое)")
             if not info["has_nav"]:
-                missing.append("navigation")
+                if info.get("has_hidden_nav"):
+                    pass  # nav есть но скрыт — не считаем отсутствующим
+                else:
+                    missing.append("navigation (навигация)")
 
-            log_check(
-                self.gost_ref, self.wcag_ref, "JUDGE", "Issue",
-                f"Landmarks найдены ({', '.join(info['landmark_roles'])}), "
-                f"но отсутствуют: {', '.join(missing)}",
-                "FAIL"
-            )
-
-            return CheckResult(
-                verdict=Verdict.FAIL,
-                reason=(
-                    f"Skip-link не найден. Landmarks неполные: "
-                    f"есть {', '.join(info['landmark_roles'])}, "
-                    f"нет {', '.join(missing)}"
-                ),
-                details=info,
-                **base_kwargs,
-            )
+            if missing:
+                description += f". Отсутствуют обязательные: {', '.join(missing)}"
+                log_check(self.gost_ref, self.wcag_ref, "JUDGE", "Issue",
+                          description, "FAIL")
+                return CheckResult(
+                    verdict=Verdict.FAIL,
+                    reason=description,
+                    details=info,
+                    **base_kwargs,
+                )
+            else:
+                # Всё есть (nav скрытый засчитан) — пересмотр: это PASS
+                log_check(self.gost_ref, self.wcag_ref, "JUDGE", "Info",
+                          description, "SUCCESS")
+                return CheckResult(
+                    verdict=Verdict.PASS,
+                    reason=description,
+                    details=info,
+                    **base_kwargs,
+                )
         # END_PARTIAL
 
         # START_NO_MECHANISMS: [Ничего нет.]
-        log_check(
-            self.gost_ref, self.wcag_ref, "JUDGE", "Issue",
-            "Нет ни skip-link, ни landmark-ролей",
-            "FAIL"
-        )
+        log_check(self.gost_ref, self.wcag_ref, "JUDGE", "Issue",
+                  description, "FAIL")
         return CheckResult(
             verdict=Verdict.FAIL,
-            reason="Нет механизма пропуска: ни skip-link, ни landmark-ролей",
+            reason=description,
             details=info,
             **base_kwargs,
         )

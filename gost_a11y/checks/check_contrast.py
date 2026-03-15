@@ -6,6 +6,8 @@
 #           Приказ Минцифры № 953 п.7.]
 # SCOPE: [Проверка, ГОСТ, контраст, axe-core, П953]
 # KEYWORDS_MODULE: [check, contrast, axe, wcag_1_4_3, p953]
+# DEPENDS: [M-BASE-CHECK, M-AXE, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:

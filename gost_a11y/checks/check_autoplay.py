@@ -6,6 +6,8 @@
 #           Приказ Минцифры № 953 п.10: автообновления контролируются.]
 # SCOPE: [Проверка, ГОСТ, autoplay, audio, video, П953]
 # KEYWORDS_MODULE: [check, autoplay, audio, video, wcag_1_4_2, p953]
+# DEPENDS: [M-BASE-CHECK, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:

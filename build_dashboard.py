@@ -422,12 +422,17 @@ def generate_html(summary: Dict[str, Any], site_reports: List[Dict[str, Any]]) -
                 c_reason = _escape_html(check.get("reason", ""))
                 c_source = _escape_html(check.get("source", "script"))
 
+                aria_text = (
+                    f"Результат: {v_label}. "
+                    f"ГОСТ {c_gost}. "
+                    f"{c_title}. "
+                    f"Причина: {c_reason}"
+                )
                 checks_rows.append(
-                    f'<tr>'
+                    f'<tr tabindex="0" aria-label="{_escape_html(aria_text)}">'
+                    f'<td>{c_gost}</td>'
                     f'<td><span class="{v_class}">{v_label}</span></td>'
                     f'<td>{c_title}</td>'
-                    f'<td>{c_gost}</td>'
-                    f'<td>{c_wcag}</td>'
                     f'<td>{c_reason}</td>'
                     f'<td>{c_source}</td>'
                     f'</tr>'
@@ -439,10 +444,9 @@ def generate_html(summary: Dict[str, Any], site_reports: List[Dict[str, Any]]) -
                     '<div class="checks-table-wrap">'
                     '<table class="checks-table">'
                     '<thead><tr>'
+                    '<th scope="col">ГОСТ</th>'
                     '<th scope="col">Вердикт</th>'
                     '<th scope="col">Проверка</th>'
-                    '<th scope="col">ГОСТ</th>'
-                    '<th scope="col">WCAG</th>'
                     '<th scope="col">Причина</th>'
                     '<th scope="col">Источник</th>'
                     '</tr></thead>'
@@ -749,25 +753,136 @@ thead th {{
   font-weight: normal;
 }}
 
-/* === FOOTER === */
-footer {{
-  border-top: 3px solid #1a1a1a;
-  padding: 1.5rem 0;
-  margin-top: 2rem;
-  font-size: 0.875rem;
-  color: #3a3a3a;
+/* === FONT CONTROLS === */
+.font-controls {{
+  display: flex;
+  gap: 6px;
+  padding: 6px 0;
+  border-bottom: 2px solid #1a1a1a;
 }}
-footer p {{
-  margin: 0.25rem 0;
+.font-controls button {{
+  background: #fff;
+  border: 2px solid #1a1a1a;
+  border-radius: 6px;
+  padding: 12px 42px;
+  font-size: 28px;
+  font-weight: 600;
+  cursor: pointer;
+  line-height: 1.4;
+  color: #1a1a1a;
+}}
+.font-controls button:hover {{
+  background: #f0f0f0;
+}}
+.font-controls button:focus {{
+  outline: 2px solid #0000cc;
+  outline-offset: 2px;
+}}
+
+/* === REFERENCE SECTION === */
+.reference {{
+  margin-top: 2.5rem;
+  border-top: 3px solid #1a1a1a;
+  padding-top: 1.5rem;
+}}
+.reference h2 {{
+  margin-top: 0;
+}}
+.ref-term {{
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+}}
+.ref-term > summary {{
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+  font-size: 1rem;
+  background: #fafafa;
+}}
+.ref-term > summary::-webkit-details-marker {{
+  display: none;
+}}
+.ref-term > summary::before {{
+  content: "\\25B6\\FE0E";
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-size: 0.75em;
+  transition: transform 0.2s;
+}}
+.ref-term[open] > summary::before {{
+  transform: rotate(90deg);
+}}
+.ref-term .ref-body {{
+  padding: 0.5rem 1rem 1rem;
+  line-height: 1.7;
+  font-size: 0.9375rem;
+}}
+.ref-term .ref-body p {{
+  margin: 0.4rem 0;
+}}
+.ref-tag {{
+  display: inline-block;
+  background: #e8e8e8;
+  color: #333;
+  font-size: 0.75rem;
+  padding: 0.1em 0.5em;
+  border-radius: 3px;
+  margin-left: 0.5rem;
+  font-weight: normal;
+  vertical-align: middle;
 }}
 
 /* === RESPONSIVE === */
 @media (max-width: 640px) {{
-  header h1 {{ font-size: 1.375rem; }}
+  body {{ font-size: 1.125rem; }}
+  header h1 {{ font-size: 1.5rem; }}
   .stats-grid {{ grid-template-columns: 1fr 1fr; }}
-  .stat-card .stat-value {{ font-size: 1.5rem; }}
-  table {{ font-size: 0.8125rem; }}
-  th, td {{ padding: 0.35rem 0.5rem; }}
+  .stat-card .stat-value {{ font-size: 1.75rem; }}
+  table {{ font-size: 1rem; }}
+  th, td {{ padding: 0.4rem 0.5rem; }}
+  .checks-table {{ font-size: 0.9375rem; }}
+  .category-details {{
+    border: none;
+    border-top: 2px solid #1a1a1a;
+    border-radius: 0;
+    margin-bottom: 0;
+  }}
+  .category-details > summary {{
+    border-radius: 0;
+    padding: 0.75rem 0.5rem;
+  }}
+  .stat-card {{
+    border-width: 1px;
+  }}
+  .sites-table-wrap, .checks-table-wrap {{
+    overflow-x: visible;
+  }}
+  .sites-table th:nth-child(2),
+  .sites-table td:nth-child(2) {{
+    display: none;
+  }}
+  .checks-table th:nth-child(5),
+  .checks-table td:nth-child(5) {{
+    display: none;
+  }}
+  .checks-table td:nth-child(4) {{
+    word-break: break-word;
+  }}
+  .font-controls {{
+    flex-wrap: wrap;
+  }}
+  .font-controls button {{
+    font-size: 28px;
+    padding: 10px 20px;
+  }}
+  .sites-table th, .sites-table td {{
+    padding: 0.3rem 0.4rem;
+  }}
+  .sites-table th:first-child, .sites-table td:first-child {{
+    word-break: break-word;
+  }}
 }}
 @media (max-width: 400px) {{
   .stats-grid {{ grid-template-columns: 1fr; }}
@@ -780,8 +895,6 @@ footer p {{
 <header role="banner">
 <div class="container">
 <h1>ГОСТ-доступность госсайтов РФ</h1>
-<p>Автоматическая проверка на соответствие ГОСТ Р 52872-2019, WCAG 2.1 A/AA и Приказу Минцифры №953</p>
-<p>Проверено сайтов: <strong>{total_sites}</strong> | Проверок на сайт: <strong>{checks_per_site}</strong> | Дата: <strong>{date_str}</strong></p>
 </div>
 </header>
 
@@ -789,6 +902,12 @@ footer p {{
 <div class="container">
 
 {demo_banner}
+
+<div class="font-controls" role="group" aria-label="Размер шрифта">
+<button type="button" aria-label="Увеличить шрифт" onclick="changeFontSize(1)">A+</button>
+<button type="button" aria-label="Уменьшить шрифт" onclick="changeFontSize(-1)">A−</button>
+<button type="button" aria-label="Сбросить размер шрифта" onclick="resetFontSize()">Сброс шрифта</button>
+</div>
 
 <h2>Общая статистика</h2>
 <div class="stats-grid">
@@ -800,30 +919,231 @@ footer p {{
 <span class="stat-value">{total_sites}</span>
 <span class="stat-label">Проверено сайтов</span>
 </div>
-<div class="stat-card">
-<span class="stat-value pct-good">{best_name}</span>
-<span class="stat-label">Лучший результат ({best_pct}%)</span>
-</div>
-<div class="stat-card">
-<span class="stat-value pct-bad">{worst_name}</span>
-<span class="stat-label">Худший результат ({worst_pct}%)</span>
-</div>
 </div>
 
 <h2>Результаты по категориям</h2>
 {categories_html}
 
+<section class="reference" aria-label="Справка по терминам и требованиям">
+<h2>Справка</h2>
+<p>Пояснения к проверкам и требованиям ГОСТ Р 52872-2019 и Приказа Минцифры №953.</p>
+
+<details class="ref-term">
+<summary>Версия для слабовидящих (спецверсия) <span class="ref-tag">ГОСТ Р 52872 п.5.1</span> <span class="ref-tag">П953 п.2, п.7</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Альтернативная версия сайта или режим отображения с настройками для людей с нарушениями зрения: увеличенный шрифт, высококонтрастная цветовая схема, увеличенные межстрочные интервалы, возможность отключения изображений.</p>
+<p><strong>Требование.</strong> ГОСТ Р 52872-2019 (п. 5.1) обязывает государственные сайты предоставлять версию для слабовидящих. Сайт должен содержать заметную ссылку или кнопку для перехода в этот режим, расположенную в верхней части страницы (шапке). Приказ Минцифры № 953 п. 2 требует возможности масштабирования текста до 200%, п. 7 — обеспечения достаточной контрастности.</p>
+<p><strong>Что проверяется.</strong> Наличие кнопки/ссылки на спецверсию в header/nav. После активации — наличие панели управления с контролами размера шрифта и цветовой схемы. Цветовая схема может быть реализована как панель выбора (светлая/тёмная/ч-б) или как toggle-класс на body (например, класс <code>bw</code> для чёрно-белого режима).</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>Alt-тексты изображений <span class="ref-tag">ГОСТ Р 52872</span> <span class="ref-tag">П953 п.4</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Атрибут <code>alt</code> на элементе <code>&lt;img&gt;</code> — текстовое описание изображения, которое озвучивается экранными чтецами (screen readers) для незрячих пользователей и отображается, если изображение не загрузилось.</p>
+<p><strong>Требование.</strong> ГОСТ Р 52872-2019 требует: весь нетекстовый контент, предоставляемый пользователю, должен иметь текстовую альтернативу, служащую эквивалентной цели. Приказ Минцифры № 953 п. 4 прямо указывает: «нетекстовый контент имеет текстовую версию». Декоративные изображения должны иметь пустой alt (<code>alt=""</code>) или <code>role="presentation"</code>, чтобы screen reader их пропускал.</p>
+<p><strong>Что проверяется.</strong> Все видимые <code>&lt;img&gt;</code> должны иметь атрибут <code>alt</code>. Изображения внутри кнопок или ссылок, которые уже имеют текстовое содержание, отмечаются как minor — screen reader озвучит родительский элемент, но рекомендуется добавить <code>alt=""</code>.</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>Язык страницы (lang) <span class="ref-tag">ГОСТ Р 52872</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Атрибут <code>lang</code> на элементе <code>&lt;html&gt;</code>, указывающий основной язык документа (например, <code>lang="ru"</code>).</p>
+<p><strong>Требование.</strong> ГОСТ Р 52872-2019 требует: язык каждой веб-страницы может быть программно определён. Без этого атрибута screen reader не знает, каким языковым движком озвучивать текст — русский текст может читаться с английским произношением, что делает содержимое непонятным для незрячего пользователя.</p>
+<p><strong>Что проверяется.</strong> Наличие атрибута <code>lang</code> на <code>&lt;html&gt;</code>, его непустота, валидность по стандарту BCP 47. Допускается <code>xml:lang</code> как fallback.</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>Заголовок страницы (title) <span class="ref-tag">ГОСТ Р 52872</span> <span class="ref-tag">П953 п.6</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Содержимое элемента <code>&lt;title&gt;</code> в <code>&lt;head&gt;</code> — текст, который отображается во вкладке браузера и озвучивается screen reader при открытии страницы.</p>
+<p><strong>Требование.</strong> ГОСТ Р 52872-2019 требует: веб-страницы имеют заголовки, описывающие тему или цель. Приказ Минцифры № 953 п. 6: «заголовки и ссылки являются описательными». Заголовок должен быть осмысленным и уникальным, а не шаблонным (например, «Главная страница» или «Untitled»).</p>
+<p><strong>Что проверяется.</strong> Наличие <code>&lt;title&gt;</code>, его непустота, отсутствие шаблонных фраз.</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>Метки полей форм (label) <span class="ref-tag">ГОСТ Р 52872</span> <span class="ref-tag">П953 п.12</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Элемент <code>&lt;label&gt;</code>, связанный с полем ввода, либо атрибуты <code>aria-label</code> / <code>aria-labelledby</code> / <code>title</code>, сообщающие screen reader назначение поля.</p>
+<p><strong>Требование.</strong> ГОСТ Р 52872-2019 требует: метки или инструкции предоставляются, когда содержание требует ввода данных пользователем. Приказ Минцифры № 953 п. 12: «поля электронных форм и элементов управления в них имеют текстовые описания». Без метки незрячий пользователь не может понять, что нужно ввести в поле.</p>
+<p><strong>Что проверяется.</strong> Каждое видимое поле формы имеет связанный <code>&lt;label&gt;</code>, <code>aria-label</code>, <code>aria-labelledby</code> или <code>title</code>. Поля поиска внутри формы с <code>role="search"</code> считаются маркированными неявно.</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>Skip-link и семантические области <span class="ref-tag">ГОСТ Р 52872</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> <em>Skip-link</em> — скрытая ссылка в начале страницы (обычно «Перейти к содержимому»), которая становится видимой при получении фокуса клавишей Tab. Позволяет пользователю клавиатуры пропустить повторяющуюся навигацию. <em>Landmarks</em> — семантические области: <code>&lt;main&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;header&gt;</code>, <code>&lt;footer&gt;</code>.</p>
+<p><strong>Требование.</strong> ГОСТ Р 52872-2019 требует: предоставляется механизм для пропуска повторяющихся блоков контента. Landmark-роли позволяют screen reader составить «карту» страницы — пользователь может быстро перейти к нужной области одной командой.</p>
+<p><strong>Что проверяется.</strong> Наличие skip-link с якорем на основной контент. Наличие ключевых landmark-ролей: обязательно <code>&lt;main&gt;</code>, желательно <code>&lt;nav&gt;</code>, <code>&lt;header&gt;</code>, <code>&lt;footer&gt;</code>.</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>Viewport и масштабирование <span class="ref-tag">ГОСТ Р 52872</span> <span class="ref-tag">П953 п.2</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Мета-тег <code>&lt;meta name="viewport"&gt;</code> управляет масштабированием на мобильных устройствах. Параметры <code>user-scalable=no</code> и <code>maximum-scale=1</code> блокируют возможность увеличения текста.</p>
+<p><strong>Требование.</strong> Приказ Минцифры № 953 п. 2: «размер шрифта может быть увеличен до 200 процентов». ГОСТ Р 52872-2019 требует: текст может быть масштабирован до 200% без потери содержания или функциональности. Блокировка zoom лишает слабовидящих пользователей возможности увеличить текст.</p>
+<p><strong>Что проверяется.</strong> Мета-тег viewport не содержит <code>user-scalable=no</code> и <code>maximum-scale</code> менее 2.0.</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>CAPTCHA <span class="ref-tag">П953 п.5</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Механизм защиты от ботов: графические символы, выбор изображений, слайдеры-пазлы, чекбоксы. Типы: reCAPTCHA, hCaptcha, Cloudflare Turnstile, GeeTest, Яндекс SmartCaptcha, кастомные решения.</p>
+<p><strong>Требование.</strong> Приказ Минцифры № 953 п. 5: «при использовании CAPTCHA предоставляется альтернативный способ прохождения проверки (аудио CAPTCHA или иной)». Графическая CAPTCHA недоступна для незрячих пользователей. ГОСТ Р 52872-2019 также требует альтернативу для нетекстового контента.</p>
+<p><strong>Что проверяется.</strong> Обнаружение CAPTCHA на странице. Если обнаружена — проверка наличия аудио-альтернативы. Если CAPTCHA отсутствует — проверка не применима (PASS).</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>Контрастность текста <span class="ref-tag">ГОСТ Р 52872</span> <span class="ref-tag">П953 п.7</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Соотношение яркости текста к яркости фона. Измеряется как коэффициент (например, 4.5:1). Недостаточный контраст делает текст трудночитаемым для людей со сниженным зрением и дальтонизмом.</p>
+<p><strong>Требование.</strong> Приказ Минцифры № 953 п. 7: «контрастность определяется в соответствии с национальным стандартом» (ГОСТ Р 52872-2019). ГОСТ требует коэффициент контрастности не менее 4.5:1 для обычного текста и 3:1 для крупного текста (от 18pt или 14pt жирного).</p>
+<p><strong>Что проверяется.</strong> Через axe-core анализируется цвет текста, цвет фона и размер шрифта каждого текстового элемента. Вычисляется коэффициент контрастности.</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>Валидный HTML <span class="ref-tag">ГОСТ Р 52872</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Соответствие HTML-кода стандарту: корректная вложенность элементов, уникальные идентификаторы (<code>id</code>), отсутствие дублирования атрибутов.</p>
+<p><strong>Требование.</strong> ГОСТ Р 52872-2019 требует: элементы разметки имеют полные открывающие и закрывающие теги, вложены в соответствии со спецификацией, все идентификаторы уникальны. Дублированные <code>id</code> нарушают работу <code>aria-labelledby</code> и якорных ссылок — screen reader не может правильно связать элементы.</p>
+<p><strong>Что проверяется.</strong> Через axe-core: дублированные id, корректность вложенности списков, валидность атрибутов.</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>ARIA-атрибуты <span class="ref-tag">ГОСТ Р 52872</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> WAI-ARIA — набор атрибутов HTML (<code>role</code>, <code>aria-label</code>, <code>aria-hidden</code>, <code>aria-expanded</code> и др.), сообщающие screen reader о роли, состоянии и свойствах интерактивных элементов.</p>
+<p><strong>Требование.</strong> ГОСТ Р 52872-2019 требует: для всех компонентов интерфейса имя и роль могут быть программно определены. Некорректные ARIA-атрибуты (несуществующие роли, недопустимые значения) вводят screen reader в заблуждение — хуже, чем их отсутствие.</p>
+<p><strong>Что проверяется.</strong> Через axe-core: допустимость ролей, валидность значений атрибутов, наличие обязательных атрибутов.</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>Видимый фокус <span class="ref-tag">ГОСТ Р 52872</span> <span class="ref-tag">П953 п.1</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Визуальный индикатор (обычно рамка <code>outline</code>) на элементе, выбранном клавиатурой. При навигации клавишей Tab пользователь должен видеть, какой элемент сейчас активен.</p>
+<p><strong>Требование.</strong> Приказ Минцифры № 953 п. 1: «обеспечивается клавиатурный доступ без ограничений по времени». ГОСТ Р 52872-2019 требует: интерфейс, управляемый с клавиатуры, имеет режим с видимым индикатором фокуса. CSS-правило <code>outline: none</code> на <code>:focus</code> без визуальной замены делает фокус невидимым.</p>
+<p><strong>Что проверяется.</strong> CSS-правила, подавляющие <code>outline</code> на <code>:focus</code>. Проверяется наличие замены (box-shadow, border). Правила для элементов, отсутствующих в DOM, не считаются проблемой.</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>Текст ссылок <span class="ref-tag">ГОСТ Р 52872</span> <span class="ref-tag">П953 п.6</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Текстовое содержимое ссылки, сообщающее пользователю куда она ведёт. Ссылки без текста (пустые, с изображением без alt) не передают информации screen reader.</p>
+<p><strong>Требование.</strong> Приказ Минцифры № 953 п. 6: «заголовки и ссылки являются описательными». ГОСТ Р 52872-2019 требует: цель каждой ссылки может быть определена из её текста.</p>
+<p><strong>Что проверяется.</strong> Через axe-core: каждая ссылка имеет доступное имя, ссылки в тексте отличимы не только цветом.</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>Автовоспроизведение медиа <span class="ref-tag">ГОСТ Р 52872</span> <span class="ref-tag">П953 п.10</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Элементы <code>&lt;video&gt;</code> и <code>&lt;audio&gt;</code> с атрибутом <code>autoplay</code>, начинающие воспроизведение без действия пользователя.</p>
+<p><strong>Требование.</strong> Приказ Минцифры № 953 п. 10: «размещённые на страницах сайта мультимедиа-объекты не запускаются автоматически». ГОСТ Р 52872-2019 требует механизм паузы/остановки автовоспроизведения. Автозвук мешает screen reader — накладывается на озвучивание страницы.</p>
+<p><strong>Что проверяется.</strong> Наличие <code>&lt;video&gt;</code>/<code>&lt;audio&gt;</code> с <code>autoplay</code> без <code>muted</code> и без <code>controls</code>.</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>Иерархия заголовков <span class="ref-tag">ГОСТ Р 52872</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Структура заголовков <code>&lt;h1&gt;</code>–<code>&lt;h6&gt;</code>. Заголовки формируют оглавление, по которому screen reader строит навигацию — пользователь перемещается между разделами одной командой.</p>
+<p><strong>Требование.</strong> ГОСТ Р 52872-2019 требует: информация и структура могут быть программно определены. Иерархия должна быть логичной: один <code>&lt;h1&gt;</code> на страницу, без пропусков уровней (h1 → h3 минуя h2), без пустых заголовков.</p>
+<p><strong>Что проверяется.</strong> Количество видимых <code>&lt;h1&gt;</code> (должен быть один), отсутствие пропусков уровней, отсутствие пустых заголовков.</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>Клавиатурный доступ <span class="ref-tag">ГОСТ Р 52872</span> <span class="ref-tag">П953 п.1</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Возможность взаимодействовать со всеми элементами страницы (ссылками, кнопками, полями, меню) используя только клавиатуру, без мыши.</p>
+<p><strong>Требование.</strong> Приказ Минцифры № 953 п. 1: «обеспечивается клавиатурный доступ ко всем элементам без ограничений по времени». ГОСТ Р 52872-2019 требует: вся функциональность управляется через клавиатуру. Элементы с <code>onclick</code> без обработчика клавиатуры и элементы с <code>tabindex="-1"</code> лишают пользователей клавиатуры доступа к функциональности.</p>
+<p><strong>Что проверяется.</strong> Все интерактивные элементы доступны через Tab. Нет <code>tabindex="-1"</code> на нативно интерактивных элементах. Обработчики <code>onclick</code> имеют аналог для клавиатуры.</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>Ловушки фокуса <span class="ref-tag">ГОСТ Р 52872</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Ситуация, когда фокус клавиатуры «застревает» внутри элемента и пользователь не может покинуть его клавишей Tab. Типичные случаи: модальные окна без кнопки закрытия, виджеты с JavaScript-перехватом событий.</p>
+<p><strong>Требование.</strong> ГОСТ Р 52872-2019 требует: если фокус может быть перемещён к компоненту, он может быть убран от него тоже с клавиатуры. Модальные диалоги должны иметь кнопку закрытия (Escape или явная кнопка).</p>
+<p><strong>Что проверяется.</strong> Модальные диалоги имеют механизм закрытия. Нет множественных <code>autofocus</code>. Нет конструкций, ограничивающих Tab-навигацию.</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>Порядок фокуса <span class="ref-tag">ГОСТ Р 52872</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Последовательность, в которой элементы получают фокус при Tab. Должна соответствовать визуальному и логическому порядку чтения.</p>
+<p><strong>Требование.</strong> ГОСТ Р 52872-2019 требует: фокусируемые компоненты получают фокус в порядке, сохраняющем смысл и работоспособность. Значения <code>tabindex &gt; 0</code> нарушают естественный порядок DOM.</p>
+<p><strong>Что проверяется.</strong> Отсутствие <code>tabindex &gt; 0</code>. Соответствие DOM-порядка визуальному — элементы, расположенные ниже, не должны получать фокус раньше.</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>Ошибки форм <span class="ref-tag">ГОСТ Р 52872</span> <span class="ref-tag">П953 п.9, п.12</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Механизмы информирования пользователя об ошибках ввода: подсветка поля, текстовое сообщение, ARIA-атрибуты (<code>aria-invalid</code>, <code>aria-describedby</code>, <code>role="alert"</code>).</p>
+<p><strong>Требование.</strong> Приказ Минцифры № 953 п. 9: «обратная связь — в текстовом виде». П. 12: «поля электронных форм имеют текстовые описания». ГОСТ Р 52872-2019 требует: ошибочный элемент определяется и ошибка описывается в текстовой форме. Без текстовой обратной связи незрячий пользователь не узнает об ошибке.</p>
+<p><strong>Что проверяется.</strong> Формы с обязательными полями имеют механизмы отображения ошибок. Если обязательных полей нет — проверка не применима.</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>Текст в изображениях <span class="ref-tag">ГОСТ Р 52872</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Изображения, содержащие читаемый текст (заголовки-картинки, баннеры с текстом, инфографика). Текст внутри изображения нельзя увеличить, нельзя изменить шрифт или контрастность, нельзя озвучить screen reader.</p>
+<p><strong>Требование.</strong> ГОСТ Р 52872-2019 требует: для передачи информации используется текст, а не изображения текста. Исключения: логотипы, декоративные элементы.</p>
+<p><strong>Что проверяется.</strong> Видимые изображения размером более 80px анализируются LLM vision: содержит ли изображение читаемый текст (не логотип). Если содержит — нарушение.</p>
+</div>
+</details>
+
+<details class="ref-term">
+<summary>Цвет как единственный канал <span class="ref-tag">ГОСТ Р 52872</span> <span class="ref-tag">П953 п.8</span></summary>
+<div class="ref-body">
+<p><strong>Что это.</strong> Ситуация, когда информация передаётся только через цвет: ссылки без подчёркивания, обязательные поля с только красной звёздочкой, активные пункты меню только с цветом фона.</p>
+<p><strong>Требование.</strong> Приказ Минцифры № 953 п. 8: «информация и управляющие элементы не зависят только от сенсорных характеристик компонентов (форма, размер, расположение, цвет, звук)». ГОСТ Р 52872-2019 требует: цвет не является единственным визуальным средством передачи информации. Пользователи с дальтонизмом (до 8% мужчин) не различают ссылки, выделенные только цветом.</p>
+<p><strong>Что проверяется.</strong> Ссылки в тексте без подчёркивания, обязательные поля с цветной отметкой без текстового пояснения, меню с только цветовым выделением. При подозрениях — LLM-агент анализирует контекст.</p>
+</div>
+</details>
+
+</section>
+
 </div>
 </main>
 
-<footer role="contentinfo">
-<div class="container">
-<p>ГОСТ Р 52872-2019 | ГОСТ Р ИСО 40500-2014 (WCAG 2.0) | Приказ Минцифры №953</p>
-<p>Инструмент: <strong>gost-a11y-automation</strong> — автоматическая проверка доступности госсайтов</p>
-<p>Этот документ сам является образцом доступности: skip-link, landmarks, семантическая разметка, контраст >= 4.5:1</p>
-</div>
-</footer>
+<script>
+(function() {{
+  var BASE = 100;
+  var STEP = 12.5;
+  var MIN = 75;
+  var MAX = 200;
+  var key = 'gost-a11y-font-pct';
+  var pct = parseFloat(localStorage.getItem(key)) || BASE;
+  if (pct !== BASE) document.documentElement.style.fontSize = pct + '%';
 
+  window.changeFontSize = function(dir) {{
+    pct = Math.min(MAX, Math.max(MIN, pct + dir * STEP));
+    document.documentElement.style.fontSize = pct + '%';
+    localStorage.setItem(key, pct);
+  }};
+  window.resetFontSize = function() {{
+    pct = BASE;
+    document.documentElement.style.fontSize = '';
+    localStorage.removeItem(key);
+  }};
+}})();
+</script>
 </body>
 </html>'''
     # END_BLOCK_HTML_TEMPLATE

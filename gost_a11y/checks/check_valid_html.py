@@ -6,6 +6,8 @@
 #           уникальные id, корректная вложенность.]
 # SCOPE: [Проверка, ГОСТ, HTML, валидация, axe-core]
 # KEYWORDS_MODULE: [check, html, valid, parsing, axe, wcag_4_1_1]
+# DEPENDS: [M-BASE-CHECK, M-AXE, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:

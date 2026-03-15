@@ -1,11 +1,13 @@
 # FILE: gost_a11y/checks/check_focus_visible.py
-# VERSION: 0.1.0
+# VERSION: 0.2.0
 # MODULE_CONTRACT:
 # PURPOSE: [Проверка видимости фокуса через axe-core и CSS-анализ.
 #           ГОСТ Р 52872-2019 → WCAG 2.4.7 (AA): видимый индикатор фокуса.
 #           Приказ Минцифры № 953 п.1.]
 # SCOPE: [Проверка, ГОСТ, фокус, outline, П953]
 # KEYWORDS_MODULE: [check, focus, visible, outline, axe, wcag_2_4_7, p953]
+# DEPENDS: [M-BASE-CHECK, M-AXE, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:
@@ -13,8 +15,9 @@
 # END_MODULE_MAP
 
 # START_CHANGE_SUMMARY
-# LAST_CHANGE: [Первоначальная реализация.]
+# LAST_CHANGE: [DOM-фильтрация: CSS-правила без элементов в DOM не считаются опасными.]
 # CHANGE_SUMMARY: [v0.1.0 — создание проверки.]
+# v0.2.0 — DOM-фильтрация для CSS suppressors.
 # END_CHANGE_SUMMARY
 
 from __future__ import annotations
@@ -48,10 +51,37 @@ JS_CHECK_FOCUS_SUPPRESSION = r"""
                     // Проверяем есть ли замена (box-shadow, border, etc.)
                     const hasReplacement = /box-shadow|border|background/.test(text);
 
+                    // START_DOM_CHECK: [Проверяем есть ли реальные элементы в DOM.]
+                    const rawSelector = rule.selectorText || '';
+                    // Убираем псевдоклассы для querySelectorAll
+                    const domSelector = rawSelector
+                        .replace(/:focus/g, '')
+                        .replace(/:hover/g, '')
+                        .replace(/:active/g, '')
+                        .replace(/:visited/g, '')
+                        .replace(/::?[a-z-]+(\([^)]*\))?/g, '')
+                        .replace(/,\s*$/g, '')
+                        .trim();
+
+                    let matchedCount = 0;
+                    if (domSelector) {
+                        try {
+                            // Каждый селектор в группе проверяем отдельно
+                            const parts = domSelector.split(',').map(s => s.trim()).filter(Boolean);
+                            for (const part of parts) {
+                                try {
+                                    matchedCount += document.querySelectorAll(part).length;
+                                } catch(e) {}
+                            }
+                        } catch(e) {}
+                    }
+                    // END_DOM_CHECK
+
                     suppressors.push({
-                        selector: (rule.selectorText || '').substring(0, 100),
+                        selector: rawSelector.substring(0, 100),
                         has_replacement: hasReplacement,
                         rule_text: text.substring(0, 200),
+                        matched_count: matchedCount,
                     });
                 }
             }
@@ -66,10 +96,13 @@ JS_CHECK_FOCUS_SUPPRESSION = r"""
         'a[href], button, input, select, textarea, [tabindex]'
     );
 
+    // Опасные = без замены И есть реальные элементы в DOM
+    const dangerous = suppressors.filter(s => !s.has_replacement && s.matched_count > 0);
+
     return {
         suppressors: suppressors,
         suppressor_count: suppressors.length,
-        dangerous_suppressors: suppressors.filter(s => !s.has_replacement).length,
+        dangerous_suppressors: dangerous.length,
         interactive_count: interactive.length,
     };
 }

@@ -9,6 +9,8 @@
 #           сохраняет JSON-отчёт и лог для grep-анализа.]
 # SCOPE: [CLI, runner, оркестрация, отчёт, спецверсия]
 # KEYWORDS_MODULE: [runner, cli, main, report, orchestrator, special_version]
+# DEPENDS: [M-BROWSER, M-REGISTRY, M-MODELS, M-LOGGER]
+# LINKS: [M-RUNNER]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:

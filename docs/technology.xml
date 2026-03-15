@@ -1,0 +1,31 @@
+<TechnologyStack VERSION="0.1.0">
+  <!-- Runtime and language -->
+  <Runtime>Python 3.12</Runtime>
+  <Language>Python 3.12</Language>
+
+  <!-- Framework (if applicable) -->
+  <Framework>none (CLI tool)</Framework>
+
+  <!-- Key libraries and dependencies -->
+  <Dependencies>
+    <dep name="playwright" version=">=1.40.0" purpose="Браузерная автоматизация, сбор данных со страниц, скриншоты" />
+    <dep name="openai" version="latest" purpose="Клиент для OpenRouter API (совместимый интерфейс)" />
+    <dep name="axe-core-python" version="latest" purpose="Содержит axe.min.js, инжектируется через Playwright" />
+    <dep name="pytest" version=">=8.0.0" purpose="Тестирование" />
+    <dep name="pytest-asyncio" version=">=0.23.0" purpose="Async-тесты для Playwright-зависимого кода" />
+  </Dependencies>
+
+  <!-- Version constraints -->
+  <VersionConstraints>
+    <constraint lib="playwright" min="1.40.0" reason="Async API, element.screenshot(), evaluate() с аргументами" />
+    <constraint lib="python" min="3.12" reason="Используются dataclasses, typing, asyncio, match-case" />
+  </VersionConstraints>
+
+  <!-- Build and tooling -->
+  <Tooling>
+    <tool name="browser" value="google-chrome (system) or playwright chromium" />
+    <tool name="llm-provider" value="OpenRouter API" />
+    <tool name="llm-model" value="qwen/qwen3.5-35b-a3b (vision-language, thinking)" />
+    <tool name="env" value=".env file with OPENROUTER_API_KEY" />
+  </Tooling>
+</TechnologyStack>

@@ -1,5 +1,5 @@
 # FILE: gost_a11y/checks/check_special_version.py
-# VERSION: 0.1.0
+# VERSION: 0.2.0
 # MODULE_CONTRACT:
 # PURPOSE: [Проверка функциональности версии для слабовидящих.
 #           Зависит от check_accessibility_link (должна найти кнопку/ссылку).
@@ -10,6 +10,8 @@
 #           ГОСТ Р 52872-2019, Приказ Минцифры № 953 п.2, п.7.]
 # SCOPE: [Проверка, ГОСТ, спецверсия, панель настроек, шрифт, цвет]
 # KEYWORDS_MODULE: [check, special_version, font, color, settings, panel]
+# DEPENDS: [M-BASE-CHECK, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:
@@ -19,8 +21,8 @@
 # END_MODULE_MAP
 
 # START_CHANGE_SUMMARY
-# LAST_CHANGE: [Первоначальная реализация.]
-# CHANGE_SUMMARY: [v0.1.0 — создание проверки.]
+# LAST_CHANGE: [Обнаружение toggle-режима цветовой схемы через классы body (bw, high-contrast и др.).]
+# CHANGE_SUMMARY: [v0.1.0 — создание проверки. v0.2.0 — детекция bw-toggle как цветовой схемы.]
 # END_CHANGE_SUMMARY
 
 from __future__ import annotations
@@ -148,6 +150,41 @@ JS_FIND_SETTINGS_PANEL = r"""
             });
         }
     }
+
+    // START_BW_TOGGLE_DETECT: [Обнаружение toggle-режима цветовой схемы через классы body/html.]
+    const bodyClasses = (document.body.className || '').toLowerCase();
+    const htmlClasses = (document.documentElement.className || '').toLowerCase();
+    const allClasses = bodyClasses + ' ' + htmlClasses;
+    const bwTogglePatterns = /\bbw\b|high.?contrast|dark.?mode|dark.?theme|light.?theme|inverted|accessible/;
+
+    if (bwTogglePatterns.test(allClasses)) {
+        // Подсчитываем CSS-правила для этого класса как доказательство
+        let bwRuleCount = 0;
+        const matchedClass = allClasses.match(bwTogglePatterns)?.[0] || '';
+        try {
+            for (const sheet of document.styleSheets) {
+                try {
+                    for (const rule of (sheet.cssRules || [])) {
+                        if ((rule.cssText || '').includes('.' + matchedClass)) bwRuleCount++;
+                    }
+                } catch(e) {}
+            }
+        } catch(e) {}
+
+        if (bwRuleCount >= 3) {
+            result.controls.push({
+                type: 'color_scheme',
+                tag: 'body',
+                text: 'Toggle: class=' + matchedClass + ' (' + bwRuleCount + ' CSS rules)',
+                class: matchedClass,
+                id: 'body-class-toggle',
+            });
+            result.bw_toggle_detected = true;
+            result.bw_toggle_class = matchedClass;
+            result.bw_toggle_css_rules = bwRuleCount;
+        }
+    }
+    // END_BW_TOGGLE_DETECT
 
     // Определяем найдена ли панель (нужен хотя бы font_size или color_scheme)
     const types = new Set(result.controls.map(c => c.type));

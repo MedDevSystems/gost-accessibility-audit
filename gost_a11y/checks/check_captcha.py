@@ -1,11 +1,13 @@
 # FILE: gost_a11y/checks/check_captcha.py
-# VERSION: 0.1.0
+# VERSION: 0.2.0
 # MODULE_CONTRACT:
 # PURPOSE: [Проверка доступности CAPTCHA.
 #           Приказ Минцифры № 953 п.5: CAPTCHA на русском языке,
 #           доступна для людей с нарушениями зрения (озвучка).]
 # SCOPE: [Проверка, П953, CAPTCHA, доступность, озвучка]
 # KEYWORDS_MODULE: [check, captcha, audio, accessibility, p953]
+# DEPENDS: [M-BASE-CHECK, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:
@@ -14,8 +16,11 @@
 # END_MODULE_MAP
 
 # START_CHANGE_SUMMARY
-# LAST_CHANGE: [Первоначальная реализация.]
-# CHANGE_SUMMARY: [v0.1.0 — создание проверки.]
+# LAST_CHANGE: [Расширенное обнаружение: GeeTest, Yandex SmartCaptcha, slider/puzzle.
+#               Custom image: проверка видимости + любой интерактивный элемент рядом.]
+# CHANGE_SUMMARY: [v0.1.0 — создание проверки.
+#                  v0.2.0 — фильтрация ложных срабатываний custom_image.
+#                  v0.3.0 — GeeTest, SmartCaptcha, slider/puzzle, расширенный интерактивный контекст.]
 # END_CHANGE_SUMMARY
 
 from __future__ import annotations
@@ -68,7 +73,57 @@ JS_DETECT_CAPTCHA = """
     }
     // END_HCAPTCHA
 
-    // START_CUSTOM_CAPTCHA: [Кастомные CAPTCHA (img с текстом "captcha", "каптча", "код").]
+    // START_GEETEST: [GeeTest slider/puzzle/click CAPTCHA.]
+    const geetest = document.querySelector(
+        '[class*="geetest_"], [id*="geetest"], [data-gt], ' +
+        '.geetest_radar_tip, .geetest_panel, .geetest_widget'
+    );
+    if (geetest) {
+        result.captcha_found = true;
+        result.captcha_types.push('geetest');
+        result.details.push({
+            type: 'geetest',
+            has_audio: false,
+            element: geetest.tagName.toLowerCase(),
+        });
+    }
+    // END_GEETEST
+
+    // START_YANDEX_SMARTCAPTCHA: [Яндекс SmartCaptcha.]
+    const smartcaptcha = document.querySelector(
+        '.smart-captcha, [class*="smart-captcha"], ' +
+        'iframe[src*="smartcaptcha"], iframe[src*="captcha-api.yandex"]'
+    );
+    if (smartcaptcha) {
+        result.captcha_found = true;
+        result.captcha_types.push('yandex_smartcaptcha');
+        result.details.push({
+            type: 'yandex_smartcaptcha',
+            has_audio: false,
+            element: smartcaptcha.tagName.toLowerCase(),
+        });
+    }
+    // END_YANDEX_SMARTCAPTCHA
+
+    // START_SLIDER_CAPTCHA: [Slider/puzzle CAPTCHA (не GeeTest).]
+    const sliderCaptcha = document.querySelector(
+        '[class*="slider"][class*="captcha"], [class*="puzzle"][class*="captcha"], ' +
+        '[class*="slide-verify"], [class*="captcha-slider"], ' +
+        '[id*="slider"][id*="captcha"], [id*="puzzle"][id*="captcha"]'
+    );
+    if (sliderCaptcha) {
+        result.captcha_found = true;
+        result.captcha_types.push('slider_puzzle');
+        result.details.push({
+            type: 'slider_puzzle',
+            has_audio: false,
+            element: sliderCaptcha.tagName.toLowerCase(),
+        });
+    }
+    // END_SLIDER_CAPTCHA
+
+    // START_CUSTOM_CAPTCHA: [Кастомные CAPTCHA (img с "captcha"/"каптча" в атрибутах).
+    // Требует: видимость + рядом интерактивный элемент (input, button, slider, iframe).]
     const allImages = document.querySelectorAll('img');
     for (const img of allImages) {
         const src = (img.src || '').toLowerCase();
@@ -77,11 +132,29 @@ JS_DETECT_CAPTCHA = """
         const cls = (img.className || '').toLowerCase();
 
         if (/captcha|каптча|капча/.test(src + alt + id + cls)) {
+            // Проверяем видимость
+            const rect = img.getBoundingClientRect();
+            if (rect.width <= 0 || rect.height <= 0) continue;
+
+            // Проверяем что рядом есть интерактивный элемент
+            // (input, button, slider, checkbox, iframe — любой механизм ответа на CAPTCHA)
+            const parent = img.closest('form, div, fieldset, section') || img.parentElement;
+            let hasInteractive = false;
+            if (parent) {
+                const interactive = parent.querySelector(
+                    'input, button, [type="range"], [role="slider"], ' +
+                    'iframe, [class*="slider"], [draggable="true"], ' +
+                    'input[type="checkbox"], select'
+                );
+                hasInteractive = interactive !== null;
+            }
+
+            if (!hasInteractive) continue;  // Нет интерактивного элемента — вероятно не CAPTCHA
+
             result.captcha_found = true;
             result.captcha_types.push('custom_image');
 
             // Ищем аудио-альтернативу рядом
-            const parent = img.closest('form, div, fieldset') || img.parentElement;
             let hasAudio = false;
             if (parent) {
                 const audioEl = parent.querySelector(

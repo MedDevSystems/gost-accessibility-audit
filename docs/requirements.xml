@@ -1,0 +1,47 @@
+<RequirementsAnalysis VERSION="0.1.0">
+  <UseCases>
+
+    <UC-001>
+      <Actor>Оператор (разработчик/аудитор)</Actor>
+      <Action>Запускает проверку одного сайта через CLI</Action>
+      <Goal>Получить отчёт PASS/FAIL по 22 пунктам ГОСТов доступности</Goal>
+      <AcceptanceCriteria>JSON-отчёт с вердиктами по каждой проверке, таблица в консоли, grep-friendly лог</AcceptanceCriteria>
+    </UC-001>
+
+    <UC-002>
+      <Actor>Оператор</Actor>
+      <Action>Запускает batch-прогон по всем целевым госсайтам</Action>
+      <Goal>Получить сравнительный отчёт по всем сайтам</Goal>
+      <AcceptanceCriteria>Изолированные JSON + лог на каждый сайт, сводная таблица summary.json</AcceptanceCriteria>
+    </UC-002>
+
+    <UC-003>
+      <Actor>Система (скриптовый движок)</Actor>
+      <Action>Выполняет 4-шаговый пайплайн для каждой проверки: collect → classify → judge → fallback</Action>
+      <Goal>Детерминированный вердикт PASS/FAIL без LLM в 90% случаев</Goal>
+      <AcceptanceCriteria>LLM вызывается только при UNCERTAIN, вердикт скрипта приоритетен</AcceptanceCriteria>
+    </UC-003>
+
+    <UC-004>
+      <Actor>Система (LLM-агент)</Actor>
+      <Action>Анализирует неопределённые случаи: арбитраж, vision-анализ, контекстный анализ</Action>
+      <Goal>Разрешить UNCERTAIN в PASS или FAIL с обоснованием</Goal>
+      <AcceptanceCriteria>JSON-ответ с verdict, reasoning, confidence; UNCERTAIN недопустим от LLM</AcceptanceCriteria>
+    </UC-004>
+
+    <UC-005>
+      <Actor>Система (runner)</Actor>
+      <Action>Выполняет двойной прогон: основная страница + спецверсия для слабовидящих</Action>
+      <Goal>Сравнить доступность основной и спецверсии сайта</Goal>
+      <AcceptanceCriteria>Два набора результатов в отчёте, таблица сравнения с подсчётом улучшений/ухудшений</AcceptanceCriteria>
+    </UC-005>
+
+    <UC-006>
+      <Actor>Оператор</Actor>
+      <Action>Анализирует логи через grep</Action>
+      <Goal>Найти все провалы, неопределённости, вызовы LLM по конкретному ГОСТу/WCAG</Goal>
+      <AcceptanceCriteria>Лог-формат [CATEGORY][GOST_REF][WCAG_REF][STEP][Status] позволяет фильтрацию</AcceptanceCriteria>
+    </UC-006>
+
+  </UseCases>
+</RequirementsAnalysis>

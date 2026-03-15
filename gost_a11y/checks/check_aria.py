@@ -5,6 +5,8 @@
 #           ГОСТ Р 52872-2019 → WCAG 4.1.2 (A): имя, роль, значение.]
 # SCOPE: [Проверка, ГОСТ, ARIA, роли, axe-core]
 # KEYWORDS_MODULE: [check, aria, roles, axe, wcag_4_1_2]
+# DEPENDS: [M-BASE-CHECK, M-AXE, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:

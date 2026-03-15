@@ -1,0 +1,143 @@
+<KnowledgeGraph>
+  <Project NAME="gost-a11y-automation" VERSION="0.1.0">
+    <keywords>accessibility, a11y, GOST, WCAG, government-sites, Playwright, axe-core, LLM, automated-testing, web-accessibility</keywords>
+    <annotation>Автоматизированное тестирование веб-сайтов на соответствие российским ГОСТам по доступности (ГОСТ Р 52872-2019, WCAG 2.1 A/AA, Приказ Минцифры №953). Script-First архитектура с LLM как fallback.</annotation>
+
+    <!-- ===== Core Modules ===== -->
+
+    <M-MODELS NAME="Models" TYPE="UTILITY">
+      <purpose>Модели данных: Verdict, CheckResult, CandidateInfo, FallbackContext, LLMVerdict</purpose>
+      <path>gost_a11y/models.py</path>
+      <depends>none</depends>
+      <annotations>
+        <class-Verdict PURPOSE="Enum вердиктов: PASS/FAIL/UNCERTAIN" />
+        <class-CheckResult PURPOSE="Результат одной проверки" />
+        <class-CandidateInfo PURPOSE="Сырая информация о найденном элементе" />
+        <class-ClassifiedCandidate PURPOSE="Кандидат после классификации" />
+        <class-FallbackContext PURPOSE="Контекст для LLM fallback" />
+        <class-LLMVerdict PURPOSE="Вердикт от LLM-агента" />
+      </annotations>
+    </M-MODELS>
+
+    <M-LOGGER NAME="Logger" TYPE="UTILITY">
+      <purpose>Структурированный ГОСТ-aware логгер, grep-friendly формат</purpose>
+      <path>gost_a11y/logger.py</path>
+      <depends>none</depends>
+      <annotations>
+        <fn-setup_logger PURPOSE="Настройка логгера с консолью и файлом" />
+        <fn-log_check PURPOSE="Лог шага проверки" />
+        <fn-log_fallback_context PURPOSE="Лог контекста для LLM" />
+        <fn-log_llm_verdict PURPOSE="Лог вердикта LLM" />
+        <fn-log_result PURPOSE="Лог итогового результата" />
+      </annotations>
+    </M-LOGGER>
+
+    <M-BROWSER NAME="Browser" TYPE="INTEGRATION">
+      <purpose>Playwright lifecycle — контекстный менеджер для открытия страницы</purpose>
+      <path>gost_a11y/browser.py</path>
+      <depends>none</depends>
+      <annotations>
+        <fn-open_page PURPOSE="Async context manager: браузер → страница → навигация" />
+      </annotations>
+    </M-BROWSER>
+
+    <M-AXE NAME="AxeHelper" TYPE="INTEGRATION">
+      <purpose>Инжекция axe-core через Playwright, запуск по правилам</purpose>
+      <path>gost_a11y/axe_helper.py</path>
+      <depends>M-BROWSER</depends>
+      <annotations>
+        <fn-inject_axe PURPOSE="Инжекция axe.min.js в страницу (кешируется)" />
+        <fn-run_axe PURPOSE="Запуск axe-core с фильтром по правилам" />
+      </annotations>
+    </M-AXE>
+
+    <M-LLM NAME="LLMFallback" TYPE="INTEGRATION">
+      <purpose>OpenRouter API интеграция (qwen/qwen3.5-35b-a3b) для LLM fallback</purpose>
+      <path>gost_a11y/llm_fallback.py</path>
+      <depends>M-MODELS</depends>
+      <annotations>
+        <fn-call_llm PURPOSE="Вызов OpenRouter API для вынесения вердикта" />
+        <fn-_build_user_message PURPOSE="Формирование сообщения с контекстом проверки" />
+        <fn-_parse_llm_response PURPOSE="Парсинг JSON-ответа LLM в LLMVerdict" />
+      </annotations>
+    </M-LLM>
+
+    <M-BASE-CHECK NAME="BaseCheck" TYPE="CORE_LOGIC">
+      <purpose>Абстрактный базовый класс GostCheck — 4-шаговый пайплайн проверки</purpose>
+      <path>gost_a11y/base_check.py</path>
+      <depends>M-MODELS, M-LOGGER, M-LLM</depends>
+      <annotations>
+        <class-GostCheck PURPOSE="ABC: collect → classify → judge → fallback" />
+        <fn-run PURPOSE="Оркестрация полного цикла проверки" />
+        <fn-build_fallback_context PURPOSE="Формирование контекста для LLM" />
+        <fn-invoke_llm PURPOSE="Вызов LLM-агента при UNCERTAIN" />
+      </annotations>
+    </M-BASE-CHECK>
+
+    <M-REGISTRY NAME="Registry" TYPE="CORE_LOGIC">
+      <purpose>Реестр всех 22 проверок — упорядоченный список инстансов GostCheck</purpose>
+      <path>gost_a11y/registry.py</path>
+      <depends>M-BASE-CHECK, M-CHECKS</depends>
+      <annotations>
+        <fn-get_all_checks PURPOSE="Возвращает все зарегистрированные проверки" />
+        <fn-get_checks_by_gost PURPOSE="Фильтр проверок по ГОСТ ID" />
+      </annotations>
+    </M-REGISTRY>
+
+    <M-CHECKS NAME="Checks" TYPE="CORE_LOGIC">
+      <purpose>22 проверки доступности в 5 фазах (скрипт, axe-core, спецверсия, гибридные, AI)</purpose>
+      <path>gost_a11y/checks/</path>
+      <depends>M-BASE-CHECK, M-AXE, M-LLM, M-MODELS</depends>
+    </M-CHECKS>
+
+    <M-RUNNER NAME="Runner" TYPE="ENTRY_POINT">
+      <purpose>CLI точка входа: двойной прогон (основная + спецверсия), JSON-отчёт</purpose>
+      <path>gost_a11y/runner.py</path>
+      <depends>M-BROWSER, M-REGISTRY, M-MODELS, M-LOGGER</depends>
+      <annotations>
+        <fn-run_checks PURPOSE="Запуск всех проверок на основной странице" />
+        <fn-run_checks_special PURPOSE="Запуск проверок на спецверсии" />
+        <fn-run_full PURPOSE="Полный прогон: основная + спецверсия" />
+        <fn-print_summary PURPOSE="Вывод таблицы результатов" />
+        <fn-save_report PURPOSE="Сохранение JSON-отчёта" />
+        <fn-main PURPOSE="CLI точка входа" />
+      </annotations>
+    </M-RUNNER>
+
+    <M-TARGETS NAME="Targets" TYPE="DATA_LAYER">
+      <purpose>Реестр целевых госсайтов (20 + эталон ВОС)</purpose>
+      <path>gost_a11y/targets.py</path>
+      <depends>none</depends>
+      <annotations>
+        <fn-get_all_targets PURPOSE="Список всех целевых сайтов" />
+        <class-TargetSite PURPOSE="Модель целевого сайта" />
+      </annotations>
+    </M-TARGETS>
+
+    <M-BATCH NAME="BatchRunner" TYPE="ENTRY_POINT">
+      <purpose>Batch-прогон по всем целевым сайтам с изолированными отчётами</purpose>
+      <path>run_all_targets.py</path>
+      <depends>M-BROWSER, M-REGISTRY, M-TARGETS, M-MODELS</depends>
+      <annotations>
+        <fn-run_all PURPOSE="Прогон всех проверок по всем сайтам" />
+        <fn-check_site PURPOSE="Проверка одного сайта с изолированным логированием" />
+      </annotations>
+    </M-BATCH>
+
+    <!-- ===== CrossLinks ===== -->
+
+    <CrossLink from="M-BASE-CHECK" to="M-MODELS" relation="uses Verdict, CheckResult, FallbackContext, LLMVerdict" />
+    <CrossLink from="M-BASE-CHECK" to="M-LOGGER" relation="structured logging at each pipeline step" />
+    <CrossLink from="M-BASE-CHECK" to="M-LLM" relation="invokes LLM on UNCERTAIN via invoke_llm()" />
+    <CrossLink from="M-CHECKS" to="M-BASE-CHECK" relation="all 22 checks inherit GostCheck" />
+    <CrossLink from="M-CHECKS" to="M-AXE" relation="Phase 2 checks use axe-core injection" />
+    <CrossLink from="M-CHECKS" to="M-LLM" relation="Phase 4-5 checks use LLM fallback/vision" />
+    <CrossLink from="M-REGISTRY" to="M-CHECKS" relation="imports and instantiates all checks" />
+    <CrossLink from="M-RUNNER" to="M-REGISTRY" relation="gets ordered check list" />
+    <CrossLink from="M-RUNNER" to="M-BROWSER" relation="opens pages via open_page()" />
+    <CrossLink from="M-BATCH" to="M-RUNNER" relation="reuses check execution logic" />
+    <CrossLink from="M-BATCH" to="M-TARGETS" relation="iterates over target sites" />
+    <CrossLink from="M-LLM" to="M-MODELS" relation="returns LLMVerdict, receives FallbackContext" />
+
+  </Project>
+</KnowledgeGraph>

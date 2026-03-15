@@ -1,5 +1,5 @@
 # FILE: gost_a11y/checks/check_form_labels.py
-# VERSION: 0.1.0
+# VERSION: 0.2.0
 # MODULE_CONTRACT:
 # PURPOSE: [Проверка наличия меток (label) у полей форм.
 #           ГОСТ Р 52872-2019 → WCAG 3.3.2 (A): метки или инструкции
@@ -7,6 +7,8 @@
 #           Приказ Минцифры № 953 п.12.]
 # SCOPE: [Проверка, ГОСТ, формы, label, input, П953]
 # KEYWORDS_MODULE: [check, form, label, input, wcag_3_3_2, p953]
+# DEPENDS: [M-BASE-CHECK, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:
@@ -15,8 +17,9 @@
 # END_MODULE_MAP
 
 # START_CHANGE_SUMMARY
-# LAST_CHANGE: [Первоначальная реализация.]
-# CHANGE_SUMMARY: [v0.1.0 — создание проверки.]
+# LAST_CHANGE: [Учёт role="search" на форме и search-паттернов имени поля.]
+# CHANGE_SUMMARY: [v0.1.0 — создание проверки.
+#   v0.2.0 — role=search, search-input detection, alt attr в отчёте.]
 # END_CHANGE_SUMMARY
 
 from __future__ import annotations
@@ -46,6 +49,7 @@ JS_COLLECT_FORM_FIELDS = """
         const ariaLabelledBy = field.getAttribute('aria-labelledby') || '';
         const titleAttr = field.getAttribute('title') || '';
         const placeholder = field.getAttribute('placeholder') || '';
+        const altAttr = field.getAttribute('alt') || '';
 
         // START_FIND_LABEL: [Ищем связанную <label>.]
         let hasLabel = false;
@@ -70,8 +74,17 @@ JS_COLLECT_FORM_FIELDS = """
         }
         // END_FIND_LABEL
 
+        // START_FORM_ROLE: [Проверяем role="search" на форме-родителе.]
+        const parentForm = field.closest('form, [role="search"]');
+        const formRole = parentForm ? (parentForm.getAttribute('role') || '') : '';
+        const formAriaLabel = parentForm ? (parentForm.getAttribute('aria-label') || '') : '';
+        const isSearchInput = formRole === 'search' ||
+                              (field.type === 'search') ||
+                              (field.type === 'text' && field.name && /search|query|find|поиск/i.test(field.name));
+        // END_FORM_ROLE
+
         // START_ACCESSIBILITY_NAME: [Определяем accessible name.]
-        const hasAccessibleName = hasLabel || !!ariaLabel || !!ariaLabelledBy || !!titleAttr;
+        const hasAccessibleName = hasLabel || !!ariaLabel || !!ariaLabelledBy || !!titleAttr || (isSearchInput && (!!formAriaLabel || formRole === 'search'));
         // END_ACCESSIBILITY_NAME
 
         // START_VISIBILITY: [Видимость поля.]
@@ -101,6 +114,10 @@ JS_COLLECT_FORM_FIELDS = """
             placeholder: placeholder,
             has_accessible_name: hasAccessibleName,
             is_visible: isVisible,
+            form_role: formRole,
+            form_aria_label: formAriaLabel,
+            is_search_input: isSearchInput,
+            alt_attr: altAttr,
         });
     }
 
@@ -250,6 +267,8 @@ class CheckFormLabels(GostCheck):
                         "tag": f["tag"], "type": f["type"],
                         "name": f["name"], "id": f["id"],
                         "placeholder": f["placeholder"][:60],
+                        "alt_attr": f.get("alt_attr", ""),
+                        "form_role": f.get("form_role", ""),
                     }
                     for f in missing[:10]
                 ],

@@ -11,6 +11,8 @@
 #           При наличии подозрений — передаёт контекст в LLM.]
 # SCOPE: [Проверка, ГОСТ, цвет, информация, ссылки, формы, П953]
 # KEYWORDS_MODULE: [check, color, only, links, underline, required, wcag_1_4_1, p953]
+# DEPENDS: [M-BASE-CHECK, M-LLM, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:

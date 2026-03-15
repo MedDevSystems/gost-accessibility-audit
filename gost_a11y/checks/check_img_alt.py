@@ -1,5 +1,5 @@
 # FILE: gost_a11y/checks/check_img_alt.py
-# VERSION: 0.1.0
+# VERSION: 0.2.0
 # MODULE_CONTRACT:
 # PURPOSE: [Проверка наличия alt-текстов на изображениях.
 #           ГОСТ Р 52872-2019 → WCAG 1.1.1 (A): весь нетекстовый
@@ -7,6 +7,8 @@
 #           Приказ Минцифры № 953 п.4.]
 # SCOPE: [Проверка, ГОСТ, alt, изображения, П953]
 # KEYWORDS_MODULE: [check, img, alt, wcag_1_1_1, p953]
+# DEPENDS: [M-BASE-CHECK, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:
@@ -15,8 +17,9 @@
 # END_MODULE_MAP
 
 # START_CHANGE_SUMMARY
-# LAST_CHANGE: [Первоначальная реализация.]
-# CHANGE_SUMMARY: [v0.1.0 — создание проверки.]
+# LAST_CHANGE: [Контекст родителя: img без alt внутри button/a с текстом — minor, не critical.]
+# CHANGE_SUMMARY: [v0.1.0 — создание проверки.
+#   v0.2.0 — контекст родительского интерактивного элемента.]
 # END_CHANGE_SUMMARY
 
 from __future__ import annotations
@@ -64,6 +67,22 @@ JS_COLLECT_IMAGES = """
         const isDecorativeByAlt = hasEmptyAlt;
         // END_DECORATIVE
 
+        // START_PARENT_CONTEXT: [Проверяем родительский интерактивный элемент.]
+        const parentInteractive = img.closest('button, a, [role="button"], [role="link"]');
+        let parentHasText = false;
+        let parentTag = '';
+        let parentText = '';
+        if (parentInteractive) {
+            parentTag = parentInteractive.tagName.toLowerCase();
+            // Текст кнопки/ссылки без текста вложенного img alt
+            const clone = parentInteractive.cloneNode(true);
+            clone.querySelectorAll('img').forEach(i => i.remove());
+            parentText = (clone.textContent || '').trim();
+            parentHasText = parentText.length > 0 ||
+                           !!(parentInteractive.getAttribute('aria-label'));
+        }
+        // END_PARENT_CONTEXT
+
         results.push({
             src: src.substring(0, 200),
             alt: alt,
@@ -76,6 +95,9 @@ JS_COLLECT_IMAGES = """
             is_visible: isVisible,
             width: Math.round(rect.width),
             height: Math.round(rect.height),
+            parent_interactive: parentTag,
+            parent_has_text: parentHasText,
+            parent_text: parentText.substring(0, 60),
         });
     }
 
@@ -144,7 +166,10 @@ class CheckImgAlt(GostCheck):
             elif img["is_decorative"]:
                 issue = "decorative_ok"
             elif not img["has_alt_attr"]:
-                issue = "missing_alt"
+                if img.get("parent_has_text"):
+                    issue = "missing_alt_minor"
+                else:
+                    issue = "missing_alt"
             elif img["alt_text"].strip() == "" and not img["is_decorative"]:
                 # alt="" без role=presentation на видимом img — неоднозначно
                 issue = "empty_alt_no_role"
@@ -176,9 +201,11 @@ class CheckImgAlt(GostCheck):
         # START_COUNT_ISSUES: [Подсчёт проблем по категориям.]
         visible = [i for i in classified if i["is_visible"]]
         missing_alt = [i for i in classified if i["issue"] == "missing_alt"]
+        missing_alt_minor = [i for i in classified if i["issue"] == "missing_alt_minor"]
         total = len(classified)
         visible_count = len(visible)
         missing_count = len(missing_alt)
+        minor_count = len(missing_alt_minor)
         # END_COUNT_ISSUES
 
         # START_LOG_ISSUES: [Логируем каждую проблему.]
@@ -188,6 +215,14 @@ class CheckImgAlt(GostCheck):
                 f"<img> без alt: src='{img['src'][:80]}' "
                 f"size={img['width']}x{img['height']}",
                 "FAIL"
+            )
+        for img in missing_alt_minor:
+            log_check(
+                self.gost_ref, self.wcag_ref, "JUDGE", "Warning",
+                f"<img> без alt внутри <{img.get('parent_interactive', '?')}> "
+                f"с текстом '{img.get('parent_text', '')[:40]}': src='{img['src'][:60]}' "
+                f"(рекомендуется alt=\"\")",
+                "INFO"
             )
         # END_LOG_ISSUES
 
@@ -200,7 +235,7 @@ class CheckImgAlt(GostCheck):
                 **base_kwargs,
             )
 
-        if missing_count == 0:
+        if missing_count == 0 and minor_count == 0:
             return CheckResult(
                 verdict=Verdict.PASS,
                 reason=(
@@ -215,19 +250,43 @@ class CheckImgAlt(GostCheck):
                 **base_kwargs,
             )
 
+        if missing_count == 0 and minor_count > 0:
+            return CheckResult(
+                verdict=Verdict.PASS,
+                reason=(
+                    f"Все img имеют alt или внутри элементов с текстом "
+                    f"({minor_count} рекомендуется добавить alt=\"\", "
+                    f"{visible_count} видимых, {total} всего)"
+                ),
+                details={
+                    "total": total,
+                    "visible": visible_count,
+                    "missing_alt": 0,
+                    "missing_alt_minor": minor_count,
+                },
+                **base_kwargs,
+            )
+
+        minor_note = f", {minor_count} minor (внутри элементов с текстом)" if minor_count else ""
         return CheckResult(
             verdict=Verdict.FAIL,
             reason=(
-                f"{missing_count} изображений без alt-текста "
+                f"{missing_count} изображений без alt-текста{minor_note} "
                 f"(из {visible_count} видимых, {total} всего)"
             ),
             details={
                 "total": total,
                 "visible": visible_count,
                 "missing_alt": missing_count,
+                "missing_alt_minor": minor_count,
                 "missing_images": [
-                    {"src": i["src"][:100], "width": i["width"], "height": i["height"]}
-                    for i in missing_alt[:10]  # Первые 10 для отчёта
+                    {"src": i["src"][:100], "width": i["width"], "height": i["height"], "severity": "critical"}
+                    for i in missing_alt[:10]
+                ] + [
+                    {"src": i["src"][:100], "width": i["width"], "height": i["height"],
+                     "severity": "minor", "parent": i.get("parent_interactive", ""),
+                     "parent_text": i.get("parent_text", "")}
+                    for i in missing_alt_minor[:10]
                 ],
             },
             **base_kwargs,

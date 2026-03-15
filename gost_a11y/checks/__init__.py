@@ -4,6 +4,8 @@
 # PURPOSE: [Реэкспорт всех проверок из пакета checks.]
 # SCOPE: [Пакет, реэкспорт]
 # KEYWORDS_MODULE: [checks, init, export]
+# DEPENDS: [M-BASE-CHECK, M-AXE, M-LLM, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 from gost_a11y.checks.check_accessibility_link import CheckAccessibilityLink

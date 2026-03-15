@@ -5,6 +5,8 @@
 #           Контекстный менеджер для открытия страницы.]
 # SCOPE: [Браузер, Playwright, lifecycle]
 # KEYWORDS_MODULE: [browser, playwright, page, context_manager]
+# DEPENDS: [playwright]
+# LINKS: [M-BROWSER]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:

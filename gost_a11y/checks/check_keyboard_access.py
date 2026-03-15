@@ -7,6 +7,8 @@
 #           Проверяем: tabindex, focusable элементы, onclick без keyboard.]
 # SCOPE: [Проверка, ГОСТ, клавиатура, tabindex, focusable, П953]
 # KEYWORDS_MODULE: [check, keyboard, tabindex, focusable, wcag_2_1_1, p953]
+# DEPENDS: [M-BASE-CHECK, M-LLM, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:

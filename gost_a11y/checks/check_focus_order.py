@@ -7,6 +7,8 @@
 #           Проверяем: tabindex > 0, порядок DOM vs visual.]
 # SCOPE: [Проверка, ГОСТ, фокус, порядок, tabindex]
 # KEYWORDS_MODULE: [check, focus, order, tabindex, wcag_2_4_3]
+# DEPENDS: [M-BASE-CHECK, M-LLM, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:

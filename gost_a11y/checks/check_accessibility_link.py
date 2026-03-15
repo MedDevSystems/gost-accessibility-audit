@@ -8,6 +8,8 @@
 #           Внешняя валидация через Яндекс при отсутствии ссылки.]
 # SCOPE: [Проверка, ГОСТ, доступная версия, ссылка, слабовидящие, Яндекс]
 # KEYWORDS_MODULE: [check, accessibility, link, visually_impaired, gost_52872, yandex]
+# DEPENDS: [M-BASE-CHECK, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:

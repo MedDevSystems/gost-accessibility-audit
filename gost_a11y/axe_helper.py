@@ -5,6 +5,8 @@
 #           и запуска проверок. Кеширует JS-код axe.min.js.]
 # SCOPE: [axe-core, инжекция, Playwright, доступность]
 # KEYWORDS_MODULE: [axe, inject, playwright, a11y, helper]
+# DEPENDS: [axe-core-python, playwright]
+# LINKS: [M-AXE]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:

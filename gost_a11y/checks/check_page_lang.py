@@ -6,6 +6,8 @@
 #           должен быть программно определён.]
 # SCOPE: [Проверка, ГОСТ, язык, lang, html]
 # KEYWORDS_MODULE: [check, lang, language, html, wcag_3_1_1]
+# DEPENDS: [M-BASE-CHECK, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:

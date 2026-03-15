@@ -4,6 +4,8 @@
 # PURPOSE: [Инициализация пакета gost_a11y. Экспорт версии.]
 # SCOPE: [Пакет, инициализация]
 # KEYWORDS_MODULE: [init, package, version]
+# DEPENDS: [none]
+# LINKS: [none]
 # END_MODULE_CONTRACT
 
 __version__ = "0.1.0"

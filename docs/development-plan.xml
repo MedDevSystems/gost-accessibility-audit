@@ -1,0 +1,229 @@
+<DevelopmentPlan VERSION="0.1.0">
+  <Modules>
+
+    <M-MODELS NAME="Models" TYPE="UTILITY" LAYER="0" ORDER="1">
+      <contract>
+        <purpose>Модели данных для всей системы проверок</purpose>
+        <inputs>
+          <param name="none" type="standalone module" />
+        </inputs>
+        <outputs>
+          <param name="Verdict" type="Enum — PASS/FAIL/UNCERTAIN" />
+          <param name="CheckResult" type="dataclass — результат проверки" />
+          <param name="CandidateInfo" type="dataclass — сырой элемент-кандидат" />
+          <param name="ClassifiedCandidate" type="dataclass — классифицированный кандидат" />
+          <param name="FallbackContext" type="dataclass — контекст для LLM" />
+          <param name="LLMVerdict" type="dataclass — вердикт от LLM" />
+        </outputs>
+      </contract>
+      <interface>
+        <export-Verdict PURPOSE="Enum вердиктов" />
+        <export-CheckResult PURPOSE="Результат проверки" />
+        <export-FallbackContext PURPOSE="Контекст для LLM" />
+        <export-LLMVerdict PURPOSE="Вердикт LLM" />
+      </interface>
+      <depends>none</depends>
+    </M-MODELS>
+
+    <M-LOGGER NAME="Logger" TYPE="UTILITY" LAYER="0" ORDER="2">
+      <contract>
+        <purpose>Структурированный ГОСТ-aware логгер с grep-friendly форматом</purpose>
+        <outputs>
+          <param name="setup_logger" type="() -> Logger" />
+          <param name="log_check" type="(gost_ref, wcag_ref, step, status, message, result) -> None" />
+          <param name="log_fallback_context" type="(gost_ref, wcag_ref, heuristic_type, data) -> None" />
+          <param name="log_llm_verdict" type="(gost_ref, wcag_ref, verdict, reasoning) -> None" />
+          <param name="log_result" type="(gost_ref, wcag_ref, verdict, source, reason) -> None" />
+        </outputs>
+      </contract>
+      <depends>none</depends>
+    </M-LOGGER>
+
+    <M-BROWSER NAME="Browser" TYPE="INTEGRATION" LAYER="0" ORDER="3">
+      <contract>
+        <purpose>Playwright lifecycle — контекстный менеджер для открытия страницы</purpose>
+        <inputs>
+          <param name="url" type="str" />
+          <param name="headless" type="bool" />
+          <param name="timeout" type="int (ms)" />
+        </inputs>
+        <outputs>
+          <param name="page" type="AsyncGenerator[Page]" />
+        </outputs>
+      </contract>
+      <interface>
+        <export-open_page PURPOSE="Async context manager: браузер → страница → навигация" />
+      </interface>
+      <depends>none</depends>
+    </M-BROWSER>
+
+    <M-TARGETS NAME="Targets" TYPE="DATA_LAYER" LAYER="0" ORDER="4">
+      <contract>
+        <purpose>Реестр целевых госсайтов (20 + эталон ВОС)</purpose>
+        <outputs>
+          <param name="get_all_targets" type="() -> List[TargetSite]" />
+          <param name="TargetSite" type="dataclass — id, name, url, category, is_reference" />
+        </outputs>
+      </contract>
+      <depends>none</depends>
+    </M-TARGETS>
+
+    <M-AXE NAME="AxeHelper" TYPE="INTEGRATION" LAYER="1" ORDER="1">
+      <contract>
+        <purpose>Инжекция axe-core в Playwright-страницу и запуск по правилам</purpose>
+        <inputs>
+          <param name="page" type="Page" />
+          <param name="rules" type="List[str] — axe-core rule IDs" />
+        </inputs>
+        <outputs>
+          <param name="violations" type="List[Dict] — с nodes, html, target, impact" />
+          <param name="passes_count" type="int" />
+        </outputs>
+      </contract>
+      <interface>
+        <export-inject_axe PURPOSE="Инжекция axe.min.js (кешируется)" />
+        <export-run_axe PURPOSE="Запуск axe-core с фильтром по правилам" />
+      </interface>
+      <depends>M-BROWSER</depends>
+    </M-AXE>
+
+    <M-LLM NAME="LLMFallback" TYPE="INTEGRATION" LAYER="1" ORDER="2">
+      <contract>
+        <purpose>OpenRouter API интеграция для LLM fallback при UNCERTAIN</purpose>
+        <inputs>
+          <param name="context" type="FallbackContext" />
+          <param name="gost_requirement" type="str — текст требования ГОСТа" />
+        </inputs>
+        <outputs>
+          <param name="LLMVerdict" type="verdict + reasoning + confidence" />
+        </outputs>
+        <errors>
+          <error code="NO_API_KEY" />
+          <error code="API_ERROR" />
+        </errors>
+      </contract>
+      <interface>
+        <export-call_llm PURPOSE="Вызов OpenRouter API для вынесения вердикта" />
+      </interface>
+      <depends>M-MODELS</depends>
+    </M-LLM>
+
+    <M-BASE-CHECK NAME="BaseCheck" TYPE="CORE_LOGIC" LAYER="2" ORDER="1">
+      <contract>
+        <purpose>Абстрактный базовый класс GostCheck с 4-шаговым пайплайном</purpose>
+        <notes>Все 22 проверки наследуются от GostCheck и реализуют collect/classify/judge</notes>
+      </contract>
+      <interface>
+        <export-GostCheck PURPOSE="ABC: collect → classify → judge → fallback → run" />
+      </interface>
+      <depends>M-MODELS, M-LOGGER, M-LLM</depends>
+    </M-BASE-CHECK>
+
+    <M-CHECKS NAME="Checks" TYPE="CORE_LOGIC" LAYER="3" ORDER="1">
+      <contract>
+        <purpose>22 проверки доступности в 5 фазах</purpose>
+        <notes>Phase 1: чистый скрипт (8). Phase 2: axe-core (6). Phase 3: спецверсия (1). Phase 4: гибридные (5). Phase 5: AI (2).</notes>
+      </contract>
+      <depends>M-BASE-CHECK, M-AXE, M-LLM, M-MODELS</depends>
+    </M-CHECKS>
+
+    <M-REGISTRY NAME="Registry" TYPE="CORE_LOGIC" LAYER="4" ORDER="1">
+      <contract>
+        <purpose>Реестр всех 22 проверок — упорядоченный список</purpose>
+        <outputs>
+          <param name="get_all_checks" type="() -> List[GostCheck]" />
+          <param name="get_checks_by_gost" type="(gost_id: str) -> List[GostCheck]" />
+        </outputs>
+      </contract>
+      <depends>M-BASE-CHECK, M-CHECKS</depends>
+    </M-REGISTRY>
+
+    <M-RUNNER NAME="Runner" TYPE="ENTRY_POINT" LAYER="5" ORDER="1">
+      <contract>
+        <purpose>CLI точка входа: двойной прогон, таблица, JSON-отчёт</purpose>
+        <inputs>
+          <param name="url" type="str" />
+          <param name="--no-headless" type="flag" />
+          <param name="--no-special" type="flag" />
+          <param name="--output" type="str (default: reports)" />
+        </inputs>
+        <outputs>
+          <param name="JSON report" type="reports/report_YYYYMMDD_HHMMSS.json" />
+          <param name="log file" type="reports/run.log" />
+        </outputs>
+      </contract>
+      <depends>M-BROWSER, M-REGISTRY, M-MODELS, M-LOGGER</depends>
+    </M-RUNNER>
+
+    <M-BATCH NAME="BatchRunner" TYPE="ENTRY_POINT" LAYER="5" ORDER="2">
+      <contract>
+        <purpose>Batch-прогон по всем целевым сайтам с изолированными отчётами</purpose>
+        <inputs>
+          <param name="--no-headless" type="flag" />
+        </inputs>
+        <outputs>
+          <param name="batch directory" type="reports/batch_YYYYMMDD_HHMMSS/" />
+          <param name="summary" type="summary.json" />
+          <param name="per-site" type="{site_id}.json + {site_id}.log" />
+        </outputs>
+      </contract>
+      <depends>M-BROWSER, M-REGISTRY, M-TARGETS, M-MODELS</depends>
+    </M-BATCH>
+
+  </Modules>
+
+  <DataFlow>
+
+    <DF-SINGLE-CHECK NAME="Single Check Pipeline" TRIGGER="runner calls check.run(page)">
+      <step-1>collect(page) — Playwright JS evaluation, сбор DOM-данных</step-1>
+      <step-2>classify(data) — зонирование, видимость, позиция</step-2>
+      <step-3>judge(classified) — детерминированный вердикт PASS/FAIL/UNCERTAIN</step-3>
+      <step-4>if UNCERTAIN: build_fallback_context() → invoke_llm() → LLMVerdict</step-4>
+      <step-5>log_result() → CheckResult</step-5>
+    </DF-SINGLE-CHECK>
+
+    <DF-DUAL-PASS NAME="Dual Pass Orchestration" TRIGGER="python3 -m gost_a11y.runner URL">
+      <step-1>run_checks(url) — открытие страницы, прогон 22 проверок</step-1>
+      <step-2>run_checks_special(url) — новый контекст, поиск кнопки спецверсии</step-2>
+      <step-3>if кнопка найдена: клик → прогон 20 проверок на спецверсии</step-3>
+      <step-4>print_summary() — сравнительная таблица</step-4>
+      <step-5>save_report() — JSON с main + special_version секциями</step-5>
+    </DF-DUAL-PASS>
+
+    <DF-BATCH NAME="Batch Execution" TRIGGER="python3 run_all_targets.py">
+      <step-1>get_all_targets() — список из targets.py</step-1>
+      <step-2>for each site: check_site() с изолированным логгером</step-2>
+      <step-3>_save_site_report() — JSON на каждый сайт</step-3>
+      <step-4>Сводная таблица + summary.json</step-4>
+    </DF-BATCH>
+
+  </DataFlow>
+
+  <ImplementationOrder>
+    <!-- Текущий статус: все модули реализованы (done) -->
+
+    <Phase-1 name="Foundation" status="done">
+      <step-1 module="M-MODELS">Модели данных</step-1>
+      <step-2 module="M-LOGGER">Структурированный логгер</step-2>
+      <step-3 module="M-BROWSER">Playwright lifecycle</step-3>
+      <step-4 module="M-TARGETS">Реестр целевых сайтов</step-4>
+    </Phase-1>
+
+    <Phase-2 name="Integrations" status="done">
+      <step-1 module="M-AXE">axe-core инжекция</step-1>
+      <step-2 module="M-LLM">OpenRouter API интеграция</step-2>
+    </Phase-2>
+
+    <Phase-3 name="Core Logic" status="done">
+      <step-1 module="M-BASE-CHECK">Абстрактный базовый класс GostCheck</step-1>
+      <step-2 module="M-CHECKS">22 проверки доступности</step-2>
+      <step-3 module="M-REGISTRY">Реестр проверок</step-3>
+    </Phase-3>
+
+    <Phase-4 name="Entry Points" status="done">
+      <step-1 module="M-RUNNER">CLI runner с двойным прогоном</step-1>
+      <step-2 module="M-BATCH">Batch-прогон по всем сайтам</step-2>
+    </Phase-4>
+
+  </ImplementationOrder>
+</DevelopmentPlan>

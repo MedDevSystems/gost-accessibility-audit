@@ -8,6 +8,8 @@
 #           с обоснованием. Не имеет права вернуть UNCERTAIN.]
 # SCOPE: [LLM, OpenRouter, qwen, fallback, vision]
 # KEYWORDS_MODULE: [llm, openrouter, qwen, api, fallback, vision]
+# DEPENDS: [M-MODELS, openai]
+# LINKS: [M-LLM]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:
@@ -41,7 +43,7 @@ logger = logging.getLogger("gost_a11y")
 
 # --- Конфигурация ---
 
-MODEL_ID = os.environ.get("GOST_LLM_MODEL", "qwen/qwen3.5-35b-a3b")
+MODEL_ID = os.environ.get("GOST_LLM_MODEL", "qwen/qwen3.5-9b")
 API_BASE_URL = os.environ.get("GOST_LLM_API_BASE", "https://openrouter.ai/api/v1")
 API_KEY_ENV = "OPENROUTER_API_KEY"
 

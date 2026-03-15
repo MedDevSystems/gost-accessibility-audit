@@ -5,6 +5,8 @@
 #           список всех GostCheck для запуска.]
 # SCOPE: [Реестр, проверки, discovery]
 # KEYWORDS_MODULE: [registry, checks, list, discovery]
+# DEPENDS: [M-BASE-CHECK, M-CHECKS]
+# LINKS: [M-REGISTRY]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:
@@ -80,11 +82,25 @@ ALL_CHECKS: List[GostCheck] = [
 ]
 
 
+# START_FUNCTION_get_all_checks
+# CONTRACT:
+# PURPOSE: [Возвращает все зарегистрированные проверки.]
+# INPUTS: none
+# OUTPUTS: List[GostCheck]
+# KEYWORDS: [registry, checks, all]
 def get_all_checks() -> List[GostCheck]:
     """Возвращает все зарегистрированные проверки."""
     return ALL_CHECKS
+# END_FUNCTION_get_all_checks
 
 
+# START_FUNCTION_get_checks_by_gost
+# CONTRACT:
+# PURPOSE: [Фильтрует проверки по идентификатору ГОСТа.]
+# INPUTS: gost_id: str
+# OUTPUTS: List[GostCheck]
+# KEYWORDS: [registry, checks, filter, gost]
 def get_checks_by_gost(gost_id: str) -> List[GostCheck]:
     """Возвращает проверки по идентификатору ГОСТа."""
     return [c for c in ALL_CHECKS if c.gost_id == gost_id]
+# END_FUNCTION_get_checks_by_gost

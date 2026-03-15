@@ -7,6 +7,8 @@
 #           Приказ Минцифры № 953 п.2.]
 # SCOPE: [Проверка, ГОСТ, viewport, zoom, масштабирование, П953]
 # KEYWORDS_MODULE: [check, viewport, zoom, scale, wcag_1_4_4, p953]
+# DEPENDS: [M-BASE-CHECK, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:

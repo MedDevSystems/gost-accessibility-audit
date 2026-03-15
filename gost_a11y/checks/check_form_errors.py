@@ -7,6 +7,8 @@
 #           Приказ Минцифры № 953 п.9, п.12.]
 # SCOPE: [Проверка, ГОСТ, формы, ошибки, aria-invalid, П953]
 # KEYWORDS_MODULE: [check, form, errors, aria_invalid, wcag_3_3_1, p953]
+# DEPENDS: [M-BASE-CHECK, M-LLM, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:

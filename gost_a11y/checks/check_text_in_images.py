@@ -8,6 +8,8 @@
 #           LLM анализирует: есть ли текст на картинке.]
 # SCOPE: [Проверка, ГОСТ, текст в изображениях, vision, LLM]
 # KEYWORDS_MODULE: [check, text, images, vision, llm, wcag_1_4_5]
+# DEPENDS: [M-BASE-CHECK, M-LLM, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:
@@ -239,7 +241,7 @@ class CheckTextInImages(GostCheck):
             )
             return None
 
-        model_id = os.environ.get("GOST_LLM_MODEL", "qwen/qwen3.5-35b-a3b")
+        model_id = os.environ.get("GOST_LLM_MODEL", "qwen/qwen3.5-9b")
         api_base = os.environ.get("GOST_LLM_API_BASE", "https://openrouter.ai/api/v1")
 
         user_text = (

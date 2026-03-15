@@ -7,6 +7,8 @@
 #           Приказ Минцифры № 953 п.6: заголовки содержат описание.]
 # SCOPE: [Проверка, ГОСТ, заголовок, title, П953]
 # KEYWORDS_MODULE: [check, title, page_title, wcag_2_4_2, p953]
+# DEPENDS: [M-BASE-CHECK, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:

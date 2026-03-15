@@ -6,6 +6,8 @@
 #           метаданными для фильтрации, группировки и отчётности.]
 # SCOPE: [Целевые сайты, реестр, госсайты, эталон, калибровка]
 # KEYWORDS_MODULE: [targets, sites, registry, government, calibration, vos]
+# DEPENDS: [none]
+# LINKS: [M-TARGETS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:
@@ -475,17 +477,38 @@ TARGET_SITES: List[TargetSite] = [
 
 # --- Функции доступа ---
 
+# START_FUNCTION_get_all_targets
+# CONTRACT:
+# PURPOSE: [Возвращает все целевые сайты, эталон первым.]
+# INPUTS: none
+# OUTPUTS: List[TargetSite]
+# KEYWORDS: [targets, all, reference]
 def get_all_targets() -> List[TargetSite]:
     """Возвращает все целевые сайты, эталон первым."""
     return [REFERENCE_SITE] + TARGET_SITES
+# END_FUNCTION_get_all_targets
 
 
+# START_FUNCTION_get_targets_by_category
+# CONTRACT:
+# PURPOSE: [Фильтрует сайты по категории.]
+# INPUTS: category: str
+# OUTPUTS: List[TargetSite]
+# KEYWORDS: [targets, filter, category]
 def get_targets_by_category(category: str) -> List[TargetSite]:
     """Возвращает сайты заданной категории."""
     all_sites = get_all_targets()
     return [s for s in all_sites if s.category == category]
+# END_FUNCTION_get_targets_by_category
 
 
+# START_FUNCTION_get_reference_site
+# CONTRACT:
+# PURPOSE: [Возвращает эталонный сайт (ВОС).]
+# INPUTS: none
+# OUTPUTS: TargetSite
+# KEYWORDS: [targets, reference, vos]
 def get_reference_site() -> TargetSite:
     """Возвращает эталонный сайт (ВОС)."""
     return REFERENCE_SITE
+# END_FUNCTION_get_reference_site

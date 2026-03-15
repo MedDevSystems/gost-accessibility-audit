@@ -6,6 +6,8 @@
 #           контекста fallback для LLM.]
 # SCOPE: [Модели, данные, типизация]
 # KEYWORDS_MODULE: [models, dataclass, verdict, check_result, fallback_context]
+# DEPENDS: [none]
+# LINKS: [M-MODELS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:

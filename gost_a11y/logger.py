@@ -6,6 +6,8 @@
 #           тестированием, какие нет, какие провалены.]
 # SCOPE: [Логирование, форматирование, ГОСТ-ссылки]
 # KEYWORDS_MODULE: [logger, logging, gost, structured, grep, fallback_context]
+# DEPENDS: [none]
+# LINKS: [M-LOGGER]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:

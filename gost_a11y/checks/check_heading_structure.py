@@ -6,6 +6,8 @@
 #           Скриптовая часть: наличие h1, порядок уровней, пропуски.]
 # SCOPE: [Проверка, ГОСТ, заголовки, иерархия, h1-h6]
 # KEYWORDS_MODULE: [check, heading, h1, hierarchy, wcag_1_3_1]
+# DEPENDS: [M-BASE-CHECK, M-LLM, M-MODELS]
+# LINKS: [M-CHECKS]
 # END_MODULE_CONTRACT
 
 # MODULE_MAP:
@@ -82,6 +84,12 @@ class CheckHeadingStructure(GostCheck):
         "есть h1, уровни не пропускаются (нет h1→h3 без h2)."
     )
 
+    # START_FUNCTION_collect
+    # CONTRACT:
+    # PURPOSE: [Сбор заголовков h1-h6 со страницы через Playwright.]
+    # INPUTS: page: Page — Playwright page object
+    # OUTPUTS: List[Dict] — список заголовков с tag, text, level
+    # KEYWORDS: [collect, headings, h1, h6]
     async def collect(self, page: Any) -> List[Dict[str, Any]]:
         """ШАГ 1: Сбор всех заголовков."""
         log_check(self.gost_ref, self.wcag_ref, "COLLECT", "Info",
@@ -98,7 +106,14 @@ class CheckHeadingStructure(GostCheck):
             )
 
         return headings
+    # END_FUNCTION_collect
 
+    # START_FUNCTION_classify
+    # CONTRACT:
+    # PURPOSE: [Классификация заголовков: проверка h1, пустых, пропусков уровней.]
+    # INPUTS: data: List[Dict] — сырые заголовки
+    # OUTPUTS: List[Dict] — классифицированные заголовки с проблемами
+    # KEYWORDS: [classify, headings, hierarchy, skip]
     def classify(self, data: List[Any]) -> List[Dict[str, Any]]:
         """ШАГ 2: Анализ иерархии."""
         issues = []
@@ -151,7 +166,14 @@ class CheckHeadingStructure(GostCheck):
             "issues": issues,
             "issue_count": len(issues),
         }]
+    # END_FUNCTION_classify
 
+    # START_FUNCTION_judge
+    # CONTRACT:
+    # PURPOSE: [Вынесение вердикта по структуре заголовков.]
+    # INPUTS: classified: List[Dict] — классифицированные данные
+    # OUTPUTS: CheckResult
+    # KEYWORDS: [judge, verdict, headings]
     def judge(self, classified: List[Any]) -> CheckResult:
         """ШАГ 3: Детерминированный вердикт."""
         info = classified[0]
@@ -213,3 +235,4 @@ class CheckHeadingStructure(GostCheck):
             details=info,
             **base_kwargs,
         )
+    # END_FUNCTION_judge
