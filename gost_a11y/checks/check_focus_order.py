@@ -67,27 +67,37 @@ JS_COLLECT_FOCUS_ORDER = r"""
 
         if (tabindex > 0) positiveTabindexCount++;
 
+        // Определяем position: fixed/sticky — исключаем из visual order check
+        const position = window.getComputedStyle(el).position;
+        const isFixed = position === 'fixed' || position === 'sticky';
+
         elements.push({
             tag: el.tagName.toLowerCase(),
             text: (el.textContent || '').trim().substring(0, 60),
             tabindex: tabindex,
             top: Math.round(rect.top),
             left: Math.round(rect.left),
+            width: Math.round(rect.width),
+            isFixed: isFixed,
         });
     }
 
-    // START_VISUAL_ORDER_CHECK: [Проверка: DOM-порядок vs визуальный (top).
-    // Исключаем элементы за экраном (top < 0, left < -100) — skip-link'и
-    // и другие offscreen-элементы видимые только при фокусе.]
+    // START_VISUAL_ORDER_CHECK: [Проверка: DOM-порядок vs визуальный.
+    // Учитывает multi-column layouts, sidebar, fixed-position элементы.
+    // Violation = элемент визуально ВЫШЕ предыдущего, НО в той же колонке.]
     let visualOrderViolations = 0;
     const domOrder = elements.filter(e =>
-        e.tabindex === 0 && e.top >= 0 && e.left >= -100
+        e.tabindex === 0 && e.top >= 0 && e.left >= -100 && !e.isFixed
     );
     for (let i = 1; i < domOrder.length; i++) {
         const prev = domOrder[i - 1];
         const curr = domOrder[i];
-        // Серьёзное нарушение: элемент визуально выше предыдущего на > 200px
-        if (curr.top < prev.top - 200) {
+        // Пропускаем: разные колонки (left отличается > 200px) —
+        // sidebar/multi-column layout, не нарушение
+        const sameColumn = Math.abs(curr.left - prev.left) < 200;
+        // Серьёзное нарушение: элемент в той же колонке но выше на > 400px
+        // (порог 400px вместо 200px — учитывает карусели, аккордеоны)
+        if (sameColumn && curr.top < prev.top - 400) {
             visualOrderViolations++;
         }
     }

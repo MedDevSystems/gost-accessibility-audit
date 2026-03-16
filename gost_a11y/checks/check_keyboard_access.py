@@ -60,6 +60,8 @@ JS_COLLECT_KEYBOARD = r"""
     // END_FOCUSABLE
 
     // START_NEGATIVE_TABINDEX: [Элементы с tabindex < 0 (исключены из tab-порядка).]
+    // Исключаем disabled-элементы: tabindex=-1 на disabled — допустимая практика
+    // (Swiper, модальные окна, скрытые вкладки и т.д.)
     const allTabindexed = document.querySelectorAll('[tabindex]');
     for (const el of allTabindexed) {
         const val = parseInt(el.getAttribute('tabindex'), 10);
@@ -72,7 +74,12 @@ JS_COLLECT_KEYBOARD = r"""
                 '[role="button"], [role="link"], [role="tab"]'
             );
 
-            if (isInteractive) {
+            // Пропускаем disabled-элементы — tabindex=-1 на них корректен
+            const isDisabled = el.disabled ||
+                el.getAttribute('aria-disabled') === 'true' ||
+                (typeof el.className === 'string' && /\bdisabled\b/.test(el.className));
+
+            if (isInteractive && !isDisabled) {
                 result.negative_tabindex.push({
                     tag: tag,
                     role: role,

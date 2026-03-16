@@ -32,7 +32,10 @@ from gost_a11y.models import CheckResult, Verdict
 logger = logging.getLogger("gost_a11y")
 
 # axe-core правила для контрастности.
-AXE_CONTRAST_RULES = ["color-contrast", "color-contrast-enhanced"]
+# Только AA (4.5:1) — ГОСТ Р 52872 и Приказ 953 п.7 требуют AA.
+# color-contrast-enhanced (AAA, 7:1) убран — давал ложные FAIL
+# на элементах с контрастом 4.5-7.0 которые соответствуют ГОСТу.
+AXE_CONTRAST_RULES = ["color-contrast"]
 
 
 class CheckContrast(GostCheck):

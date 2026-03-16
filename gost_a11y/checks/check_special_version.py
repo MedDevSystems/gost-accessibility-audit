@@ -116,17 +116,19 @@ JS_FIND_SETTINGS_PANEL = r"""
     const resetPatterns = /сброс|обычн|reset|стандартн|по.?умолчан/i;
 
     // Ищем все кнопки, ссылки, элементы управления
+    // Не используем широкие [class*="font"]/[class*="color"] — ложные срабатывания
+    // на классах вроде them-font, text-link, color-secondary
     const allControls = document.querySelectorAll(
         'button, a, [role="button"], input[type="button"], input[type="radio"], ' +
         'input[type="checkbox"], select, [class*="bvi"], [class*="special"], ' +
-        '[id*="bvi"], [id*="special"], [class*="panel"], [class*="font"], [class*="color"]'
+        '[id*="bvi"], [id*="special"], [class*="panel"]'
     );
 
     for (const el of allControls) {
         const text = (el.textContent || '').trim().toLowerCase();
         const ariaLabel = (el.getAttribute('aria-label') || '').toLowerCase();
         const title = (el.getAttribute('title') || '').toLowerCase();
-        const cls = (el.className || '').toLowerCase();
+        const cls = (typeof el.className === 'string' ? el.className : '').toLowerCase();
         const id = (el.id || '').toLowerCase();
         const searchable = text + ' ' + ariaLabel + ' ' + title + ' ' + cls + ' ' + id;
 
@@ -150,6 +152,38 @@ JS_FIND_SETTINGS_PANEL = r"""
             });
         }
     }
+
+    // START_PANEL_SECTION_DETECT: [Обнаружение контролов по заголовкам секций панели.]
+    // Паттерн: заголовок секции ("Цвет", "Размер шрифта") + кнопки-siblings.
+    // Нужен для BVI-панелей где кнопки имеют только букву "А" без текста-маркера.
+    const panelSections = document.querySelectorAll(
+        '.bvi-panel__item, [class*="panel"] > div, [class*="settings"] > div'
+    );
+    for (const section of panelSections) {
+        const titleEl = section.querySelector(
+            '.bvi-panel__title, [class*="title"], h3, h4, label, legend, p:first-child'
+        );
+        if (!titleEl) continue;
+        const titleText = (titleEl.textContent || '').trim().toLowerCase();
+        let sectionType = null;
+        if (fontPatterns.test(titleText)) sectionType = 'font_size';
+        else if (colorPatterns.test(titleText)) sectionType = 'color_scheme';
+        else if (spacingPatterns.test(titleText)) sectionType = 'spacing';
+        else if (imagePatterns.test(titleText)) sectionType = 'images';
+        if (!sectionType) continue;
+        // Проверяем есть ли кнопки в секции
+        const btns = section.querySelectorAll('button, a, [role="button"], input');
+        if (btns.length === 0) continue;
+        // Всегда добавляем — section-based детекция надёжнее чем поэлементная
+        result.controls.push({
+            type: sectionType,
+            tag: 'section',
+            text: titleText.substring(0, 80) + ' (' + btns.length + ' кнопок)',
+            class: (section.className || '').substring(0, 80),
+            id: section.id || '',
+        });
+    }
+    // END_PANEL_SECTION_DETECT
 
     // START_BW_TOGGLE_DETECT: [Обнаружение toggle-режима цветовой схемы через классы body/html.]
     const bodyClasses = (document.body.className || '').toLowerCase();
@@ -307,14 +341,18 @@ class CheckSpecialVersion(GostCheck):
                     btn = page.get_by_text(locator_text, exact=True).first
                     await btn.click(timeout=5000)
                 else:
-                    # Fallback: клик через JS
+                    # Fallback: клик через JS — по тексту или по CSS-классу BVI
                     await page.evaluate("""
                         (patterns) => {
                             const re = patterns.map(p => new RegExp(p, 'i'));
                             const els = document.querySelectorAll('button, [role="button"]');
                             for (const el of els) {
                                 const t = (el.textContent || '').toLowerCase();
-                                if (re.some(r => r.test(t)) && el.getBoundingClientRect().width > 0) {
+                                const cls = (el.className || '').toLowerCase();
+                                const ariaLabel = (el.getAttribute('aria-label') || '').toLowerCase();
+                                const searchable = t + ' ' + cls + ' ' + ariaLabel;
+                                const isBvi = /bvi|версия.*слабовидящ|для.*слабовидящ/.test(searchable);
+                                if ((re.some(r => r.test(t)) || isBvi) && el.getBoundingClientRect().width > 0) {
                                     el.click();
                                     return true;
                                 }
