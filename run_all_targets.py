@@ -148,7 +148,7 @@ async def check_site(
 
     try:
         async with open_page(site.url, headless=headless, timeout=30000) as page:
-            for check in checks:
+            for i, check in enumerate(checks):
                 try:
                     result = await check.run(page)
                     results.append(result)
@@ -166,6 +166,10 @@ async def check_site(
                         title=check.title,
                         reason=f"Исключение: {type(e).__name__}: {e}",
                     ))
+                # Пауза между проверками — имитация человеческого поведения,
+                # предотвращает срабатывание антибот-систем
+                if i < len(checks) - 1:
+                    await asyncio.sleep(0.7)
     except Exception as e:
         logger.error(
             f"[BATCH][{site.id}][BROWSER] "
@@ -252,15 +256,30 @@ async def run_all(headless: bool = True) -> Dict:
     print(f"  Отчёт: {run_dir}/")
     print(f"{'='*90}")
 
-    for i, site in enumerate(targets, 1):
-        marker = " [ЭТАЛОН]" if site.is_reference else ""
-        print(f"\n  [{i}/{len(targets)}] {site.name}{marker} ({site.url})...", flush=True)
+    # Параллельный прогон с ограничением одновременных сайтов.
+    # Каждый сайт внутри себя использует sleep между чеками,
+    # параллелизм по сайтам компенсирует потерю скорости.
+    CONCURRENCY = 4
+    sem = asyncio.Semaphore(CONCURRENCY)
+    completed = 0
 
-        site_obj, results = await check_site(site, run_dir, headless=headless)
-        all_results.append((site_obj, results))
+    async def check_with_sem(idx: int, site: TargetSite):
+        nonlocal completed
+        async with sem:
+            site_obj, results = await check_site(site, run_dir, headless=headless)
+            completed += 1
+            marker = " [ЭТАЛОН]" if site.is_reference else ""
+            p = sum(1 for r in results if r.verdict == Verdict.PASS)
+            f = sum(1 for r in results if r.verdict == Verdict.FAIL)
+            print(
+                f"  [{completed}/{len(targets)}] {site.name}{marker}"
+                f" — PASS={p} FAIL={f}",
+                flush=True,
+            )
+            return site_obj, results
 
-        # Детальный вывод каждого сайта
-        _print_site_details(site_obj, results)
+    tasks = [check_with_sem(i, site) for i, site in enumerate(targets)]
+    all_results = list(await asyncio.gather(*tasks))
 
     # START_SUMMARY_TABLE: [Итоговая сводная таблица.]
     print(f"\n{'='*90}")

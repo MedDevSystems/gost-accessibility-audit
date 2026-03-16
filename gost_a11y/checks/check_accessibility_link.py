@@ -262,6 +262,91 @@ JS_PARSE_YANDEX_RESULTS = """
 """
 
 
+# Лёгкий JS — точечный поиск без полного сканирования DOM.
+# Не вызывает getComputedStyle и querySelectorAll('*'),
+# что позволяет избежать срабатывания антибот-систем.
+JS_FIND_CANDIDATES_LIGHT = """
+(patterns) => {
+    const strong = patterns.strong.map(p => new RegExp(p, 'i'));
+    const href_pats = patterns.href.map(p => new RegExp(p, 'i'));
+
+    // Целевой поиск: только header/nav область (первые 300px) + элементы с href
+    const header = document.querySelector('header, [role="banner"]');
+    const nav = document.querySelector('nav, [role="navigation"]');
+
+    const zones = [];
+    if (header) zones.push({el: header, zone: 'header'});
+    if (nav) zones.push({el: nav, zone: 'nav'});
+    // Fallback: верхняя часть body
+    zones.push({el: document.body, zone: 'body'});
+
+    const seen = new Set();
+    const results = [];
+
+    for (const {el: container, zone} of zones) {
+        const links = container.querySelectorAll('a[href], button, [role="link"], [role="button"]');
+        for (const el of links) {
+            if (seen.has(el)) continue;
+            seen.add(el);
+
+            const tag = el.tagName.toLowerCase();
+            const href = el.href || el.getAttribute('href') || '';
+            const text = (el.textContent || '').trim();
+            const ariaLabel = el.getAttribute('aria-label') || '';
+            const titleAttr = el.getAttribute('title') || '';
+            const searchable = (text + ' ' + ariaLabel + ' ' + titleAttr).toLowerCase();
+
+            // Проверка img alt внутри элемента
+            const imgAlt = Array.from(el.querySelectorAll('img')).map(i => (i.alt||'').toLowerCase()).join(' ');
+
+            let matched_by = 'none';
+            let strength = 'none';
+
+            if (strong.some(re => re.test(searchable) || re.test(imgAlt))) {
+                matched_by = searchable !== imgAlt ? 'text' : 'img_alt';
+                strength = 'strong';
+            } else if (href && href_pats.some(re => re.test(href))) {
+                matched_by = 'href';
+                strength = 'strong';
+            }
+
+            if (matched_by === 'none') continue;
+
+            const rect = el.getBoundingClientRect();
+            const isVisible = rect.width > 0 && rect.height > 0;
+
+            // Простая проверка зоны без тяжёлых вычислений
+            let detectedZone = zone;
+            if (zone === 'body') {
+                if (rect.top < 150) detectedZone = 'header_area';
+                else if (rect.top > window.innerHeight) detectedZone = 'below_fold';
+            }
+
+            results.push({
+                text: text.substring(0, 200),
+                href: href,
+                tag: tag,
+                aria_label: ariaLabel,
+                title_attr: titleAttr,
+                visible: isVisible,
+                top: Math.round(rect.top),
+                left: Math.round(rect.left),
+                zone: detectedZone,
+                visibility: isVisible ? 'visible' : 'hidden',
+                dom_position: 0,
+                total_elements: 0,
+                requires_interaction: !isVisible,
+                matched_by: matched_by,
+                match_strength: strength
+            });
+        }
+    }
+
+    return results;
+}
+"""
+
+
 class CheckAccessibilityLink(GostCheck):
     """Проверка: ссылка на версию для слабовидящих.
 
@@ -292,14 +377,50 @@ class CheckAccessibilityLink(GostCheck):
     # SIDE_EFFECTS: [Выполняет JS в контексте страницы. Сохраняет _page и _raw_candidates.]
     # KEYWORDS: [collect, candidates, search, links, buttons]
     async def collect(self, page: Any) -> List[CandidateInfo]:
-        """ШАГ 1: Поиск элементов-кандидатов (a, button, role)."""
+        """ШАГ 1: Поиск элементов-кандидатов (a, button, role).
+
+        Двухфазный поиск:
+        1. Лёгкий — точечный по header/nav, без getComputedStyle/querySelectorAll('*')
+        2. Тяжёлый (fallback) — полный скан DOM, только если лёгкий не нашёл
+        При срабатывании антибота между фазами — попытка пройти капчу.
+        """
         self._page = page  # Сохраняем для Яндекс-валидации в judge
         self._page_url = page.url
 
         log_check(self.gost_ref, self.wcag_ref, "COLLECT", "Info",
                   "Поиск ссылок и кнопок версии для слабовидящих", "ATTEMPT")
 
-        raw_candidates = await page.evaluate(JS_FIND_CANDIDATES)
+        # Фаза 1: лёгкий поиск — не триггерит антибот
+        light_patterns = {
+            "strong": PATTERNS_TEXT_STRONG,
+            "href": PATTERNS_HREF,
+        }
+        raw_candidates = await page.evaluate(JS_FIND_CANDIDATES_LIGHT, light_patterns)
+
+        if raw_candidates:
+            log_check(self.gost_ref, self.wcag_ref, "COLLECT", "Info",
+                      f"Лёгкий поиск: найдено {len(raw_candidates)} кандидатов", "SUCCESS")
+        else:
+            # Фаза 2: тяжёлый поиск — полный скан DOM
+            log_check(self.gost_ref, self.wcag_ref, "COLLECT", "Info",
+                      "Лёгкий поиск: 0 кандидатов, запуск полного сканирования", "ATTEMPT")
+
+            raw_candidates = await page.evaluate(JS_FIND_CANDIDATES)
+
+            # Проверка антибота после тяжёлого скана
+            from gost_a11y.browser import _is_antibot_page, _solve_captcha
+            if await _is_antibot_page(page):
+                log_check(self.gost_ref, self.wcag_ref, "COLLECT", "Info",
+                          "Антибот сработал после полного скана, попытка пройти капчу", "ATTEMPT")
+                if await _solve_captcha(page):
+                    # Повторяем лёгкий поиск после прохождения капчи
+                    raw_candidates = await page.evaluate(
+                        JS_FIND_CANDIDATES_LIGHT, light_patterns
+                    )
+                else:
+                    log_check(self.gost_ref, self.wcag_ref, "COLLECT", "Info",
+                              "Капча не пройдена", "FAIL")
+
         self._raw_candidates = raw_candidates  # Сохраняем для classify
 
         candidates = []

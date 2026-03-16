@@ -122,17 +122,41 @@ class GostCheck(ABC):
 
     # START_FUNCTION_run
     # CONTRACT:
-    # PURPOSE: [Полный цикл проверки: collect → classify → judge → fallback.]
+    # PURPOSE: [Полный цикл проверки: collect → classify → judge → fallback.
+    #           Перед collect проверяет, не подменилась ли страница на антибот-капчу.]
     # INPUTS:
     #   - page: Any - Playwright Page объект.
     # OUTPUTS:
     #   - CheckResult: Итоговый результат проверки.
     # SIDE_EFFECTS: [Пишет структурированные логи на каждом шаге.]
-    # KEYWORDS: [run, pipeline, orchestration]
+    # KEYWORDS: [run, pipeline, orchestration, antibot]
     async def run(self, page: Any) -> CheckResult:
         """Полный цикл проверки."""
         gost_ref = self.gost_ref
         wcag_ref = self.wcag_ref
+
+        # START_ANTIBOT_GUARD: [Детекция антибота + попытка пройти капчу.]
+        from gost_a11y.browser import _is_antibot_page, _solve_captcha
+        if await _is_antibot_page(page):
+            log_check(gost_ref, wcag_ref, "ANTIBOT", "Blocked",
+                      "Обнаружена капча, попытка пройти", "ATTEMPT")
+            solved = await _solve_captcha(page)
+            if not solved or await _is_antibot_page(page):
+                reason = "Страница заблокирована антибот-системой (капча) — проверка невозможна"
+                log_check(gost_ref, wcag_ref, "ANTIBOT", "Blocked", reason, "FAIL")
+                return CheckResult(
+                    verdict=Verdict.FAIL,
+                    source="script",
+                    gost_id=self.gost_id,
+                    gost_section=self.gost_section,
+                    wcag_ref=self.wcag_ref,
+                    title=self.title,
+                    reason=reason,
+                    details={"blocked_by": "antibot"},
+                )
+            log_check(gost_ref, wcag_ref, "ANTIBOT", "Solved",
+                      "Капча пройдена, продолжаем проверку", "SUCCESS")
+        # END_ANTIBOT_GUARD
 
         # START_COLLECT: [Сбор данных.]
         log_check(gost_ref, wcag_ref, "START", "Info",
