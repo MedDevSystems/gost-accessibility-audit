@@ -15,7 +15,8 @@
 # FUNC  [Поиск последней batch-директории] => find_latest_batch_dir
 # FUNC  [Загрузка данных из batch-директории] => load_batch_data
 # FUNC  [Генерация демо-данных] => generate_demo_data
-# FUNC  [Генерация HTML-дашборда] => generate_html
+# FUNC  [Генерация HTML-дашборда (legacy)] => generate_html
+# FUNC  [Генерация JSON для React-дашборда] => generate_report_json
 # FUNC  [Точка входа] => main
 # END_MODULE_MAP
 
@@ -1171,17 +1172,50 @@ def _escape_html(s: str) -> str:
 # END_FUNCTION_escape_html
 
 
+# START_FUNCTION_generate_report_json
+# CONTRACT:
+# PURPOSE: [Формирует JSON-данные для React-дашборда из summary и site_reports.]
+# INPUTS: summary: dict, site_reports: list[dict].
+# OUTPUTS: dict — JSON-совместимый словарь.
+# SIDE_EFFECTS: [Нет.]
+# KEYWORDS: [json, react, data, report]
+def generate_report_json(summary: Dict[str, Any], site_reports: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """Формирует JSON-данные для React-дашборда."""
+    checks_per_site = summary.get("checks_per_site", 22)
+    is_demo = summary.get("is_demo", False)
+
+    all_pass_pcts = []
+    for report in site_reports:
+        s = report.get("summary", {})
+        total = s.get("total", 0) or checks_per_site
+        p = s.get("pass", 0)
+        pct = round(p / total * 100, 1) if total > 0 else 0
+        all_pass_pcts.append(pct)
+
+    avg_pct = round(sum(all_pass_pcts) / len(all_pass_pcts), 1) if all_pass_pcts else 0
+
+    return {
+        "timestamp": summary.get("timestamp", ""),
+        "total_sites": summary.get("total_sites", len(site_reports)),
+        "checks_per_site": checks_per_site,
+        "is_demo": is_demo,
+        "avg_pct": avg_pct,
+        "sites": site_reports,
+    }
+# END_FUNCTION_generate_report_json
+
+
 # START_FUNCTION_main
 # CONTRACT:
-# PURPOSE: [Точка входа. Парсит аргументы, загружает данные, генерирует HTML.]
+# PURPOSE: [Точка входа. Парсит аргументы, загружает данные, генерирует JSON или HTML.]
 # INPUTS: sys.argv.
-# OUTPUTS: Создаёт dashboard/index.html.
+# OUTPUTS: Создаёт dashboard/src/data/report.json (по умолчанию) или dashboard/index.html (--html).
 # SIDE_EFFECTS: [Чтение файлов, запись файла.]
 # KEYWORDS: [main, entry, cli]
 def main() -> None:
     """Точка входа для генерации дашборда."""
     parser = argparse.ArgumentParser(
-        description="Генерация HTML-дашборда из batch-отчётов ГОСТ-доступности"
+        description="Генерация данных дашборда из batch-отчётов ГОСТ-доступности"
     )
     parser.add_argument(
         "batch_dir",
@@ -1192,7 +1226,12 @@ def main() -> None:
     parser.add_argument(
         "--output", "-o",
         default=None,
-        help="Путь для сохранения HTML (по умолчанию — dashboard/index.html)",
+        help="Путь для сохранения (по умолчанию — dashboard/src/data/report.json)",
+    )
+    parser.add_argument(
+        "--html",
+        action="store_true",
+        help="Сгенерировать HTML вместо JSON (legacy-режим)",
     )
     parser.add_argument(
         "--demo",
@@ -1222,24 +1261,35 @@ def main() -> None:
             print("Batch-отчёты не найдены. Генерация демо-данных...")
             summary, site_reports = generate_demo_data()
 
-    # Generate HTML
-    html = generate_html(summary, site_reports)
-
-    # Write output
-    if args.output:
-        output_path = args.output
-        if not os.path.isabs(output_path):
-            output_path = os.path.join(base_dir, output_path)
+    if args.html:
+        # Legacy HTML mode
+        html = generate_html(summary, site_reports)
+        if args.output:
+            output_path = args.output
+            if not os.path.isabs(output_path):
+                output_path = os.path.join(base_dir, output_path)
+        else:
+            output_path = os.path.join(base_dir, "dashboard", "index.html.bak")
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.write(html)
+        size_kb = round(os.path.getsize(output_path) / 1024, 1)
+        print(f"HTML-дашборд создан: {output_path} ({size_kb} КБ)")
     else:
-        output_path = os.path.join(base_dir, "dashboard", "index.html")
+        # Default: JSON for React dashboard
+        report_json = generate_report_json(summary, site_reports)
+        if args.output:
+            output_path = args.output
+            if not os.path.isabs(output_path):
+                output_path = os.path.join(base_dir, output_path)
+        else:
+            output_path = os.path.join(base_dir, "dashboard", "src", "data", "report.json")
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(report_json, f, ensure_ascii=False, indent=2)
+        size_kb = round(os.path.getsize(output_path) / 1024, 1)
+        print(f"JSON-данные созданы: {output_path} ({size_kb} КБ)")
 
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-    with open(output_path, "w", encoding="utf-8") as f:
-        f.write(html)
-
-    size_kb = round(os.path.getsize(output_path) / 1024, 1)
-    print(f"Дашборд создан: {output_path} ({size_kb} КБ)")
     print(f"Сайтов: {len(site_reports)}, категорий: {len(set(r.get('category', '') for r in site_reports))}")
 
 

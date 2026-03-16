@@ -1,0 +1,442 @@
+/* === RESET & BASE === */
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #1a1a1a;
+  background: #ffffff;
+}
+
+/* === SKIP-LINK === */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 1000;
+  padding: 0.5em 1em;
+  background: #0000cc;
+  color: #ffffff;
+  text-decoration: underline;
+  font-weight: bold;
+}
+.skip-link:focus {
+  left: 0;
+  outline: 3px solid #0000cc;
+  outline-offset: 2px;
+}
+
+/* === FOCUS === */
+a:focus, button:focus, summary:focus, details:focus, [tabindex]:focus {
+  outline: 2px solid #0000cc;
+  outline-offset: 2px;
+}
+
+/* === LINKS === */
+a {
+  color: #0000cc;
+  text-decoration: underline;
+}
+a:hover {
+  color: #000099;
+}
+a:visited {
+  color: #551a8b;
+}
+
+/* === LAYOUT === */
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+}
+
+/* === HEADER === */
+header {
+  border-bottom: 3px solid #1a1a1a;
+  padding: 1.5rem 0;
+  margin-bottom: 1.5rem;
+}
+header h1 {
+  margin: 0 0 0.25rem 0;
+  font-size: 1.75rem;
+  line-height: 1.3;
+}
+header p {
+  margin: 0.25rem 0;
+  color: #333;
+}
+
+/* === DEMO BANNER === */
+.demo-banner {
+  background: #fff3cd;
+  border: 2px solid #856404;
+  border-radius: 4px;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1.5rem;
+  color: #533f03;
+}
+.demo-banner code {
+  background: #f5e6b8;
+  padding: 0.1em 0.3em;
+  border-radius: 2px;
+}
+
+/* === STATS === */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+.stat-card {
+  border: 2px solid #1a1a1a;
+  border-radius: 4px;
+  padding: 1rem;
+}
+.stat-card .stat-value {
+  font-size: 2rem;
+  font-weight: bold;
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.stat-card .stat-label {
+  font-size: 0.875rem;
+  color: #333;
+}
+
+/* === CATEGORIES (ACCORDION) === */
+.category-details {
+  border: 2px solid #1a1a1a;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+.category-details > summary {
+  padding: 0.75rem 1rem;
+  cursor: pointer;
+  list-style: none;
+  background: #f5f5f5;
+  border-radius: 2px;
+}
+.category-details > summary::-webkit-details-marker {
+  display: none;
+}
+.category-details > summary::before {
+  content: "\25B6\FE0E";
+  display: inline-block;
+  margin-right: 0.5rem;
+  transition: transform 0.2s;
+}
+.category-details[open] > summary::before {
+  transform: rotate(90deg);
+}
+.category-details > summary h3 {
+  display: inline;
+  font-size: 1.125rem;
+  margin: 0;
+}
+.cat-stats {
+  font-weight: normal;
+  color: #3a3a3a;
+  font-size: 0.9375rem;
+}
+
+/* === TABLES === */
+.sites-table-wrap, .checks-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin: 0.5rem 0;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+th, td {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #ddd;
+  vertical-align: top;
+}
+thead th {
+  background: #f5f5f5;
+  font-weight: 600;
+  border-bottom: 2px solid #1a1a1a;
+  white-space: nowrap;
+}
+.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* === DETAILS ROW === */
+.details-row > td {
+  padding: 0;
+  border-bottom: 2px solid #ccc;
+}
+.details-row details {
+  padding: 0 0.75rem;
+}
+.details-row details summary {
+  padding: 0.4rem 0;
+  cursor: pointer;
+  font-size: 0.875rem;
+  color: #3a3a3a;
+}
+
+/* === CHECKS TABLE === */
+.checks-table {
+  font-size: 0.8125rem;
+}
+.checks-table th, .checks-table td {
+  padding: 0.35rem 0.5rem;
+}
+
+/* === MOBILE LABELS (hidden on desktop, visible in card layout) === */
+.mobile-label {
+  display: none;
+}
+
+/* === VERDICTS === */
+.verdict-pass {
+  color: #004d00;
+  font-weight: 600;
+}
+.verdict-fail {
+  color: #8b0000;
+  font-weight: 600;
+}
+.verdict-uncertain {
+  color: #6b5000;
+  font-weight: 600;
+}
+.pct-good { color: #004d00; font-weight: 600; }
+.pct-mid { color: #6b5000; font-weight: 600; }
+.pct-bad { color: #8b0000; font-weight: 600; }
+
+/* === REF BADGE === */
+.ref-badge {
+  display: inline-block;
+  background: #006400;
+  color: #fff;
+  font-size: 0.6875rem;
+  padding: 0.1em 0.4em;
+  border-radius: 3px;
+  vertical-align: middle;
+  margin-left: 0.25rem;
+  font-weight: normal;
+}
+
+/* === FONT CONTROLS === */
+.font-controls {
+  display: flex;
+  gap: 6px;
+  padding: 6px 0;
+  border-bottom: 2px solid #1a1a1a;
+}
+.font-controls button {
+  background: #fff;
+  border: 2px solid #1a1a1a;
+  border-radius: 6px;
+  padding: 12px 42px;
+  font-size: 28px;
+  font-weight: 600;
+  cursor: pointer;
+  line-height: 1.4;
+  color: #1a1a1a;
+}
+.font-controls button:hover {
+  background: #f0f0f0;
+}
+.font-controls button:focus {
+  outline: 2px solid #0000cc;
+  outline-offset: 2px;
+}
+
+/* === REFERENCE SECTION === */
+.reference {
+  margin-top: 2.5rem;
+  border-top: 3px solid #1a1a1a;
+  padding-top: 1.5rem;
+}
+.reference h2 {
+  margin-top: 0;
+}
+.ref-term {
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin-bottom: 0.75rem;
+}
+.ref-term > summary {
+  padding: 0.6rem 1rem;
+  cursor: pointer;
+  list-style: none;
+  font-weight: 600;
+  font-size: 1rem;
+  background: #fafafa;
+}
+.ref-term > summary::-webkit-details-marker {
+  display: none;
+}
+.ref-term > summary::before {
+  content: "\25B6\FE0E";
+  display: inline-block;
+  margin-right: 0.5rem;
+  font-size: 0.75em;
+  transition: transform 0.2s;
+}
+.ref-term[open] > summary::before {
+  transform: rotate(90deg);
+}
+.ref-term .ref-body {
+  padding: 0.5rem 1rem 1rem;
+  line-height: 1.7;
+  font-size: 0.9375rem;
+}
+.ref-term .ref-body p {
+  margin: 0.4rem 0;
+}
+.ref-tag {
+  display: inline-block;
+  background: #e8e8e8;
+  color: #333;
+  font-size: 0.75rem;
+  padding: 0.1em 0.5em;
+  border-radius: 3px;
+  margin-left: 0.5rem;
+  font-weight: normal;
+  vertical-align: middle;
+}
+
+/* === RESPONSIVE === */
+@media (max-width: 640px) {
+  body { font-size: 1.125rem; }
+  header h1 { font-size: 1.5rem; }
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .stat-card .stat-value { font-size: 1.75rem; }
+  table { font-size: 1rem; }
+  th, td { padding: 0.4rem 0.5rem; }
+  .category-details {
+    border: none;
+    border-top: 2px solid #1a1a1a;
+    border-radius: 0;
+    margin-bottom: 0;
+  }
+  .category-details > summary {
+    border-radius: 0;
+    padding: 0.75rem 0.5rem;
+  }
+  .stat-card {
+    border-width: 1px;
+  }
+  .sites-table-wrap, .checks-table-wrap {
+    overflow-x: visible;
+  }
+
+  /* === SITES TABLE → CARDS === */
+  .mobile-label {
+    display: inline;
+    font-weight: normal;
+    color: #555;
+  }
+  .sites-table { border-collapse: separate; border-spacing: 0; }
+  .sites-table > thead { display: none; }
+  .sites-table > tbody > tr:not(.details-row) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.75rem;
+    padding: 0.6rem 0.25rem 0.25rem;
+    border-bottom: none;
+  }
+  .sites-table > tbody > tr:not(.details-row) > th,
+  .sites-table > tbody > tr:not(.details-row) > td {
+    border: none;
+    padding: 0;
+  }
+  /* Название сайта — полная ширина */
+  .sites-table > tbody > tr:not(.details-row) > th:first-child {
+    width: 100%;
+    font-size: 1rem;
+    margin-bottom: 0.15rem;
+  }
+  /* URL — скрыт */
+  .sites-table > tbody > tr:not(.details-row) > td:nth-child(2) {
+    display: none;
+  }
+  /* PASS, FAIL, % — в строку */
+  .sites-table > tbody > tr:not(.details-row) > td.num {
+    font-size: 0.9rem;
+    text-align: left;
+  }
+  /* details-row на всю ширину */
+  .sites-table > tbody > tr.details-row {
+    display: block;
+  }
+  .sites-table > tbody > tr.details-row > td {
+    display: block;
+    padding: 0;
+    border-bottom: 2px solid #ccc;
+  }
+  .checks-table { font-size: 0.9375rem; border-collapse: separate; border-spacing: 0; }
+  .checks-table > thead { display: none; }
+  .checks-table > tbody > tr {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0 0.25rem;
+    padding: 0.5rem 0.25rem;
+    border-bottom: 1px solid #ddd;
+  }
+  .checks-table > tbody > tr > td {
+    border: none;
+    padding: 0;
+  }
+  /* ГОСТ — первый: "ГОСТ 5.1" */
+  .checks-table > tbody > tr > td:nth-child(1) {
+    order: 1;
+    font-size: 0.875rem;
+    color: #333;
+  }
+  /* Запятая + вердикт после ГОСТа */
+  .checks-table > tbody > tr > td:nth-child(2) {
+    order: 2;
+    font-size: 0.875rem;
+  }
+  .checks-table > tbody > tr > td:nth-child(2)::before {
+    content: ", ";
+    font-weight: normal;
+    color: #333;
+  }
+  /* Проверка — полная ширина */
+  .checks-table > tbody > tr > td:nth-child(3) {
+    order: 3;
+    width: 100%;
+    margin-top: 0.15rem;
+  }
+  /* Причина — полная ширина */
+  .checks-table > tbody > tr > td:nth-child(4) {
+    order: 4;
+    width: 100%;
+    color: #444;
+    font-size: 0.875rem;
+    margin-top: 0.1rem;
+    word-break: break-word;
+  }
+  /* Источник — скрыт */
+  .checks-table > tbody > tr > td:nth-child(5) {
+    display: none;
+  }
+  .font-controls {
+    flex-wrap: wrap;
+  }
+  .font-controls button {
+    font-size: 28px;
+    padding: 10px 20px;
+  }
+}
+@media (max-width: 400px) {
+  .stats-grid { grid-template-columns: 1fr; }
+}

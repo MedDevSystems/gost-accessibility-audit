@@ -59,19 +59,19 @@ async def open_page(
             launch_kwargs["args"] = [
                 "--no-sandbox",
                 "--disable-gpu",
-                "--disable-background-networking",
-                "--disable-client-side-phishing-detection",
-                "--disable-default-apps",
-                "--disable-extensions",
-                "--disable-sync",
-                "--disable-component-update",
-                "--no-first-run",
-                "--safebrowsing-disable-auto-update",
             ]
         browser = await pw.chromium.launch(**launch_kwargs)
+        # Реалистичный UA — антибот-системы блокируют дефолтный HeadlessChrome
+        _UA = (
+            "Mozilla/5.0 (X11; Linux x86_64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/131.0.0.0 Safari/537.36"
+        )
         context = await browser.new_context(
             viewport={"width": 1920, "height": 1080},
             locale="ru-RU",
+            user_agent=_UA,
+            ignore_https_errors=True,
         )
         page = await context.new_page()
         # END_LAUNCH_BROWSER
