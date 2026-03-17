@@ -488,7 +488,9 @@ class CheckAccessibilityLink(GostCheck):
     # SIDE_EFFECTS: [Навигация на yandex.ru/search. Меняет текущую страницу!]
     # KEYWORDS: [yandex, validate, external, search, special_version]
     async def _yandex_validate(self, page: Any, domain: str) -> Dict[str, Any]:
-        """Внешняя валидация: ищем спецверсию сайта через Яндекс."""
+        """Внешняя валидация: ищем спецверсию сайта через Яндекс.
+        После проверки возвращается на исходный URL."""
+        original_url = page.url
         results: Dict[str, Any] = {
             "special_subdomain_exists": False,
             "mentions_found": False,
@@ -562,6 +564,16 @@ class CheckAccessibilityLink(GostCheck):
             log_check(self.gost_ref, self.wcag_ref, "YANDEX_VALIDATE", "Error",
                       f"Ошибка запроса '{query2}': {e}", "FAIL")
         # END_QUERY_MENTIONS
+
+        # START_BLOCK_RESTORE_PAGE: Возврат на исходную страницу после Яндекс-валидации
+        try:
+            await page.goto(original_url, timeout=15000, wait_until="domcontentloaded")
+            log_check(self.gost_ref, self.wcag_ref, "YANDEX_VALIDATE", "Info",
+                      f"Возврат на исходную страницу: {original_url}", "SUCCESS")
+        except Exception as e:
+            log_check(self.gost_ref, self.wcag_ref, "YANDEX_VALIDATE", "Error",
+                      f"Ошибка возврата на {original_url}: {e}", "FAIL")
+        # END_BLOCK_RESTORE_PAGE
 
         return results
     # END_FUNCTION__yandex_validate

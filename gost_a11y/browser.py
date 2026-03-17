@@ -185,6 +185,7 @@ async def open_page(
             launch_kwargs["args"] = [
                 "--no-sandbox",
                 "--disable-gpu",
+                "--disable-extensions",
             ]
         browser = await pw.chromium.launch(**launch_kwargs)
         context = await browser.new_context(
