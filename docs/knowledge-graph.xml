@@ -1,7 +1,7 @@
 <KnowledgeGraph>
-  <Project NAME="gost-a11y-automation" VERSION="0.1.0">
-    <keywords>accessibility, a11y, GOST, WCAG, government-sites, Playwright, axe-core, LLM, automated-testing, web-accessibility</keywords>
-    <annotation>Автоматизированное тестирование веб-сайтов на соответствие российским ГОСТам по доступности (ГОСТ Р 52872-2019, WCAG 2.1 A/AA, Приказ Минцифры №953). Script-First архитектура с LLM как fallback.</annotation>
+  <Project NAME="gost-a11y-automation" VERSION="0.2.0">
+    <keywords>accessibility, a11y, GOST, WCAG, government-sites, Playwright, axe-core, LLM, automated-testing, web-accessibility, FastAPI, audit-webapp, SSE, Lighthouse-style</keywords>
+    <annotation>Автоматизированное тестирование веб-сайтов на соответствие российским ГОСТам по доступности (ГОСТ Р 52872-2019, WCAG 2.1 A/AA, Приказ Минцифры №953). Script-First архитектура с LLM как fallback. Веб-интерфейс аудита в стиле Lighthouse с SSE-стримингом результатов.</annotation>
 
     <!-- ===== Core Modules ===== -->
 
@@ -167,6 +167,84 @@
       </annotations>
     </M-DASHBOARD>
 
+    <!-- ===== Audit Web App ===== -->
+
+    <M-AUDIT-SCHEMAS NAME="AuditSchemas" TYPE="UTILITY">
+      <purpose>Pydantic-модели для Audit API: запросы, ответы, SSE-события</purpose>
+      <path>audit/backend/schemas.py</path>
+      <depends>M-MODELS</depends>
+      <annotations>
+        <class-AuditRequest PURPOSE="Валидация входящего запроса: urls, include_special" />
+        <class-CheckResultOut PURPOSE="Сериализация результата проверки для SSE/JSON" />
+        <class-AuditSummary PURPOSE="Сводка: total, passed, failed, uncertain, score_pct" />
+        <class-PageReport PURPOSE="Полный отчёт по одной странице" />
+        <class-AuditStatus PURPOSE="Текущий статус задачи аудита" />
+        <fn-category_for_gost_section PURPOSE="Маппинг gost_section → категория ГОСТ" />
+      </annotations>
+    </M-AUDIT-SCHEMAS>
+
+    <M-AUDIT-TASKSTORE NAME="TaskStore" TYPE="DATA_LAYER">
+      <purpose>In-memory хранилище задач аудита с asyncio.Queue для SSE-стриминга</purpose>
+      <path>audit/backend/task_store.py</path>
+      <depends>none</depends>
+      <annotations>
+        <class-TaskStore PURPOSE="Singleton: создание задач, push/subscribe событий" />
+        <class-AuditTask PURPOSE="Задача: id, status, queue, results, semaphore" />
+        <class-SSEEvent PURPOSE="SSE-событие: event_type, data (JSON)" />
+      </annotations>
+    </M-AUDIT-TASKSTORE>
+
+    <M-AUDIT-ENGINE NAME="AuditEngine" TYPE="CORE_LOGIC">
+      <purpose>Движок аудита — обёртка над get_all_checks() + open_page() с per-check SSE-стримингом</purpose>
+      <path>audit/backend/audit_engine.py</path>
+      <depends>M-REGISTRY, M-BROWSER, M-AUDIT-TASKSTORE, M-AUDIT-SCHEMAS</depends>
+      <annotations>
+        <fn-run_audit PURPOSE="Async: запуск полного аудита, push_event после каждой проверки" />
+      </annotations>
+    </M-AUDIT-ENGINE>
+
+    <M-AUDIT-API NAME="AuditAPI" TYPE="ENTRY_POINT">
+      <purpose>FastAPI эндпоинты: POST /api/audit, GET /api/audit/{id}/stream (SSE), GET /api/checks</purpose>
+      <path>audit/backend/api.py</path>
+      <depends>M-AUDIT-ENGINE, M-AUDIT-SCHEMAS, M-AUDIT-TASKSTORE</depends>
+      <annotations>
+        <fn-start_audit PURPOSE="POST /api/audit — создание задачи, запуск asyncio.Task" />
+        <fn-stream_results PURPOSE="GET /api/audit/{id}/stream — SSE-стрим результатов" />
+        <fn-get_status PURPOSE="GET /api/audit/{id} — polling fallback" />
+        <fn-list_checks PURPOSE="GET /api/checks — метаданные всех 22 проверок" />
+      </annotations>
+    </M-AUDIT-API>
+
+    <M-AUDIT-APP NAME="AuditApp" TYPE="ENTRY_POINT">
+      <purpose>FastAPI-приложение: CORS, .env загрузка, sys.path, монтирование роутера</purpose>
+      <path>audit/backend/main.py</path>
+      <depends>M-AUDIT-API</depends>
+      <annotations>
+        <fn-app PURPOSE="FastAPI instance — точка входа для uvicorn" />
+      </annotations>
+    </M-AUDIT-APP>
+
+    <M-AUDIT-UI NAME="AuditUI" TYPE="UI_COMPONENT">
+      <purpose>React+TypeScript+Vite SPA — интерактивный аудит Lighthouse-style с HTML-экспортом</purpose>
+      <path>audit/frontend/</path>
+      <depends>M-AUDIT-API</depends>
+      <annotations>
+        <fn-App PURPOSE="Корневой компонент: форма + прогресс + отчёт" />
+        <fn-AuditForm PURPOSE="Ввод URL + кнопка запуска аудита" />
+        <fn-ScoreGauge PURPOSE="Круговой SVG-индикатор оценки (N/22)" />
+        <fn-ProgressBar PURPOSE="Прогресс проверки в реальном времени" />
+        <fn-ReportView PURPOSE="Полный отчёт: gauge + категории + экспорт" />
+        <fn-CategoryGroup PURPOSE="Группа проверок по категории ГОСТ" />
+        <fn-CheckItem PURPOSE="Одна проверка: вердикт + описание + спойлер" />
+        <fn-ViolationNode PURPOSE="Проблемный HTML-элемент: код + селектор + impact" />
+        <fn-ExportButton PURPOSE="Кнопка сохранения HTML-отчёта" />
+        <fn-useAudit PURPOSE="Hook: стейт-машина (idle→running→completed|error)" />
+        <type-CheckResultOut PURPOSE="TS-интерфейс результата проверки" />
+        <type-PageReport PURPOSE="TS-интерфейс отчёта по странице" />
+        <type-AuditState PURPOSE="TS-тип стейт-машины аудита" />
+      </annotations>
+    </M-AUDIT-UI>
+
     <!-- ===== CrossLinks ===== -->
 
     <CrossLink from="M-BASE-CHECK" to="M-MODELS" relation="uses Verdict, CheckResult, FallbackContext, LLMVerdict" />
@@ -183,6 +261,18 @@
     <CrossLink from="M-LLM" to="M-MODELS" relation="returns LLMVerdict, receives FallbackContext" />
     <CrossLink from="M-BUILD-DASHBOARD" to="M-BATCH" relation="reads batch reports (summary.json + per-site JSON)" />
     <CrossLink from="M-DASHBOARD" to="M-BUILD-DASHBOARD" relation="consumes report.json generated by build_dashboard.py" />
+
+    <!-- Audit Web App CrossLinks -->
+    <CrossLink from="M-AUDIT-SCHEMAS" to="M-MODELS" relation="mirrors CheckResult fields as Pydantic models" />
+    <CrossLink from="M-AUDIT-ENGINE" to="M-REGISTRY" relation="imports get_all_checks() for check loop" />
+    <CrossLink from="M-AUDIT-ENGINE" to="M-BROWSER" relation="uses open_page() for Playwright lifecycle" />
+    <CrossLink from="M-AUDIT-ENGINE" to="M-AUDIT-TASKSTORE" relation="pushes SSE events into task queue" />
+    <CrossLink from="M-AUDIT-ENGINE" to="M-AUDIT-SCHEMAS" relation="converts CheckResult → CheckResultOut" />
+    <CrossLink from="M-AUDIT-API" to="M-AUDIT-ENGINE" relation="starts audit task via run_audit()" />
+    <CrossLink from="M-AUDIT-API" to="M-AUDIT-TASKSTORE" relation="subscribes to task queue for SSE stream" />
+    <CrossLink from="M-AUDIT-API" to="M-AUDIT-SCHEMAS" relation="uses Pydantic models for request/response" />
+    <CrossLink from="M-AUDIT-APP" to="M-AUDIT-API" relation="mounts API router" />
+    <CrossLink from="M-AUDIT-UI" to="M-AUDIT-API" relation="HTTP/SSE communication" />
 
   </Project>
 </KnowledgeGraph>

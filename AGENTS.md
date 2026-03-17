@@ -100,6 +100,20 @@ gost_a11y/
   checks/                — 22 check implementations (5 phases)
 run_all_targets.py       — Batch runner for all targets
 build_dashboard.py       — Report JSON generator for dashboard
+audit/
+  backend/
+    main.py              — FastAPI app (CORS, .env, sys.path)
+    api.py               — Endpoints: POST /api/audit, GET /stream (SSE), GET /checks
+    schemas.py           — Pydantic models (AuditRequest, CheckResultOut, PageReport)
+    audit_engine.py      — Audit engine: per-check streaming via TaskStore
+    task_store.py         — In-memory task storage with asyncio.Queue
+  frontend/
+    src/App.tsx           — Root React component (form + progress + report)
+    src/types.ts          — TypeScript interfaces
+    src/api.ts            — Fetch + EventSource client
+    src/hooks/useAudit.ts — Audit state machine hook
+    src/components/       — AuditForm, ScoreGauge, ProgressBar, ReportView, CategoryGroup,
+                            CheckItem, ViolationNode, ExportButton
 dashboard/
   src/App.tsx             — Root React component
   src/types.ts            — TypeScript interfaces

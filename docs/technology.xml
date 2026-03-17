@@ -1,10 +1,10 @@
-<TechnologyStack VERSION="0.1.0">
+<TechnologyStack VERSION="0.2.0">
   <!-- Runtime and language -->
   <Runtime>Python 3.12</Runtime>
   <Language>Python 3.12</Language>
 
-  <!-- Framework (if applicable) -->
-  <Framework>none (CLI tool)</Framework>
+  <!-- Framework -->
+  <Framework>FastAPI (audit web app backend)</Framework>
 
   <!-- Key libraries and dependencies (Python) -->
   <Dependencies>
@@ -13,7 +13,19 @@
     <dep name="anthropic" version=">=0.20.0" purpose="В requirements.txt, но код использует openai SDK — возможный рудимент" />
     <dep name="pytest" version=">=8.0.0" purpose="Тестирование" />
     <dep name="pytest-asyncio" version=">=0.23.0" purpose="Async-тесты для Playwright-зависимого кода" />
+    <dep name="fastapi" version=">=0.115.0" purpose="HTTP API для audit web app" />
+    <dep name="uvicorn" version=">=0.32.0" purpose="ASGI-сервер для FastAPI" />
+    <dep name="sse-starlette" version=">=2.0.0" purpose="Server-Sent Events для стриминга результатов аудита" />
   </Dependencies>
+
+  <!-- Audit frontend dependencies (npm) — independent from dashboard -->
+  <AuditFrontendDependencies>
+    <dep name="react" version="^19.1.0" purpose="UI-фреймворк для audit SPA" />
+    <dep name="react-dom" version="^19.1.0" purpose="React DOM renderer" />
+    <dep name="typescript" version="~5.8.3" purpose="Типизация TypeScript" />
+    <dep name="vite" version="^6.3.5" purpose="Сборщик и dev-сервер" />
+    <dep name="@vitejs/plugin-react" version="^4.5.2" purpose="React Fast Refresh для Vite" />
+  </AuditFrontendDependencies>
 
   <!-- Dashboard dependencies (npm) -->
   <DashboardDependencies>
@@ -38,5 +50,8 @@
     <tool name="env" value=".env file with OPENROUTER_API_KEY" />
     <tool name="dashboard-bundler" value="vite 6.3" />
     <tool name="dashboard-build" value="tsc -b && vite build" />
+    <tool name="audit-backend" value="uvicorn audit.backend.main:app --reload" />
+    <tool name="audit-frontend-dev" value="cd audit/frontend && npm run dev" />
+    <tool name="audit-frontend-build" value="cd audit/frontend && tsc -b && vite build" />
   </Tooling>
 </TechnologyStack>
