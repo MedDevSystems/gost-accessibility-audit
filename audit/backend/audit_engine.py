@@ -112,6 +112,10 @@ async def run_audit(
     ]
     # END_BLOCK_NORMALIZE_URLS
 
+    # START_BLOCK_TASK_LOGGER: Отдельный лог-файл для этого аудита
+    task_log_handler = _setup_task_logger(task_id)
+    # END_BLOCK_TASK_LOGGER
+
     async with store.semaphore:
         try:
             task.status = "running"
@@ -222,6 +226,8 @@ async def run_audit(
                 },
             ))
             # END_BLOCK_ERROR
+        finally:
+            _teardown_task_logger(task_log_handler)
 
 
 # START_CONTRACT: _run_special_checks
@@ -343,6 +349,39 @@ _REPORTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
     os.path.abspath(__file__)))), "reports")
 
 
+def _task_dir(task_id: str) -> str:
+    """Возвращает путь к директории задачи: reports/audit/{task_id}/"""
+    d = os.path.join(_REPORTS_DIR, "audit", task_id)
+    os.makedirs(d, exist_ok=True)
+    return d
+
+
+# START_CONTRACT: _setup_task_logger
+#   PURPOSE: Добавляет FileHandler в GOST-логгер для записи в reports/audit/{task_id}/run.log
+#   INPUTS: task_id
+#   OUTPUTS: logging.FileHandler (для последующего удаления)
+# END_CONTRACT: _setup_task_logger
+def _setup_task_logger(task_id: str) -> logging.FileHandler:
+    """Создаёт отдельный лог-файл для задачи аудита."""
+    log_path = os.path.join(_task_dir(task_id), "run.log")
+    handler = logging.FileHandler(log_path, mode="w", encoding="utf-8")
+    handler.setLevel(logging.DEBUG)
+    handler.setFormatter(logging.Formatter(
+        "%(asctime)s %(message)s", datefmt="%Y-%m-%d %H:%M:%S"
+    ))
+    # Добавляем handler в GOST-логгер — все проверки пишут туда
+    gost_logger = logging.getLogger("gost_a11y")
+    gost_logger.addHandler(handler)
+    return handler
+
+
+def _teardown_task_logger(handler: logging.FileHandler) -> None:
+    """Удаляет task-specific handler из GOST-логгера."""
+    gost_logger = logging.getLogger("gost_a11y")
+    gost_logger.removeHandler(handler)
+    handler.close()
+
+
 def _persist_audit(
     task_id: str,
     urls: List[str],
@@ -351,8 +390,7 @@ def _persist_audit(
 ) -> None:
     """Сохраняет результаты аудита на диск."""
     try:
-        audit_dir = os.path.join(_REPORTS_DIR, "audit")
-        os.makedirs(audit_dir, exist_ok=True)
+        task_path = _task_dir(task_id)
 
         # START_BLOCK_SAVE_REPORT: Полный JSON-отчёт
         report = {
@@ -362,12 +400,12 @@ def _persist_audit(
             "include_special": include_special,
             "pages": pages,
         }
-        report_path = os.path.join(audit_dir, f"{task_id}.json")
+        report_path = os.path.join(task_path, "report.json")
         with open(report_path, "w", encoding="utf-8") as f:
             json.dump(report, f, ensure_ascii=False, indent=2)
         # END_BLOCK_SAVE_REPORT
 
-        # START_BLOCK_AUDIT_LOG: Append-строка в audit_log.jsonl
+        # START_BLOCK_AUDIT_LOG: Append-строка в общий audit_log.jsonl
         for page in pages:
             summary = page.get("summary", {})
             log_entry = {
@@ -380,7 +418,7 @@ def _persist_audit(
                 "total": summary.get("total", 0),
                 "score_pct": summary.get("score_pct", 0),
                 "include_special": include_special,
-                "report_file": f"audit/{task_id}.json",
+                "report_dir": f"audit/{task_id}/",
             }
             log_path = os.path.join(_REPORTS_DIR, "audit_log.jsonl")
             with open(log_path, "a", encoding="utf-8") as f:
@@ -389,7 +427,7 @@ def _persist_audit(
 
         audit_logger.info(
             f"[AUDIT][PERSIST] task={task_id} pages={len(pages)} "
-            f"report={report_path} [SUCCESS]"
+            f"dir={task_path} [SUCCESS]"
         )
     except Exception as e:
         audit_logger.error(f"[AUDIT][PERSIST] task={task_id} error={e} [FAIL]")
