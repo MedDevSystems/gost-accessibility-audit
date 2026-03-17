@@ -100,6 +100,13 @@ async def run_audit(
     if not task:
         return
 
+    # START_BLOCK_NORMALIZE_URLS: Автоподстановка https:// если протокол не указан
+    urls = [
+        u if u.startswith("http://") or u.startswith("https://") else f"https://{u}"
+        for u in urls
+    ]
+    # END_BLOCK_NORMALIZE_URLS
+
     async with store.semaphore:
         try:
             task.status = "running"
