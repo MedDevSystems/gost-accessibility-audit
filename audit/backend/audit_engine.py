@@ -104,7 +104,11 @@ async def run_audit(
         try:
             task.status = "running"
             all_checks = get_all_checks()
-            task.checks_total = len(all_checks) * len(urls)
+            # Считаем общее количество: основные + спецверсия (20 = 22 - 2 исключённых)
+            checks_per_url = len(all_checks)
+            if include_special:
+                checks_per_url += len(all_checks) - 2  # без CheckSpecialVersion и CheckAccessibilityLink
+            task.checks_total = checks_per_url * len(urls)
 
             # START_BLOCK_ITERATE_URLS: Последовательная обработка каждого URL
             for url_index, url in enumerate(urls):
@@ -148,7 +152,7 @@ async def run_audit(
                                 "pass": "main",
                                 "url": url,
                                 "check_index": check_index,
-                                "checks_total": len(all_checks),
+                                "checks_total": task.checks_total,
                                 "result": result_out.model_dump(),
                             },
                         ))
@@ -295,6 +299,7 @@ async def _run_special_checks(
                 )
 
             results.append(result_out)
+            task.checks_done += 1
 
             await store.push_event(task_id, SSEEvent(
                 event_type="check_result",
@@ -302,7 +307,7 @@ async def _run_special_checks(
                     "pass": "special",
                     "url": url,
                     "check_index": check_index,
-                    "checks_total": len(checks),
+                    "checks_total": task.checks_total,
                     "result": result_out.model_dump(),
                 },
             ))

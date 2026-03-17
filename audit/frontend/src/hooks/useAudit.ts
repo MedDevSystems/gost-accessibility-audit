@@ -51,9 +51,10 @@ export function useAudit() {
 
             case 'check_result': {
               const result = data.result as CheckResultOut;
+              const pass = data.pass as string;
               setState(prev => ({
                 ...prev,
-                currentCheck: result.title,
+                currentCheck: pass === 'special' ? `[спец] ${result.title}` : result.title,
                 checksDone: prev.checksDone + 1,
                 checksTotal: data.checks_total as number,
                 liveResults: [...prev.liveResults, result],
