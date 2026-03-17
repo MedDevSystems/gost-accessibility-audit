@@ -16,7 +16,6 @@ export function App() {
       <div className="container">
         <header>
           <h1>Аудит доступности</h1>
-          <p>ГОСТ Р 52872-2019 &middot; ГОСТ Р ИСО 40500-2014 &middot; Приказ Минцифры №953</p>
         </header>
 
         <main id="main">
