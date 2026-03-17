@@ -1,4 +1,4 @@
-/* Круговой SVG-индикатор оценки в стиле Lighthouse */
+/* Круговой SVG-индикатор оценки */
 
 interface Props {
   passed: number;
@@ -16,8 +16,12 @@ export function ScoreGauge({ passed, total }: Props) {
   else if (pct >= 0.5) colorClass = 'gauge-orange';
 
   return (
-    <div className={`score-gauge ${colorClass}`}>
-      <svg viewBox="0 0 120 120" width="120" height="120">
+    <div
+      className={`score-gauge ${colorClass}`}
+      role="img"
+      aria-label={`Оценка: ${passed} из ${total}`}
+    >
+      <svg viewBox="0 0 120 120" width="120" height="120" aria-hidden="true">
         <circle
           className="gauge-bg"
           cx="60" cy="60" r={radius}
@@ -33,7 +37,7 @@ export function ScoreGauge({ passed, total }: Props) {
           transform="rotate(-90 60 60)"
         />
       </svg>
-      <div className="gauge-text">
+      <div className="gauge-text" aria-hidden="true">
         <span className="gauge-value">{passed}</span>
         <span className="gauge-slash">/</span>
         <span className="gauge-total">{total}</span>

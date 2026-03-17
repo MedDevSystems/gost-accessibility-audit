@@ -48,24 +48,24 @@ export function ReportView({ report }: Props) {
       </div>
 
       <div className="report-section">
-        <div className="stats-grid">
-          <div className="stat-card">
-            <span className="stat-value verdict-pass">{summary.passed}</span>
-            <span className="stat-label">Пройдено</span>
+        <div className="stats-grid" role="group" aria-label="Статистика аудита">
+          <div className="stat-card" aria-label={`Пройдено: ${summary.passed}`}>
+            <span className="stat-value verdict-pass" aria-hidden="true">{summary.passed}</span>
+            <span className="stat-label" aria-hidden="true">Пройдено</span>
           </div>
-          <div className="stat-card">
-            <span className="stat-value verdict-fail">{summary.failed}</span>
-            <span className="stat-label">Не пройдено</span>
+          <div className="stat-card" aria-label={`Не пройдено: ${summary.failed}`}>
+            <span className="stat-value verdict-fail" aria-hidden="true">{summary.failed}</span>
+            <span className="stat-label" aria-hidden="true">Не пройдено</span>
           </div>
           {summary.uncertain > 0 && (
-            <div className="stat-card">
-              <span className="stat-value verdict-uncertain">{summary.uncertain}</span>
-              <span className="stat-label">Неопределённо</span>
+            <div className="stat-card" aria-label={`Неопределённо: ${summary.uncertain}`}>
+              <span className="stat-value verdict-uncertain" aria-hidden="true">{summary.uncertain}</span>
+              <span className="stat-label" aria-hidden="true">Неопределённо</span>
             </div>
           )}
-          <div className="stat-card">
-            <span className="stat-value">{summary.score_pct}%</span>
-            <span className="stat-label">Оценка</span>
+          <div className="stat-card" aria-label={`Оценка: ${summary.score_pct}%`}>
+            <span className="stat-value" aria-hidden="true">{summary.score_pct}%</span>
+            <span className="stat-label" aria-hidden="true">Оценка</span>
           </div>
         </div>
 

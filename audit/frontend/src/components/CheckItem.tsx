@@ -85,8 +85,11 @@ export function CheckItem({ result }: Props) {
   return (
     <div className={`check-item ${VERDICT_CLASSES[result.verdict]}`}>
       <div className="check-header">
-        <span className={`check-icon ${VERDICT_CLASSES[result.verdict]}`}>
+        <span className={`check-icon ${VERDICT_CLASSES[result.verdict]}`} aria-hidden="true">
           {VERDICT_ICONS[result.verdict]}
+        </span>
+        <span className="sr-only">
+          {result.verdict === 'PASS' ? 'Пройдено' : result.verdict === 'FAIL' ? 'Не пройдено' : 'Неопределено'}
         </span>
         <div className="check-title-block">
           <span className="check-title">{result.title}</span>
@@ -97,7 +100,7 @@ export function CheckItem({ result }: Props) {
               ` / WCAG ${result.wcag_ref}`}
           </span>
         </div>
-        <span className="check-source">{result.source}</span>
+        <span className="check-source" aria-hidden="true">{result.source}</span>
       </div>
 
       {hasDetails && (
