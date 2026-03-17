@@ -1,6 +1,6 @@
 /* API-клиент + EventSource для SSE-стриминга результатов аудита */
 
-const BASE = '/api';
+const BASE = '/audit/api';
 
 export async function startAudit(
   urls: string[],
