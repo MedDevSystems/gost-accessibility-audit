@@ -3,7 +3,6 @@
 import type { PageReport } from '../types';
 import { CATEGORY_ORDER } from '../types';
 import { CategoryGroup } from './CategoryGroup';
-import { ExportButton } from './ExportButton';
 import { ScoreGauge } from './ScoreGauge';
 
 interface Props {
@@ -69,7 +68,6 @@ export function ReportView({ report }: Props) {
           </div>
         </div>
 
-        <ExportButton url={url} />
       </div>
 
       {/* Не пройденные проверки — развёрнуты */}
