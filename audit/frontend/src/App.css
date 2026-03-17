@@ -470,6 +470,18 @@ details[open] > .section-title::before {
   font-size: 0.8125rem;
   margin-bottom: 0.5rem;
 }
+.landmark-list {
+  font-size: 0.875rem;
+  line-height: 1.8;
+}
+.landmark-present {
+  color: #333;
+  margin: 0;
+}
+.landmark-missing {
+  color: #8b0000;
+  margin: 0;
+}
 .violation-description {
   font-size: 0.875rem;
   font-weight: 600;

@@ -53,24 +53,33 @@ export function CheckItem({ result }: Props) {
   }>) || [];
 
   /* Phase 1: проблемные элементы из разных проверок */
-  const missingImages = (d.missing_images as ElementDetail[]) || [];
+  const missingImages = (d.missing_images || d.problem_images as ElementDetail[]) || [];
   const missingFields = (d.missing_fields as ElementDetail[]) || [];
-  const suppressors = (d.dangerous_suppressors || d.suppressors as Array<{
-    selector?: string;
-    property?: string;
-    replacement?: string;
-  }>) || [];
   const negativeTabindex = (d.negative_tabindex as ElementDetail[]) || [];
   const issues = (d.issues as Array<{ type?: string; detail?: string }>) || [];
+
+  /* Landmarks (2.4.1) */
+  const landmarks = (d.landmarks as Array<{
+    role?: string; tag?: string; aria_label?: string; visible?: boolean;
+  }>) || [];
+  const hasMain = d.has_main as boolean | undefined;
+  const landmarkRoles = (d.visible_roles as string[]) || [];
+
+  /* CSS suppressors (2.4.7) */
+  const suppressors = (d.suppressors as Array<{
+    selector?: string; has_replacement?: boolean; rule_text?: string;
+  }>) || [];
+  const dangerousSuppressors = d.dangerous_suppressors as number | undefined;
 
   const hasDetails = result.verdict !== 'PASS' && (
     result.reason ||
     violations.length > 0 ||
     missingImages.length > 0 ||
     missingFields.length > 0 ||
-    (suppressors as unknown[]).length > 0 ||
     negativeTabindex.length > 0 ||
-    issues.length > 0
+    issues.length > 0 ||
+    landmarks.length > 0 ||
+    suppressors.length > 0
   );
 
   return (
@@ -102,7 +111,7 @@ export function CheckItem({ result }: Props) {
               <p className="check-description">{result.description}</p>
             )}
 
-            {/* axe-core violations с полными деталями */}
+            {/* axe-core violations */}
             {violations.map((v, vi) => (
               <div key={vi} className="violation-group">
                 {v.description && (
@@ -120,11 +129,11 @@ export function CheckItem({ result }: Props) {
               </div>
             ))}
 
-            {/* Изображения без alt */}
+            {/* Изображения без alt / с проблемами */}
             {missingImages.length > 0 && (
               <div className="violation-group">
                 <p className="violation-description">
-                  Изображения без alt-текста ({missingImages.length})
+                  Проблемные изображения ({missingImages.length})
                 </p>
                 {missingImages.map((img, i) => (
                   <div key={i} className="violation-node">
@@ -133,6 +142,15 @@ export function CheckItem({ result }: Props) {
                     </code>
                     {img.selector && (
                       <div className="violation-target">{img.selector}</div>
+                    )}
+                    {img.issue && (
+                      <span className="violation-impact" style={{
+                        backgroundColor: img.issue === 'no_alt' ? '#8b0000' : '#6b5000'
+                      }}>
+                        {img.issue === 'no_alt' ? 'нет alt' :
+                         img.issue === 'meaningless_alt' ? 'бессмысленный alt' :
+                         String(img.severity || img.issue)}
+                      </span>
                     )}
                   </div>
                 ))}
@@ -158,16 +176,38 @@ export function CheckItem({ result }: Props) {
               </div>
             )}
 
-            {/* CSS-правила подавляющие outline */}
-            {(suppressors as Array<{ selector?: string }>).length > 0 && (
+            {/* Landmarks (2.4.1) */}
+            {landmarks.length > 0 && (
+              <div className="violation-group">
+                <p className="violation-description">Landmarks на странице</p>
+                <div className="violation-node">
+                  <div className="landmark-list">
+                    {landmarkRoles.length > 0 && (
+                      <p className="landmark-present">
+                        Присутствуют: {landmarkRoles.join(', ')}
+                      </p>
+                    )}
+                    {hasMain === false && (
+                      <p className="landmark-missing">
+                        Отсутствует: <strong>main</strong> (основное содержимое)
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* CSS-правила подавляющие фокус (2.4.7) */}
+            {suppressors.length > 0 && (
               <div className="violation-group">
                 <p className="violation-description">
-                  CSS-правила подавляющие видимый фокус ({(suppressors as unknown[]).length})
+                  CSS-правила подавляющие видимый фокус
+                  {dangerousSuppressors !== undefined && ` (${dangerousSuppressors} опасных из ${suppressors.length})`}
                 </p>
-                {(suppressors as Array<{ selector?: string; property?: string }>).map((s, i) => (
+                {suppressors.filter(s => !s.has_replacement).slice(0, 10).map((s, i) => (
                   <div key={i} className="violation-node">
                     <code className="violation-html">
-                      {s.selector} {'{'} {s.property || 'outline: none'} {'}'}
+                      {s.selector} {'{ outline: none }'}
                     </code>
                   </div>
                 ))}
