@@ -97,13 +97,18 @@ export function useAudit() {
               break;
           }
         },
-        () => {
-          setState(prev => {
-            if (prev.phase === 'running') {
-              return { ...prev, phase: 'error', errorMessage: 'SSE connection lost' };
-            }
-            return prev;
-          });
+        (err) => {
+          // EventSource переподключается автоматически — onerror не значит фатальную ошибку.
+          // Только если readyState === CLOSED (2) — соединение закрыто навсегда.
+          const target = err.target as EventSource | null;
+          if (target && target.readyState === EventSource.CLOSED) {
+            setState(prev => {
+              if (prev.phase === 'running') {
+                return { ...prev, phase: 'error', errorMessage: 'SSE-соединение закрыто' };
+              }
+              return prev;
+            });
+          }
         },
       );
 
