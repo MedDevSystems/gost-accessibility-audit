@@ -43,5 +43,19 @@
       <AcceptanceCriteria>Лог-формат [CATEGORY][GOST_REF][WCAG_REF][STEP][Status] позволяет фильтрацию</AcceptanceCriteria>
     </UC-006>
 
+    <UC-007>
+      <Actor>Оператор</Actor>
+      <Action>Открывает React-дашборд в браузере</Action>
+      <Goal>Визуально сравнить результаты проверок по категориям госсайтов</Goal>
+      <AcceptanceCriteria>SPA с группировкой по категориям, таблица проверок, сводная статистика, управление шрифтом, skip-link</AcceptanceCriteria>
+    </UC-007>
+
+    <UC-008>
+      <Actor>Система (build_dashboard.py)</Actor>
+      <Action>Конвертирует batch-отчёты в report.json для дашборда</Action>
+      <Goal>Подготовить данные из summary.json + per-site JSON для React-визуализации</Goal>
+      <AcceptanceCriteria>Валидный report.json в dashboard/src/data/, демо-режим при отсутствии отчётов</AcceptanceCriteria>
+    </UC-008>
+
   </UseCases>
 </RequirementsAnalysis>

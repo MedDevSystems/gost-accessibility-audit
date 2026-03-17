@@ -354,4 +354,6 @@ async def run_all(headless: bool = True) -> Dict:
 
 if __name__ == "__main__":
     headless = "--no-headless" not in sys.argv
+    if "--no-llm" in sys.argv:
+        os.environ.pop("OPENROUTER_API_KEY", None)
     asyncio.run(run_all(headless=headless))

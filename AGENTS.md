@@ -88,7 +88,24 @@ docs/
   technology.xml         — Stack decisions and version constraints
   development-plan.xml   — Architectural blueprint
 gost_a11y/
-  ... code with GRACE markup ...
+  models.py              — Verdict, CheckResult, FallbackContext, LLMVerdict
+  logger.py              — Structured GOST-aware logging
+  browser.py             — Playwright lifecycle + antibot protection
+  axe_helper.py          — axe-core injection and execution
+  llm_fallback.py        — OpenRouter API integration
+  base_check.py          — GostCheck ABC (4-step pipeline)
+  registry.py            — Ordered list of 22 checks
+  runner.py              — CLI entry point, dual-pass orchestration
+  targets.py             — ~120 target government sites
+  checks/                — 22 check implementations (5 phases)
+run_all_targets.py       — Batch runner for all targets
+build_dashboard.py       — Report JSON generator for dashboard
+dashboard/
+  src/App.tsx             — Root React component
+  src/types.ts            — TypeScript interfaces
+  src/components/         — CategorySection, ChecksTable, FontControls, Stats, Reference
+  src/hooks/useFontSize.ts — Font size hook with localStorage
+  src/data/report.json    — Generated data (from build_dashboard.py)
 ```
 
 ## Documentation Artifacts — Unique Tag Convention

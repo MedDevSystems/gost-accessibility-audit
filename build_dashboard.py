@@ -1179,13 +1179,30 @@ def _escape_html(s: str) -> str:
 # OUTPUTS: dict — JSON-совместимый словарь.
 # SIDE_EFFECTS: [Нет.]
 # KEYWORDS: [json, react, data, report]
+def _is_timeout_site(report: Dict[str, Any]) -> bool:
+    """Проверяет, все ли чеки сайта — таймаут/недоступность."""
+    checks = report.get("checks", [])
+    if not checks:
+        return True
+    fail_count = sum(1 for c in checks if c.get("verdict") == "FAIL")
+    if fail_count < len(checks):
+        return False
+    # Все FAIL — проверяем причину первого чека
+    first_reason = checks[0].get("reason", "").lower()
+    return "timeout" in first_reason or "недоступен" in first_reason
+
+
 def generate_report_json(summary: Dict[str, Any], site_reports: List[Dict[str, Any]]) -> Dict[str, Any]:
     """Формирует JSON-данные для React-дашборда."""
     checks_per_site = summary.get("checks_per_site", 22)
     is_demo = summary.get("is_demo", False)
 
+    # Фильтруем сайты с таймаутами — они не содержат полезных данных
+    valid_reports = [r for r in site_reports if not _is_timeout_site(r)]
+    skipped = len(site_reports) - len(valid_reports)
+
     all_pass_pcts = []
-    for report in site_reports:
+    for report in valid_reports:
         s = report.get("summary", {})
         total = s.get("total", 0) or checks_per_site
         p = s.get("pass", 0)
@@ -1194,13 +1211,16 @@ def generate_report_json(summary: Dict[str, Any], site_reports: List[Dict[str, A
 
     avg_pct = round(sum(all_pass_pcts) / len(all_pass_pcts), 1) if all_pass_pcts else 0
 
+    if skipped:
+        print(f"  Отфильтровано {skipped} сайтов с таймаутами/недоступностью")
+
     return {
         "timestamp": summary.get("timestamp", ""),
-        "total_sites": summary.get("total_sites", len(site_reports)),
+        "total_sites": len(valid_reports),
         "checks_per_site": checks_per_site,
         "is_demo": is_demo,
         "avg_pct": avg_pct,
-        "sites": site_reports,
+        "sites": valid_reports,
     }
 # END_FUNCTION_generate_report_json
 

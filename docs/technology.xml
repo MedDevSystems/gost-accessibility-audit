@@ -6,14 +6,23 @@
   <!-- Framework (if applicable) -->
   <Framework>none (CLI tool)</Framework>
 
-  <!-- Key libraries and dependencies -->
+  <!-- Key libraries and dependencies (Python) -->
   <Dependencies>
     <dep name="playwright" version=">=1.40.0" purpose="Браузерная автоматизация, сбор данных со страниц, скриншоты" />
     <dep name="openai" version="latest" purpose="Клиент для OpenRouter API (совместимый интерфейс)" />
-    <dep name="axe-core-python" version="latest" purpose="Содержит axe.min.js, инжектируется через Playwright" />
+    <dep name="anthropic" version=">=0.20.0" purpose="В requirements.txt, но код использует openai SDK — возможный рудимент" />
     <dep name="pytest" version=">=8.0.0" purpose="Тестирование" />
     <dep name="pytest-asyncio" version=">=0.23.0" purpose="Async-тесты для Playwright-зависимого кода" />
   </Dependencies>
+
+  <!-- Dashboard dependencies (npm) -->
+  <DashboardDependencies>
+    <dep name="react" version="^19.1.0" purpose="UI-фреймворк для дашборда" />
+    <dep name="react-dom" version="^19.1.0" purpose="React DOM renderer" />
+    <dep name="typescript" version="~5.8.3" purpose="Типизация TypeScript" />
+    <dep name="vite" version="^6.3.5" purpose="Сборщик и dev-сервер" />
+    <dep name="@vitejs/plugin-react" version="^4.5.2" purpose="React Fast Refresh для Vite" />
+  </DashboardDependencies>
 
   <!-- Version constraints -->
   <VersionConstraints>
@@ -25,7 +34,9 @@
   <Tooling>
     <tool name="browser" value="google-chrome (system) or playwright chromium" />
     <tool name="llm-provider" value="OpenRouter API" />
-    <tool name="llm-model" value="qwen/qwen3.5-35b-a3b (vision-language, thinking)" />
+    <tool name="llm-model" value="qwen/qwen3.5-35b-a3b (vision-language, thinking), configurable via GOST_LLM_MODEL" />
     <tool name="env" value=".env file with OPENROUTER_API_KEY" />
+    <tool name="dashboard-bundler" value="vite 6.3" />
+    <tool name="dashboard-build" value="tsc -b && vite build" />
   </Tooling>
 </TechnologyStack>

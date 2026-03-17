@@ -33,11 +33,13 @@
     </M-LOGGER>
 
     <M-BROWSER NAME="Browser" TYPE="INTEGRATION">
-      <purpose>Playwright lifecycle — контекстный менеджер для открытия страницы</purpose>
+      <purpose>Playwright lifecycle — контекстный менеджер для открытия страницы с антибот-защитой</purpose>
       <path>gost_a11y/browser.py</path>
       <depends>none</depends>
       <annotations>
-        <fn-open_page PURPOSE="Async context manager: браузер → страница → навигация" />
+        <fn-open_page PURPOSE="Async context manager: браузер → страница → навигация с антибот-защитой" />
+        <fn-_is_antibot_page PURPOSE="Детекция антибот-страницы (Яндекс SmartCaptcha)" />
+        <fn-_navigate_with_antibot_wait PURPOSE="Навигация с ожиданием и retry при антиботе" />
       </annotations>
     </M-BROWSER>
 
@@ -57,6 +59,7 @@
       <depends>M-MODELS</depends>
       <annotations>
         <fn-call_llm PURPOSE="Вызов OpenRouter API для вынесения вердикта" />
+        <fn-_build_system_prompt PURPOSE="Формирование системного промпта для LLM" />
         <fn-_build_user_message PURPOSE="Формирование сообщения с контекстом проверки" />
         <fn-_parse_llm_response PURPOSE="Парсинг JSON-ответа LLM в LLMVerdict" />
       </annotations>
@@ -91,26 +94,30 @@
     </M-CHECKS>
 
     <M-RUNNER NAME="Runner" TYPE="ENTRY_POINT">
-      <purpose>CLI точка входа: двойной прогон (основная + спецверсия), JSON-отчёт</purpose>
+      <purpose>CLI точка входа: двойной прогон (основная + спецверсия), сравнительная таблица, JSON-отчёт</purpose>
       <path>gost_a11y/runner.py</path>
       <depends>M-BROWSER, M-REGISTRY, M-MODELS, M-LOGGER</depends>
       <annotations>
-        <fn-run_checks PURPOSE="Запуск всех проверок на основной странице" />
-        <fn-run_checks_special PURPOSE="Запуск проверок на спецверсии" />
-        <fn-run_full PURPOSE="Полный прогон: основная + спецверсия" />
-        <fn-print_summary PURPOSE="Вывод таблицы результатов" />
-        <fn-save_report PURPOSE="Сохранение JSON-отчёта" />
-        <fn-main PURPOSE="CLI точка входа" />
+        <fn-run_checks PURPOSE="Запуск всех 22 проверок на основной странице" />
+        <fn-run_checks_special PURPOSE="Поиск кнопки спецверсии, клик, прогон 20 проверок в изолированном контексте" />
+        <fn-run_full PURPOSE="Оркестрация: основная страница + спецверсия" />
+        <fn-print_summary PURPOSE="Сравнительная таблица основная vs спецверсия" />
+        <fn-save_report PURPOSE="JSON-отчёт с main + special_version секциями" />
+        <fn-main PURPOSE="CLI точка входа с аргументами --no-headless, --no-special, --output" />
       </annotations>
     </M-RUNNER>
 
     <M-TARGETS NAME="Targets" TYPE="DATA_LAYER">
-      <purpose>Реестр целевых госсайтов (20 + эталон ВОС)</purpose>
+      <purpose>Реестр целевых госсайтов (~120 + эталон ВОС) с категоризацией</purpose>
       <path>gost_a11y/targets.py</path>
       <depends>none</depends>
       <annotations>
-        <fn-get_all_targets PURPOSE="Список всех целевых сайтов" />
-        <class-TargetSite PURPOSE="Модель целевого сайта" />
+        <class-TargetSite PURPOSE="Dataclass целевого сайта (id, name, url, category, description, special_url, tags)" />
+        <const-REFERENCE_SITE PURPOSE="Эталонный сайт ВОС для калибровки" />
+        <const-TARGET_SITES PURPOSE="Список ~120 целевых госсайтов" />
+        <fn-get_all_targets PURPOSE="Все сайты включая эталон" />
+        <fn-get_targets_by_category PURPOSE="Фильтр сайтов по категории" />
+        <fn-get_reference_site PURPOSE="Получить только эталон ВОС" />
       </annotations>
     </M-TARGETS>
 
@@ -121,8 +128,44 @@
       <annotations>
         <fn-run_all PURPOSE="Прогон всех проверок по всем сайтам" />
         <fn-check_site PURPOSE="Проверка одного сайта с изолированным логированием" />
+        <fn-_setup_site_logger PURPOSE="Настройка изолированного логгера для сайта" />
+        <fn-_save_site_report PURPOSE="Сохранение JSON-отчёта для одного сайта" />
       </annotations>
     </M-BATCH>
+
+    <!-- ===== Dashboard ===== -->
+
+    <M-BUILD-DASHBOARD NAME="BuildDashboard" TYPE="UTILITY">
+      <purpose>Генерация report.json для React-дашборда из batch-отчётов</purpose>
+      <path>build_dashboard.py</path>
+      <depends>M-BATCH</depends>
+      <annotations>
+        <fn-find_latest_batch_dir PURPOSE="Поиск последней директории reports/batch_*" />
+        <fn-load_batch_data PURPOSE="Чтение summary.json + per-site JSON" />
+        <fn-generate_demo_data PURPOSE="Генерация демо-данных при отсутствии отчётов" />
+        <fn-generate_report_json PURPOSE="Запись dashboard/src/data/report.json" />
+        <fn-main PURPOSE="CLI: python3 build_dashboard.py [batch_dir]" />
+      </annotations>
+    </M-BUILD-DASHBOARD>
+
+    <M-DASHBOARD NAME="Dashboard" TYPE="UI_COMPONENT">
+      <purpose>React+TypeScript+Vite SPA — визуализация результатов проверок госсайтов</purpose>
+      <path>dashboard/</path>
+      <depends>M-BUILD-DASHBOARD</depends>
+      <annotations>
+        <fn-App PURPOSE="Корневой компонент: категоризация, группировка, layout" />
+        <fn-CategorySection PURPOSE="Группировка сайтов по категории с раскрытием" />
+        <fn-ChecksTable PURPOSE="Таблица результатов проверок для сайта" />
+        <fn-FontControls PURPOSE="Управление размером шрифта" />
+        <fn-Stats PURPOSE="Сводная статистика (avg %, total sites)" />
+        <fn-Reference PURPOSE="Справочник ГОСТ/WCAG маппингов" />
+        <fn-useFontSize PURPOSE="Custom hook: состояние шрифта с localStorage" />
+        <type-CheckResult PURPOSE="Интерфейс результата проверки (TS)" />
+        <type-SiteSummary PURPOSE="Интерфейс сводки по сайту (TS)" />
+        <type-SiteReport PURPOSE="Интерфейс отчёта по сайту (TS)" />
+        <type-ReportData PURPOSE="Интерфейс корневых данных отчёта (TS)" />
+      </annotations>
+    </M-DASHBOARD>
 
     <!-- ===== CrossLinks ===== -->
 
@@ -138,6 +181,8 @@
     <CrossLink from="M-BATCH" to="M-RUNNER" relation="reuses check execution logic" />
     <CrossLink from="M-BATCH" to="M-TARGETS" relation="iterates over target sites" />
     <CrossLink from="M-LLM" to="M-MODELS" relation="returns LLMVerdict, receives FallbackContext" />
+    <CrossLink from="M-BUILD-DASHBOARD" to="M-BATCH" relation="reads batch reports (summary.json + per-site JSON)" />
+    <CrossLink from="M-DASHBOARD" to="M-BUILD-DASHBOARD" relation="consumes report.json generated by build_dashboard.py" />
 
   </Project>
 </KnowledgeGraph>
