@@ -465,10 +465,11 @@ details[open] > .section-title::before {
 .violation-group {
   margin-bottom: 0.75rem;
 }
-.violation-learn-more {
-  display: inline-block;
+.violation-fix-placeholder {
   font-size: 0.8125rem;
-  margin-bottom: 0.5rem;
+  color: #555;
+  font-style: italic;
+  margin: 0.25rem 0 0.5rem;
 }
 .landmark-list {
   font-size: 0.875rem;

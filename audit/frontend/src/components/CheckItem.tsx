@@ -117,12 +117,9 @@ export function CheckItem({ result }: Props) {
                 {v.description && (
                   <p className="violation-description">{v.description}</p>
                 )}
-                {v.helpUrl && (
-                  <a className="violation-learn-more" href={v.helpUrl as string}
-                     target="_blank" rel="noopener noreferrer">
-                    Как исправить
-                  </a>
-                )}
+                <p className="violation-fix-placeholder">
+                  Рекомендации по исправлению будут добавлены в следующей версии
+                </p>
                 {v.nodes?.map((node, ni) => (
                   <ViolationNode key={ni} node={node} />
                 ))}
