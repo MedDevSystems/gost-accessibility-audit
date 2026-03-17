@@ -1,4 +1,4 @@
-/* Полный отчёт по одной странице: gauge + категории + экспорт */
+/* Полный отчёт по одной странице: gauge + статистика + категории + экспорт */
 
 import type { PageReport } from '../types';
 import { CATEGORY_ORDER } from '../types';
@@ -14,7 +14,6 @@ export function ReportView({ report }: Props) {
   const { summary, main_results, special_results, url, timestamp } = report;
   const date = new Date(timestamp).toLocaleString('ru-RU');
 
-  /* Группировка по категориям: сначала FAIL, потом PASS */
   const failResults = main_results.filter(r => r.verdict !== 'PASS');
   const passResults = main_results.filter(r => r.verdict === 'PASS');
 
@@ -39,19 +38,43 @@ export function ReportView({ report }: Props) {
           <h2 className="report-url">{url}</h2>
           <p className="report-date">{date}</p>
           <div className="report-stats">
-            <span className="stat stat-pass">Пройдено: {summary.passed}</span>
-            <span className="stat stat-fail">Не пройдено: {summary.failed}</span>
+            <span className="stat-pass">Пройдено: {summary.passed}</span>
+            <span className="stat-fail">Не пройдено: {summary.failed}</span>
             {summary.uncertain > 0 && (
-              <span className="stat stat-uncertain">Неопределённо: {summary.uncertain}</span>
+              <span className="stat-uncertain">Неопределённо: {summary.uncertain}</span>
             )}
           </div>
-          <ExportButton url={url} />
         </div>
+      </div>
+
+      <div className="report-section">
+        <div className="stats-grid">
+          <div className="stat-card">
+            <span className="stat-value verdict-pass">{summary.passed}</span>
+            <span className="stat-label">Пройдено</span>
+          </div>
+          <div className="stat-card">
+            <span className="stat-value verdict-fail">{summary.failed}</span>
+            <span className="stat-label">Не пройдено</span>
+          </div>
+          {summary.uncertain > 0 && (
+            <div className="stat-card">
+              <span className="stat-value verdict-uncertain">{summary.uncertain}</span>
+              <span className="stat-label">Неопределённо</span>
+            </div>
+          )}
+          <div className="stat-card">
+            <span className="stat-value">{summary.score_pct}%</span>
+            <span className="stat-label">Оценка</span>
+          </div>
+        </div>
+
+        <ExportButton url={url} />
       </div>
 
       {/* Не пройденные проверки — развёрнуты */}
       {failResults.length > 0 && (
-        <section className="report-section">
+        <div className="report-section">
           <h3 className="section-title section-fail">Не пройденные проверки</h3>
           {CATEGORY_ORDER.map(cat =>
             failGroups[cat] ? (
@@ -63,12 +86,12 @@ export function ReportView({ report }: Props) {
               />
             ) : null,
           )}
-        </section>
+        </div>
       )}
 
       {/* Пройденные проверки — свёрнуты */}
       {passResults.length > 0 && (
-        <section className="report-section">
+        <div className="report-section">
           <details>
             <summary className="section-title section-pass">
               Пройденные проверки ({passResults.length})
@@ -83,12 +106,12 @@ export function ReportView({ report }: Props) {
               ) : null,
             )}
           </details>
-        </section>
+        </div>
       )}
 
       {/* Спецверсия */}
       {special_results && special_results.length > 0 && (
-        <section className="report-section">
+        <div className="report-section">
           <details>
             <summary className="section-title section-special">
               Спецверсия для слабовидящих
@@ -106,7 +129,7 @@ export function ReportView({ report }: Props) {
               );
             })()}
           </details>
-        </section>
+        </div>
       )}
     </div>
   );
