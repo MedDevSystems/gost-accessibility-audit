@@ -33,6 +33,7 @@ from gost_a11y.models import (
 from gost_a11y.logger import (
     log_check,
     log_fallback_context,
+    log_llm_debt,
     log_llm_verdict,
     log_result,
 )
@@ -203,6 +204,73 @@ class GostCheck(ABC):
                 llm_verdict.verdict.value,
                 llm_verdict.reasoning
             )
+
+            # START_LLM_DEBT_LOG: [Сбор полного состояния страницы + запись для улучшения скриптов.]
+            page_snapshot = {}
+            try:
+                page_snapshot = await page.evaluate("""() => {
+                    const forms = [...document.querySelectorAll('form')].map(f => ({
+                        action: f.action, method: f.method, id: f.id,
+                        fields: [...f.querySelectorAll('input,textarea,select')].map(el => ({
+                            tag: el.tagName, type: el.type || '', name: el.name,
+                            id: el.id, required: el.required,
+                            ariaInvalid: el.getAttribute('aria-invalid'),
+                            ariaDescribedby: el.getAttribute('aria-describedby'),
+                            ariaLabel: el.getAttribute('aria-label'),
+                            labels: [...(el.labels||[])].map(l => l.textContent.trim()),
+                        })),
+                    }));
+                    const headings = [...document.querySelectorAll('h1,h2,h3,h4,h5,h6')].map(h => ({
+                        tag: h.tagName, text: h.textContent.trim().slice(0, 100),
+                        visible: h.offsetWidth > 0 && h.offsetHeight > 0,
+                    }));
+                    const landmarks = [...document.querySelectorAll('[role], main, nav, header, footer, aside, section, article')].map(el => ({
+                        tag: el.tagName, role: el.getAttribute('role') || el.tagName.toLowerCase(),
+                        id: el.id, ariaLabel: el.getAttribute('aria-label'),
+                    }));
+                    const images = [...document.querySelectorAll('img')].filter(i => i.offsetWidth > 0).map(i => ({
+                        src: i.src.slice(0, 200), alt: i.alt, width: i.naturalWidth, height: i.naturalHeight,
+                    }));
+                    const links = [...document.querySelectorAll('a[href]')].slice(0, 30).map(a => ({
+                        href: a.href.slice(0, 200), text: a.textContent.trim().slice(0, 80),
+                        ariaLabel: a.getAttribute('aria-label'),
+                    }));
+                    const alerts = [...document.querySelectorAll('[role="alert"],[aria-live]')].map(el => ({
+                        tag: el.tagName, role: el.getAttribute('role'), text: el.textContent.trim().slice(0, 200),
+                    }));
+                    const negTabindex = [...document.querySelectorAll('[tabindex]')].filter(e => e.tabIndex < 0).map(e => ({
+                        tag: e.tagName, id: e.id, tabindex: e.tabIndex, text: e.textContent.trim().slice(0, 50),
+                    }));
+                    return {
+                        url: location.href, title: document.title,
+                        lang: document.documentElement.lang,
+                        forms, headings, landmarks, images, links, alerts, negTabindex,
+                        bodyTextLength: document.body.innerText.length,
+                        domElementCount: document.querySelectorAll('*').length,
+                    };
+                }""")
+            except Exception:
+                page_snapshot = {"error": "failed to capture page snapshot"}
+            log_llm_debt(
+                gost_ref=gost_ref,
+                wcag_ref=wcag_ref,
+                url=page.url,
+                check_title=self.title,
+                reason_uncertain=result.reason,
+                collect_data=data,
+                classified_data=classified,
+                fallback_context={
+                    "candidates": context.candidates,
+                    "reason_uncertain": context.reason_uncertain,
+                    "extra": context.extra,
+                },
+                llm_verdict=llm_verdict.verdict.value,
+                llm_reasoning=llm_verdict.reasoning,
+                llm_confidence=llm_verdict.confidence,
+                llm_model=llm_verdict.model,
+                page_snapshot=page_snapshot,
+            )
+            # END_LLM_DEBT_LOG
 
             result = CheckResult(
                 verdict=llm_verdict.verdict,
