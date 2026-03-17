@@ -45,6 +45,7 @@ JS_COLLECT_FORM_ERROR_PATTERNS = r"""
         has_error_containers: false,
         error_container_count: 0,
         has_live_regions: false,
+        native_validation_active: false,
         details: [],
     };
 
@@ -56,6 +57,10 @@ JS_COLLECT_FORM_ERROR_PATTERNS = r"""
         );
 
         let formHasRequired = false;
+        // Нативная HTML5-валидация активна если на форме НЕТ novalidate
+        if (!form.hasAttribute('novalidate') && !form.noValidate) {
+            result.native_validation_active = true;
+        }
 
         for (const field of fields) {
             const isRequired = field.hasAttribute('required') ||
@@ -106,6 +111,71 @@ JS_COLLECT_FORM_ERROR_PATTERNS = r"""
 }
 """
 
+# JS для проверки динамической валидации: сабмитим форму → проверяем появление aria-invalid / role=alert
+JS_PROBE_RUNTIME_VALIDATION = r"""
+() => {
+    // Ищем формы с required-полями
+    const forms = [...document.querySelectorAll('form')];
+    let triggered = false;
+
+    for (const form of forms) {
+        const requiredFields = form.querySelectorAll('[required], [aria-required="true"]');
+        if (requiredFields.length === 0) continue;
+
+        // Очищаем required-поля чтобы гарантировать ошибку
+        const savedValues = [];
+        for (const f of requiredFields) {
+            savedValues.push({ el: f, val: f.value });
+            // Для React: нужно эмулировать нативный input event
+            const nativeSetter = Object.getOwnPropertyDescriptor(
+                window.HTMLTextAreaElement.prototype, 'value'
+            )?.set || Object.getOwnPropertyDescriptor(
+                window.HTMLInputElement.prototype, 'value'
+            )?.set;
+            if (nativeSetter) {
+                nativeSetter.call(f, '');
+            } else {
+                f.value = '';
+            }
+            f.dispatchEvent(new Event('input', { bubbles: true }));
+            f.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        // Даём React обработать onChange
+        // Submit: НЕ блокируем — пусть React/фреймворк обработает submit
+        // React сам делает preventDefault, поэтому реальной навигации не будет
+        const submitBtn = form.querySelector('[type="submit"], button:not([type="button"]):not([type="reset"])');
+        if (submitBtn) {
+            submitBtn.click();
+        }
+
+        triggered = true;
+    }
+
+    return { triggered };
+}
+"""
+
+JS_CHECK_AFTER_SUBMIT = r"""
+() => {
+    const alerts = document.querySelectorAll('[role="alert"]');
+    const ariaInvalid = document.querySelectorAll('[aria-invalid="true"]');
+    const errorContainers = document.querySelectorAll(
+        '.error, .form-error, .field-error, .validation-error, [class*="error-message"]'
+    );
+    const liveRegions = document.querySelectorAll('[aria-live="assertive"], [aria-live="polite"]');
+
+    return {
+        alerts_count: alerts.length,
+        aria_invalid_count: ariaInvalid.length,
+        error_containers_count: errorContainers.length,
+        live_regions_count: liveRegions.length,
+        alerts_text: [...alerts].map(a => a.textContent.trim().slice(0, 100)),
+        has_dynamic_validation: alerts.length > 0 || ariaInvalid.length > 0 || errorContainers.length > 0,
+    };
+}
+"""
+
 
 class CheckFormErrors(GostCheck):
     """Проверка: обнаружение ошибок в формах (скриптовая часть).
@@ -128,11 +198,12 @@ class CheckFormErrors(GostCheck):
     )
 
     async def collect(self, page: Any) -> List[Dict[str, Any]]:
-        """ШАГ 1: Сбор паттернов обработки ошибок."""
+        """ШАГ 1: Сбор паттернов обработки ошибок (статика + runtime-проба)."""
         log_check(self.gost_ref, self.wcag_ref, "COLLECT", "Info",
                   "Анализ механизмов обработки ошибок форм", "ATTEMPT")
 
         data = await page.evaluate(JS_COLLECT_FORM_ERROR_PATTERNS)
+        data["runtime_validation"] = None
 
         log_check(
             self.gost_ref, self.wcag_ref, "COLLECT", "Summary",
@@ -141,9 +212,42 @@ class CheckFormErrors(GostCheck):
             f"aria_invalid={data['fields_with_aria_invalid']} "
             f"aria_describedby={data['fields_with_aria_describedby']} "
             f"error_containers={data['error_container_count']} "
-            f"live_regions={data['has_live_regions']}",
+            f"live_regions={data['has_live_regions']} "
+            f"native_validation={data['native_validation_active']}",
             "INFO"
         )
+
+        # START_BLOCK_RUNTIME_PROBE: Если статических механизмов нет, пробуем runtime
+        has_static = (
+            data["fields_with_aria_invalid"] > 0
+            or data["fields_with_aria_describedby"] > 0
+            or data["has_error_containers"]
+            or data["has_live_regions"]
+            or data["native_validation_active"]
+        )
+        needs_probe = data["required_fields"] > 0 and not has_static
+
+        if needs_probe:
+            log_check(self.gost_ref, self.wcag_ref, "COLLECT", "Info",
+                      "Статические механизмы не найдены — проба runtime-валидации", "ATTEMPT")
+            try:
+                await page.evaluate(JS_PROBE_RUNTIME_VALIDATION)
+                await page.wait_for_timeout(500)
+                runtime = await page.evaluate(JS_CHECK_AFTER_SUBMIT)
+                data["runtime_validation"] = runtime
+
+                log_check(
+                    self.gost_ref, self.wcag_ref, "COLLECT", "RuntimeProbe",
+                    f"alerts={runtime['alerts_count']} "
+                    f"aria_invalid={runtime['aria_invalid_count']} "
+                    f"error_containers={runtime['error_containers_count']} "
+                    f"dynamic_validation={runtime['has_dynamic_validation']}",
+                    "SUCCESS" if runtime["has_dynamic_validation"] else "INFO"
+                )
+            except Exception as e:
+                log_check(self.gost_ref, self.wcag_ref, "COLLECT", "RuntimeProbe",
+                          f"Ошибка runtime-пробы: {e}", "FAIL")
+        # END_BLOCK_RUNTIME_PROBE
 
         return [data]
 
@@ -189,6 +293,9 @@ class CheckFormErrors(GostCheck):
         has_aria = info["fields_with_aria_invalid"] > 0 or info["fields_with_aria_describedby"] > 0
         has_containers = info["has_error_containers"]
         has_live = info["has_live_regions"]
+        has_native = info.get("native_validation_active", False)
+        runtime = info.get("runtime_validation")
+        has_runtime = runtime and runtime.get("has_dynamic_validation", False)
 
         mechanisms = []
         if has_aria:
@@ -197,6 +304,17 @@ class CheckFormErrors(GostCheck):
             mechanisms.append(f"error containers ({info['error_container_count']})")
         if has_live:
             mechanisms.append("live regions")
+        if has_native:
+            mechanisms.append("нативная HTML5-валидация (required без novalidate)")
+        if has_runtime:
+            parts = []
+            if runtime["aria_invalid_count"] > 0:
+                parts.append(f"aria-invalid ({runtime['aria_invalid_count']})")
+            if runtime["alerts_count"] > 0:
+                parts.append(f"role=alert ({runtime['alerts_count']})")
+            if runtime["error_containers_count"] > 0:
+                parts.append(f"error containers ({runtime['error_containers_count']})")
+            mechanisms.append(f"динамическая валидация: {', '.join(parts)}")
 
         if mechanisms:
             return CheckResult(
@@ -210,19 +328,20 @@ class CheckFormErrors(GostCheck):
             )
         # END_CHECK_MECHANISMS
 
-        # START_NO_MECHANISMS: [Нет механизмов — UNCERTAIN (LLM проверит runtime).]
+        # START_NO_MECHANISMS: [Нет механизмов — FAIL.]
         log_check(
             self.gost_ref, self.wcag_ref, "JUDGE", "Issue",
-            f"{info['required_fields']} обязательных полей без aria-invalid, "
-            f"error containers или live regions",
+            f"{info['required_fields']} обязательных полей без механизмов "
+            f"отображения ошибок (ни статических, ни динамических)",
             "FAIL"
         )
         return CheckResult(
-            verdict=Verdict.UNCERTAIN,
+            verdict=Verdict.FAIL,
             reason=(
                 f"{info['required_fields']} обязательных полей в "
-                f"{info['forms_with_required']} формах, но не найдены "
-                f"механизмы отображения ошибок (aria-invalid, role=alert, .error)"
+                f"{info['forms_with_required']} формах, механизмы отображения "
+                f"ошибок не найдены ни статически (aria-invalid, role=alert), "
+                f"ни при runtime-пробе (submit пустой формы)"
             ),
             details=info,
             **base_kwargs,
