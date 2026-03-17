@@ -23,6 +23,7 @@ from __future__ import annotations
 
 import logging
 import os
+import re
 from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger("gost_a11y")
@@ -133,6 +134,14 @@ async def run_axe(
     """)
     # END_RUN
 
+    # START_BLOCK_TRANSLATE: Перевод сообщений axe-core на русский
+    for v in result.get("violations", []):
+        v["description"] = _translate_axe(v.get("description", ""))
+        v["help"] = _translate_axe(v.get("help", ""))
+        for n in v.get("nodes", []):
+            n["failure_summary"] = _translate_axe(n.get("failure_summary", ""))
+    # END_BLOCK_TRANSLATE
+
     logger.info(
         f"[AXE][RUN] violations={result['violations_count']} "
         f"passes={result['passes_count']} "
@@ -141,3 +150,55 @@ async def run_axe(
 
     return result
 # END_FUNCTION_run_axe
+
+
+# START_BLOCK_AXE_TRANSLATIONS: Словарь перевода axe-core → русский
+_AXE_TRANSLATIONS = {
+    # Фразы-обёртки
+    "Fix any of the following:": "Исправьте любое из следующего:",
+    "Fix all of the following:": "Исправьте всё следующее:",
+    # color-contrast
+    "Element has insufficient color contrast of": "Элемент имеет недостаточный контраст",
+    "foreground color:": "цвет текста:",
+    "background color:": "цвет фона:",
+    "font size:": "размер шрифта:",
+    "font weight:": "жирность:",
+    "Expected contrast ratio of": "Требуемый коэффициент контраста",
+    # Общие описания
+    "Ensures the contrast between foreground and background colors meets WCAG 2 AA contrast ratio thresholds":
+        "Контраст между цветом текста и фона соответствует порогам WCAG 2 AA",
+    "Ensures role attribute has an appropriate value for the element":
+        "Атрибут role имеет допустимое значение для данного элемента",
+    "Ensures elements with ARIA roles have all required ARIA attributes":
+        "Элементы с ARIA-ролями имеют все обязательные ARIA-атрибуты",
+    "Required ARIA attribute not present:": "Отсутствует обязательный ARIA-атрибут:",
+    "ARIA role": "ARIA-роль",
+    "is not allowed for given element": "не допускается для данного элемента",
+    # aria
+    "Ensures every ARIA attribute has a valid value": "Все ARIA-атрибуты имеют допустимые значения",
+    "Ensures ARIA attributes are allowed for an element's role": "ARIA-атрибуты допустимы для роли элемента",
+    "Ensures all elements with a role attribute use a valid value": "Все элементы с role используют допустимое значение",
+    # links
+    "Ensures the purpose of each link can be determined from the link text alone":
+        "Назначение каждой ссылки можно определить по тексту ссылки",
+    "Ensures links have discernible text": "Ссылки имеют различимый текст",
+    # focus
+    "Focusable content should have tabindex=\"-1\" or be removed from the DOM":
+        "Фокусируемый контент должен иметь tabindex=\"-1\" или быть удалён из DOM",
+    "Focusable content should be disabled or be removed from the DOM":
+        "Фокусируемый контент должен быть отключён или удалён из DOM",
+    # html
+    "Ensures every HTML document has a lang attribute": "HTML-документ имеет атрибут lang",
+    "Ensures the document has a valid value for the lang attribute": "Атрибут lang имеет допустимое значение",
+}
+
+
+def _translate_axe(text: str) -> str:
+    """Переводит сообщения axe-core на русский по словарю."""
+    if not text:
+        return text
+    result = text
+    for eng, rus in _AXE_TRANSLATIONS.items():
+        result = result.replace(eng, rus)
+    return result
+# END_BLOCK_AXE_TRANSLATIONS
