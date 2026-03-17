@@ -1,7 +1,7 @@
 # FILE: audit/backend/task_store.py
-# VERSION: 1.0.0
+# VERSION: 1.1.0
 # START_MODULE_CONTRACT
-#   PURPOSE: In-memory хранилище задач аудита с asyncio.Queue для SSE-стриминга
+#   PURPOSE: In-memory хранилище задач аудита с буфером событий для SSE-стриминга
 #   SCOPE: Создание задач, push/subscribe событий, лимит конкурентности, автоочистка
 #   DEPENDS: нет
 #   LINKS: M-AUDIT-TASKSTORE
@@ -9,20 +9,25 @@
 #
 # START_MODULE_MAP
 #   SSEEvent — Dataclass SSE-события (event_type + data JSON)
-#   AuditTask — Dataclass задачи аудита (id, status, queue, results)
+#   AuditTask — Dataclass задачи аудита (id, status, event_buffer, notify)
 #   TaskStore — Singleton хранилище задач
 # END_MODULE_MAP
 
 # START_CHANGE_SUMMARY
-#   LAST_CHANGE: v1.0.0 — Первоначальная реализация хранилища задач
+#   LAST_CHANGE: v1.1.0 — Замена asyncio.Queue на буфер+Event для поддержки
+#     опоздавших и множественных подписчиков
+#   v1.0.0 — Первоначальная реализация с asyncio.Queue
 # END_CHANGE_SUMMARY
 
 from __future__ import annotations
 
 import asyncio
+import logging
 import uuid
 from dataclasses import dataclass, field
 from typing import Any, AsyncGenerator, Dict, List, Optional
+
+logger = logging.getLogger(__name__)
 
 
 # START_CONTRACT: SSEEvent
@@ -39,17 +44,18 @@ class SSEEvent:
 
 
 # START_CONTRACT: AuditTask
-#   PURPOSE: Состояние одной задачи аудита с очередью событий
+#   PURPOSE: Состояние одной задачи аудита с буфером событий и нотификацией
 #   INPUTS: Создаётся через TaskStore.create_task()
-#   OUTPUTS: dataclass с queue для SSE-подписки
+#   OUTPUTS: dataclass с event_buffer для SSE-подписки
 #   LINKS: M-AUDIT-TASKSTORE
 # END_CONTRACT: AuditTask
 @dataclass
 class AuditTask:
-    """Задача аудита с очередью SSE-событий."""
+    """Задача аудита с буфером SSE-событий."""
     id: str
     status: str = "pending"  # "pending" | "running" | "completed" | "error"
-    queue: asyncio.Queue = field(default_factory=asyncio.Queue)
+    event_buffer: List[SSEEvent] = field(default_factory=list)
+    notify: asyncio.Event = field(default_factory=asyncio.Event)
     results: List[Dict[str, Any]] = field(default_factory=list)
     pages: List[Dict[str, Any]] = field(default_factory=list)
     current_url: Optional[str] = None
@@ -63,7 +69,7 @@ class AuditTask:
 #   PURPOSE: Singleton хранилище задач с лимитом конкурентности и автоочисткой
 #   INPUTS: { max_concurrent: int — лимит параллельных задач }
 #   OUTPUTS: create_task, get_task, push_event, subscribe
-#   SIDE_EFFECTS: Хранит задачи в памяти, запускает таймеры очистки
+#   SIDE_EFFECTS: Хранит задачи в памяти
 #   LINKS: M-AUDIT-TASKSTORE
 # END_CONTRACT: TaskStore
 class TaskStore:
@@ -88,29 +94,48 @@ class TaskStore:
         return self._tasks.get(task_id)
     # END_BLOCK_GET_TASK
 
-    # START_BLOCK_PUSH_EVENT: Отправка SSE-события в очередь задачи
+    # START_BLOCK_PUSH_EVENT: Добавление события в буфер + нотификация подписчиков
     async def push_event(self, task_id: str, event: SSEEvent) -> None:
-        """Добавляет SSE-событие в очередь задачи."""
+        """Добавляет SSE-событие в буфер и уведомляет подписчиков."""
         task = self._tasks.get(task_id)
         if task:
-            await task.queue.put(event)
+            task.event_buffer.append(event)
+            logger.info(f"[TASKSTORE] push {event.event_type} -> buffer len={len(task.event_buffer)}")
+            task.notify.set()
     # END_BLOCK_PUSH_EVENT
 
-    # START_BLOCK_SUBSCRIBE: Асинхронная подписка на SSE-события задачи
+    # START_BLOCK_SUBSCRIBE: Подписка на SSE-события с курсором по буферу
     async def subscribe(self, task_id: str) -> AsyncGenerator[SSEEvent, None]:
-        """Подписка на SSE-поток задачи. Завершается при получении complete/error."""
+        """Подписка на SSE-поток задачи.
+
+        Использует курсор (позицию) по буферу — подписчик получает
+        все накопленные события, включая те что были до подключения.
+        Завершается при получении complete/error.
+        """
         task = self._tasks.get(task_id)
         if not task:
+            logger.warning(f"[TASKSTORE] subscribe: task {task_id} not found")
             return
 
+        cursor = 0
+        logger.info(f"[TASKSTORE] subscribe: start for {task_id}, buffer={len(task.event_buffer)}")
         while True:
-            try:
-                event = await asyncio.wait_for(task.queue.get(), timeout=30.0)
+            # Отдаём все новые события из буфера
+            while cursor < len(task.event_buffer):
+                event = task.event_buffer[cursor]
+                cursor += 1
                 yield event
                 if event.event_type in ("complete", "error"):
-                    break
+                    return
+
+            # Ждём новые события или heartbeat по таймауту
+            task.notify.clear()
+            # Проверяем ещё раз после clear — могло прийти между while и clear
+            if cursor < len(task.event_buffer):
+                continue
+            try:
+                await asyncio.wait_for(task.notify.wait(), timeout=10.0)
             except asyncio.TimeoutError:
-                # Heartbeat — отправляем пустое событие чтобы SSE-соединение не разрывалось
                 yield SSEEvent(event_type="heartbeat", data={})
     # END_BLOCK_SUBSCRIBE
 

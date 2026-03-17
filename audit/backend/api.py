@@ -25,8 +25,8 @@ import asyncio
 import json
 from typing import Any, Dict, List
 
-from fastapi import APIRouter, HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi import APIRouter, HTTPException, Request
+from starlette.responses import StreamingResponse
 
 from audit.backend.audit_engine import run_audit
 from audit.backend.schemas import (
@@ -70,7 +70,7 @@ async def start_audit(body: AuditRequest) -> Dict[str, str]:
 #   LINKS: M-AUDIT-API, M-AUDIT-TASKSTORE
 # END_CONTRACT: stream_results
 @router.get("/audit/{task_id}/stream")
-async def stream_results(task_id: str) -> StreamingResponse:
+async def stream_results(task_id: str, request: Request):
     """SSE-стрим результатов аудита."""
     task = store.get_task(task_id)
     if not task:
@@ -78,6 +78,8 @@ async def stream_results(task_id: str) -> StreamingResponse:
 
     async def event_generator():
         async for event in store.subscribe(task_id):
+            if await request.is_disconnected():
+                break
             data_json = json.dumps(event.data, ensure_ascii=False)
             yield f"event: {event.event_type}\ndata: {data_json}\n\n"
 

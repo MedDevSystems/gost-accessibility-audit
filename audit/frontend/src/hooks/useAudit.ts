@@ -45,7 +45,7 @@ export function useAudit() {
               setState(prev => ({
                 ...prev,
                 currentUrl: data.url as string,
-                currentCheck: null,
+                currentCheck: 'Загрузка страницы...',
               }));
               break;
 
