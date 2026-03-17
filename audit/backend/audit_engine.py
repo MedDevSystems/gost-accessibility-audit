@@ -19,9 +19,14 @@
 
 from __future__ import annotations
 
+import json
+import logging
+import os
 import traceback
 from datetime import datetime
 from typing import List, Optional
+
+audit_logger = logging.getLogger("audit")
 
 from gost_a11y.base_check import GostCheck
 from gost_a11y.browser import open_page
@@ -195,6 +200,10 @@ async def run_audit(
             task.current_url = None
             task.current_check = None
 
+            # START_BLOCK_PERSIST: Сохранение результатов на диск
+            _persist_audit(task_id, urls, include_special, task.pages)
+            # END_BLOCK_PERSIST
+
             await store.push_event(task_id, SSEEvent(
                 event_type="complete",
                 data={"pages_count": len(task.pages)},
@@ -321,3 +330,66 @@ async def _run_special_checks(
         # END_BLOCK_RUN_SPECIAL
 
     return results
+
+
+# START_CONTRACT: _persist_audit
+#   PURPOSE: Сохранение результатов аудита на диск — JSON-отчёт + запись в audit_log.jsonl
+#   INPUTS: { task_id, urls, include_special, pages }
+#   OUTPUTS: None
+#   SIDE_EFFECTS: Создаёт reports/audit/{task_id}.json, append в reports/audit_log.jsonl
+#   LINKS: M-AUDIT-ENGINE
+# END_CONTRACT: _persist_audit
+_REPORTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+    os.path.abspath(__file__)))), "reports")
+
+
+def _persist_audit(
+    task_id: str,
+    urls: List[str],
+    include_special: bool,
+    pages: List[dict],
+) -> None:
+    """Сохраняет результаты аудита на диск."""
+    try:
+        audit_dir = os.path.join(_REPORTS_DIR, "audit")
+        os.makedirs(audit_dir, exist_ok=True)
+
+        # START_BLOCK_SAVE_REPORT: Полный JSON-отчёт
+        report = {
+            "task_id": task_id,
+            "timestamp": datetime.now().isoformat(),
+            "urls": urls,
+            "include_special": include_special,
+            "pages": pages,
+        }
+        report_path = os.path.join(audit_dir, f"{task_id}.json")
+        with open(report_path, "w", encoding="utf-8") as f:
+            json.dump(report, f, ensure_ascii=False, indent=2)
+        # END_BLOCK_SAVE_REPORT
+
+        # START_BLOCK_AUDIT_LOG: Append-строка в audit_log.jsonl
+        for page in pages:
+            summary = page.get("summary", {})
+            log_entry = {
+                "timestamp": datetime.now().isoformat(),
+                "task_id": task_id,
+                "url": page.get("url", ""),
+                "passed": summary.get("passed", 0),
+                "failed": summary.get("failed", 0),
+                "uncertain": summary.get("uncertain", 0),
+                "total": summary.get("total", 0),
+                "score_pct": summary.get("score_pct", 0),
+                "include_special": include_special,
+                "report_file": f"audit/{task_id}.json",
+            }
+            log_path = os.path.join(_REPORTS_DIR, "audit_log.jsonl")
+            with open(log_path, "a", encoding="utf-8") as f:
+                f.write(json.dumps(log_entry, ensure_ascii=False) + "\n")
+        # END_BLOCK_AUDIT_LOG
+
+        audit_logger.info(
+            f"[AUDIT][PERSIST] task={task_id} pages={len(pages)} "
+            f"report={report_path} [SUCCESS]"
+        )
+    except Exception as e:
+        audit_logger.error(f"[AUDIT][PERSIST] task={task_id} error={e} [FAIL]")

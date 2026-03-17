@@ -85,7 +85,7 @@ def setup_logger(log_dir: str = "reports", level: int = logging.DEBUG) -> loggin
     os.makedirs(log_dir, exist_ok=True)
     file_handler = logging.FileHandler(
         os.path.join(log_dir, "run.log"),
-        mode="w",
+        mode="a",
         encoding="utf-8"
     )
     file_handler.setLevel(logging.DEBUG)
