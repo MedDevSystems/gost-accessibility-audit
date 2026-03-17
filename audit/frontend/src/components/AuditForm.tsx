@@ -15,7 +15,7 @@ export function AuditForm({ onStart, disabled }: Props) {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     const urls = urlInput
-      .split('\n')
+      .split(/[\n\s,;]+/)
       .map(u => u.trim())
       .filter(u => u.length > 0);
     if (urls.length === 0) {
