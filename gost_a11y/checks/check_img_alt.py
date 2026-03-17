@@ -98,6 +98,22 @@ JS_COLLECT_IMAGES = """
             parent_interactive: parentTag,
             parent_has_text: parentHasText,
             parent_text: parentText.substring(0, 60),
+            html: img.outerHTML.substring(0, 200),
+            selector: (() => {
+                try {
+                    const parts = [];
+                    let el = img;
+                    while (el && el !== document.body) {
+                        let s = el.tagName.toLowerCase();
+                        if (el.id) { parts.unshift('#' + el.id); break; }
+                        if (el.className && typeof el.className === 'string')
+                            s += '.' + el.className.trim().split(/\s+/).join('.');
+                        parts.unshift(s);
+                        el = el.parentElement;
+                    }
+                    return parts.join(' > ').substring(0, 200);
+                } catch(e) { return ''; }
+            })(),
         });
     }
 
@@ -280,12 +296,17 @@ class CheckImgAlt(GostCheck):
                 "missing_alt": missing_count,
                 "missing_alt_minor": minor_count,
                 "missing_images": [
-                    {"src": i["src"][:100], "width": i["width"], "height": i["height"], "severity": "critical"}
+                    {"src": i["src"][:100], "width": i["width"], "height": i["height"],
+                     "severity": "critical",
+                     "html": i.get("html", "")[:200],
+                     "selector": i.get("selector", "")}
                     for i in missing_alt[:10]
                 ] + [
                     {"src": i["src"][:100], "width": i["width"], "height": i["height"],
                      "severity": "minor", "parent": i.get("parent_interactive", ""),
-                     "parent_text": i.get("parent_text", "")}
+                     "parent_text": i.get("parent_text", ""),
+                     "html": i.get("html", "")[:200],
+                     "selector": i.get("selector", "")}
                     for i in missing_alt_minor[:10]
                 ],
             },

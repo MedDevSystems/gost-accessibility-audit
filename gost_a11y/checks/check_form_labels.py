@@ -118,6 +118,22 @@ JS_COLLECT_FORM_FIELDS = """
             form_aria_label: formAriaLabel,
             is_search_input: isSearchInput,
             alt_attr: altAttr,
+            html: field.outerHTML.substring(0, 200),
+            selector: (() => {
+                try {
+                    const parts = [];
+                    let el = field;
+                    while (el && el !== document.body) {
+                        let s = el.tagName.toLowerCase();
+                        if (el.id) { parts.unshift('#' + el.id); break; }
+                        if (el.className && typeof el.className === 'string')
+                            s += '.' + el.className.trim().split(/\s+/).join('.');
+                        parts.unshift(s);
+                        el = el.parentElement;
+                    }
+                    return parts.join(' > ').substring(0, 200);
+                } catch(e) { return ''; }
+            })(),
         });
     }
 
@@ -269,6 +285,8 @@ class CheckFormLabels(GostCheck):
                         "placeholder": f["placeholder"][:60],
                         "alt_attr": f.get("alt_attr", ""),
                         "form_role": f.get("form_role", ""),
+                        "html": f.get("html", "")[:200],
+                        "selector": f.get("selector", ""),
                     }
                     for f in missing[:10]
                 ],

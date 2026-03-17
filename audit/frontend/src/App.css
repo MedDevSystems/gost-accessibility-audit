@@ -465,6 +465,11 @@ details[open] > .section-title::before {
 .violation-group {
   margin-bottom: 0.75rem;
 }
+.violation-learn-more {
+  display: inline-block;
+  font-size: 0.8125rem;
+  margin-bottom: 0.5rem;
+}
 .violation-description {
   font-size: 0.875rem;
   font-weight: 600;
