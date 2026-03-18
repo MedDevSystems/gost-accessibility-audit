@@ -274,30 +274,36 @@ async def _run_special_checks(
         if not button_info["found"]:
             return None
 
-        if button_info["is_link"] and button_info["href"]:
-            await page.goto(
-                button_info["href"], timeout=20000,
-                wait_until="domcontentloaded",
-            )
-        else:
-            try:
-                btn = page.get_by_text(button_info["text"], exact=True).first
-                await btn.click(timeout=5000)
-            except Exception:
-                await page.evaluate("""
-                    (patterns) => {
-                        const re = patterns.map(p => new RegExp(p, 'i'));
-                        const els = document.querySelectorAll('button, [role="button"]');
-                        for (const el of els) {
-                            const t = (el.textContent || '').toLowerCase();
-                            if (re.some(r => r.test(t)) && el.getBoundingClientRect().width > 0) {
-                                el.click(); return true;
+        try:
+            if button_info["is_link"] and button_info["href"]:
+                await page.goto(
+                    button_info["href"], timeout=20000,
+                    wait_until="domcontentloaded",
+                )
+            else:
+                try:
+                    btn = page.get_by_text(button_info["text"], exact=True).first
+                    await btn.click(timeout=5000)
+                except Exception:
+                    await page.evaluate("""
+                        (patterns) => {
+                            const re = patterns.map(p => new RegExp(p, 'i'));
+                            const els = document.querySelectorAll('button, [role="button"]');
+                            for (const el of els) {
+                                const t = (el.textContent || '').toLowerCase();
+                                if (re.some(r => r.test(t)) && el.getBoundingClientRect().width > 0) {
+                                    el.click(); return true;
+                                }
                             }
+                            return false;
                         }
-                        return false;
-                    }
-                """, _PATTERNS_STRONG)
-            await page.wait_for_timeout(2000)
+                    """, _PATTERNS_STRONG)
+                await page.wait_for_timeout(2000)
+        except Exception as e:
+            audit_logger.warning(
+                f"[AUDIT][SPECIAL] Не удалось активировать спецверсию: {e} — пропуск"
+            )
+            return None
         # END_BLOCK_ACTIVATE_SPECIAL
 
         # START_BLOCK_RUN_SPECIAL: Прогон проверок на спецверсии с SSE-стримингом
