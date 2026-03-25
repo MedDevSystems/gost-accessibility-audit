@@ -54,6 +54,70 @@ AXE_ARIA_RULES = [
 ]
 
 
+# JS: поиск div/span, которые выглядят как кнопки/меню, но не имеют role и tabindex
+JS_FIND_FAKE_BUTTONS = r"""
+() => {
+    const suspects = [];
+    const BTN_CLASS_RE = /\b(btn|button|toggle|trigger|hamburger|menu-open|nav-open|btn-menu|btn-top|foot-btn)\b/i;
+    const els = document.querySelectorAll('div, span');
+
+    for (const el of els) {
+        const cls = el.className?.toString() || '';
+        if (!BTN_CLASS_RE.test(cls)) continue;
+
+        // Уже имеет role — пропускаем
+        if (el.getAttribute('role')) continue;
+
+        // Невидимый — пропускаем
+        const rect = el.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) continue;
+
+        // Имеет интерактивный потомок (a, button) — это обёртка, не сама кнопка
+        if (el.querySelector('a, button, input, select')) continue;
+
+        const text = el.textContent?.trim().slice(0, 50) || '';
+        if (!text) continue;
+
+        // Есть JS-обработчик (data-toggle, onclick, или стиль cursor:pointer)?
+        const hasDataToggle = el.hasAttribute('data-toggle') || el.hasAttribute('data-target');
+        const hasCursor = window.getComputedStyle(el).cursor === 'pointer';
+        const hasOnclick = el.hasAttribute('onclick');
+
+        if (!hasDataToggle && !hasCursor && !hasOnclick) continue;
+
+        // CSS-селектор
+        let selector = '';
+        try {
+            const parts = [];
+            let node = el;
+            while (node && node !== document.body) {
+                let s = node.tagName.toLowerCase();
+                if (node.id) { parts.unshift('#' + node.id); break; }
+                if (node.className && typeof node.className === 'string')
+                    s += '.' + node.className.trim().split(/\s+/).join('.');
+                parts.unshift(s);
+                node = node.parentElement;
+            }
+            selector = parts.join(' > ').substring(0, 200);
+        } catch(e) {}
+
+        suspects.push({
+            tag: el.tagName,
+            text: text,
+            cls: cls.slice(0, 80),
+            hasRole: false,
+            hasTabindex: el.hasAttribute('tabindex'),
+            ariaExpanded: el.getAttribute('aria-expanded'),
+            hasDataToggle: hasDataToggle,
+            html: el.outerHTML.slice(0, 250),
+            selector: selector,
+        });
+    }
+    return suspects;
+}
+"""
+
+
 class CheckAria(GostCheck):
     """Проверка: ARIA-роли и атрибуты.
 
@@ -73,9 +137,9 @@ class CheckAria(GostCheck):
     )
 
     async def collect(self, page: Any) -> List[Dict[str, Any]]:
-        """ШАГ 1: Запуск axe-core для ARIA."""
+        """ШАГ 1: Запуск axe-core для ARIA + кастомный поиск fake-кнопок."""
         log_check(self.gost_ref, self.wcag_ref, "COLLECT", "Info",
-                  "Запуск axe-core: правила ARIA", "ATTEMPT")
+                  "Запуск axe-core: правила ARIA + поиск элементов без role", "ATTEMPT")
 
         result = await run_axe(page, rules=AXE_ARIA_RULES)
 
@@ -84,18 +148,67 @@ class CheckAria(GostCheck):
             f"axe-core: {result['violations_count']} нарушений ARIA",
             "INFO"
         )
+
+        # START_BLOCK_FAKE_BUTTONS: Кастомный поиск div/span с классом btn без role
+        fake_buttons = []
+        try:
+            fake_buttons = await page.evaluate(JS_FIND_FAKE_BUTTONS)
+            if fake_buttons:
+                log_check(
+                    self.gost_ref, self.wcag_ref, "COLLECT", "FakeButtons",
+                    f"Найдено {len(fake_buttons)} элементов с классом btn/button без role",
+                    "INFO"
+                )
+        except Exception as e:
+            log_check(
+                self.gost_ref, self.wcag_ref, "COLLECT", "FakeButtons",
+                f"Ошибка поиска fake-кнопок: {e}", "FAIL"
+            )
+        result["fake_buttons"] = fake_buttons
+        # END_BLOCK_FAKE_BUTTONS
+
         return [result]
 
     def classify(self, data: List[Any]) -> List[Dict[str, Any]]:
         """ШАГ 2: Классификация нарушений."""
         result = data[0]
         violations = result.get("violations", [])
+        fake_buttons = result.get("fake_buttons", [])
         total_nodes = sum(v["nodes_count"] for v in violations)
         by_rule = {v["id"]: v["nodes_count"] for v in violations}
 
+        # Добавляем fake_buttons как отдельное "нарушение"
+        if fake_buttons:
+            by_rule["missing-role"] = len(fake_buttons)
+            total_nodes += len(fake_buttons)
+            violations.append({
+                "id": "missing-role",
+                "impact": "serious",
+                "description": "Интерактивные элементы (div/span с классом btn/button/toggle) "
+                               "не имеют роли и состояния — скринридер не распознает их как кнопки",
+                "help": "",
+                "helpUrl": "",
+                "tags": [],
+                "nodes_count": len(fake_buttons),
+                "nodes": [
+                    {
+                        "html": fb["html"][:200],
+                        "target": [fb.get("selector", "")],
+                        "impact": "serious",
+                        "failure_summary": (
+                            f"Элемент <{fb['tag'].lower()} class=\"{fb['cls']}\"> "
+                            f"выглядит как кнопка, но не имеет role=\"button\" и "
+                            f"aria-expanded. Скринридер не сможет объявить его как "
+                            f"интерактивный элемент."
+                        ),
+                    }
+                    for fb in fake_buttons[:10]
+                ],
+            })
+
         return [{
             "violations": violations,
-            "violations_count": result["violations_count"],
+            "violations_count": len(violations),
             "total_nodes": total_nodes,
             "by_rule": by_rule,
             "passes_count": result["passes_count"],
