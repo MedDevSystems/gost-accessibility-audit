@@ -31,6 +31,7 @@ from gost_a11y.models import CheckResult, Verdict
 logger = logging.getLogger("gost_a11y")
 
 AXE_ARIA_RULES = [
+    # ARIA-атрибуты и значения
     "aria-allowed-attr",
     "aria-allowed-role",
     "aria-hidden-body",
@@ -41,6 +42,15 @@ AXE_ARIA_RULES = [
     "aria-roles",
     "aria-valid-attr",
     "aria-valid-attr-value",
+    # 4.1.2: Имя, роль, значение — элементы без доступного имени
+    "button-name",
+    "input-button-name",
+    "link-name",
+    "select-name",
+    # 4.1.2: ARIA-имена для интерактивных виджетов
+    "aria-toggle-field-name",
+    "aria-input-field-name",
+    "aria-command-name",
 ]
 
 

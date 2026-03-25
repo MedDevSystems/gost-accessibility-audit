@@ -190,6 +190,16 @@ _AXE_TRANSLATIONS = {
     # html
     "Ensures every HTML document has a lang attribute": "HTML-документ имеет атрибут lang",
     "Ensures the document has a valid value for the lang attribute": "Атрибут lang имеет допустимое значение",
+    # button-name / link-name / select-name (4.1.2)
+    "Ensures buttons have discernible text": "Кнопки имеют различимый текст (название)",
+    "Ensures every form element has a visible label": "Каждый элемент формы имеет видимую метку",
+    "Ensures links have discernible text": "Ссылки имеют различимый текст",
+    "Ensures select element has an accessible name": "Элемент select имеет доступное имя",
+    "Ensures input buttons have discernible text": "Кнопки input имеют различимый текст",
+    "Element does not have an accessible name": "Элемент не имеет доступного имени",
+    "Element has no title attribute": "У элемента нет атрибута title",
+    "Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"":
+        "Семантика элемента не переопределена через role=\"none\" или role=\"presentation\"",
 }
 
 
