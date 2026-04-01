@@ -99,7 +99,9 @@ JS_FIND_FAKE_BUTTONS = r"""
         const hasOnclick = el.hasAttribute('onclick');
         const hasTabindex = el.getAttribute('tabindex') === '0';
         const hasBtnClass = BTN_CLASS_RE.test(cls);
-        const hasSubmenu = el.parentElement?.querySelector(':scope > ul, :scope > [class*="dropdown"], :scope > [class*="submenu"]') !== null;
+        // Подменю может быть вложено через div-обёртку, ищем в ближайшем li или parentElement
+        const container = el.closest('li') || el.parentElement;
+        const hasSubmenu = container ? container.querySelector('ul, [class*="dropdown"], [class*="submenu"]') !== null : false;
 
         // Два пути детекции:
         // 1) Класс btn/button/toggle/trigger + интерактивность (cursor/onclick/data-toggle)
