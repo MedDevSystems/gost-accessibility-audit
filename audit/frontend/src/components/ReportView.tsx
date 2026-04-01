@@ -5,6 +5,20 @@ import { CATEGORY_ORDER } from '../types';
 import { CategoryGroup } from './CategoryGroup';
 import { ScoreGauge } from './ScoreGauge';
 
+function downloadJson(report: PageReport) {
+  const domain = new URL(report.url).hostname.replace(/\./g, '_');
+  const date = new Date(report.timestamp).toISOString().slice(0, 10);
+  const blob = new Blob(
+    [JSON.stringify(report, null, 2)],
+    { type: 'application/json;charset=utf-8' },
+  );
+  const a = document.createElement('a');
+  a.download = `audit_${domain}_${date}.json`;
+  a.href = URL.createObjectURL(blob);
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
 interface Props {
   report: PageReport;
 }
@@ -68,6 +82,13 @@ export function ReportView({ report }: Props) {
           </div>
         </div>
 
+        <button
+          className="btn-export"
+          onClick={() => downloadJson(report)}
+          type="button"
+        >
+          Скачать JSON
+        </button>
       </div>
 
       {/* Не пройденные проверки — развёрнуты */}
