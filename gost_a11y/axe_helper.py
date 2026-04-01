@@ -126,6 +126,7 @@ async def run_axe(
                     }})),
                 }})),
                 passes_count: results.passes.length,
+                passes_nodes: results.passes.reduce((sum, p) => sum + p.nodes.length, 0),
                 violations_count: results.violations.length,
                 incomplete_count: results.incomplete.length,
                 inapplicable_count: results.inapplicable.length,

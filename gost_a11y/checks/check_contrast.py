@@ -102,6 +102,7 @@ class CheckContrast(GostCheck):
             "total_nodes": total_nodes,
             "by_impact": by_impact,
             "passes_count": result["passes_count"],
+            "passes_nodes": result.get("passes_nodes", result["passes_count"]),
         }
         return [classified]
     # END_FUNCTION_classify
@@ -137,7 +138,7 @@ class CheckContrast(GostCheck):
         if info["violations_count"] == 0:
             return CheckResult(
                 verdict=Verdict.PASS,
-                reason=f"Нарушений контрастности не найдено ({info['passes_count']} элементов проверено)",
+                reason=f"Нарушений контрастности не найдено ({info['passes_nodes']} элементов проверено)",
                 details=info,
                 **base_kwargs,
             )

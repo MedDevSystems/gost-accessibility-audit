@@ -82,6 +82,7 @@ class CheckLinkText(GostCheck):
             "total_nodes": total_nodes,
             "by_rule": by_rule,
             "passes_count": result["passes_count"],
+            "passes_nodes": result.get("passes_nodes", result["passes_count"]),
         }]
 
     def judge(self, classified: List[Any]) -> CheckResult:
@@ -106,7 +107,7 @@ class CheckLinkText(GostCheck):
         if info["violations_count"] == 0:
             return CheckResult(
                 verdict=Verdict.PASS,
-                reason=f"Все ссылки имеют текстовое описание ({info['passes_count']} проверено)",
+                reason=f"Все ссылки имеют текстовое описание ({info['passes_nodes']} проверено)",
                 details=info,
                 **base_kwargs,
             )
