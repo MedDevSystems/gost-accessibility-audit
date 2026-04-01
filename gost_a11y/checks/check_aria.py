@@ -54,39 +54,16 @@ AXE_ARIA_RULES = [
 ]
 
 
-# JS: поиск div/span, которые выглядят как кнопки/меню, но не имеют role и tabindex
+# JS: поиск элементов, которые выглядят как кнопки/меню, но не имеют role
 JS_FIND_FAKE_BUTTONS = r"""
 () => {
     const suspects = [];
     const BTN_CLASS_RE = /\b(btn|button|toggle|trigger|hamburger|menu-open|nav-open|btn-menu|btn-top|foot-btn)\b/i;
-    const els = document.querySelectorAll('div, span');
+    // Не-интерактивные элементы: div, span, p, li — если используются как кнопки
+    const INTERACTIVE_TAGS = new Set(['A', 'BUTTON', 'INPUT', 'SELECT', 'TEXTAREA']);
+    const els = document.querySelectorAll('div, span, p, li, td, section');
 
-    for (const el of els) {
-        const cls = el.className?.toString() || '';
-        if (!BTN_CLASS_RE.test(cls)) continue;
-
-        // Уже имеет role — пропускаем
-        if (el.getAttribute('role')) continue;
-
-        // Невидимый — пропускаем
-        const rect = el.getBoundingClientRect();
-        if (rect.width === 0 || rect.height === 0) continue;
-
-        // Имеет интерактивный потомок (a, button) — это обёртка, не сама кнопка
-        if (el.querySelector('a, button, input, select')) continue;
-
-        const text = el.textContent?.trim().slice(0, 50) || '';
-        if (!text) continue;
-
-        // Есть JS-обработчик (data-toggle, onclick, или стиль cursor:pointer)?
-        const hasDataToggle = el.hasAttribute('data-toggle') || el.hasAttribute('data-target');
-        const hasCursor = window.getComputedStyle(el).cursor === 'pointer';
-        const hasOnclick = el.hasAttribute('onclick');
-
-        if (!hasDataToggle && !hasCursor && !hasOnclick) continue;
-
-        // CSS-селектор
-        let selector = '';
+    function getSelector(el) {
         try {
             const parts = [];
             let node = el;
@@ -98,19 +75,52 @@ JS_FIND_FAKE_BUTTONS = r"""
                 parts.unshift(s);
                 node = node.parentElement;
             }
-            selector = parts.join(' > ').substring(0, 200);
-        } catch(e) {}
+            return parts.join(' > ').substring(0, 200);
+        } catch(e) { return ''; }
+    }
+
+    for (const el of els) {
+        // Уже имеет role — пропускаем
+        if (el.getAttribute('role')) continue;
+
+        // Невидимый — пропускаем
+        const rect = el.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) continue;
+
+        // Имеет интерактивный потомок (a, button) — это обёртка, не сама кнопка
+        if (el.querySelector('a, button, input, select')) continue;
+
+        const text = el.textContent?.trim().slice(0, 50) || '';
+        if (!text || text.length > 50) continue;
+
+        const cls = el.className?.toString() || '';
+        const hasDataToggle = el.hasAttribute('data-toggle') || el.hasAttribute('data-target');
+        const hasCursor = window.getComputedStyle(el).cursor === 'pointer';
+        const hasOnclick = el.hasAttribute('onclick');
+        const hasTabindex = el.getAttribute('tabindex') === '0';
+        const hasBtnClass = BTN_CLASS_RE.test(cls);
+        const hasSubmenu = el.parentElement?.querySelector(':scope > ul, :scope > [class*="dropdown"], :scope > [class*="submenu"]') !== null;
+
+        // Два пути детекции:
+        // 1) Класс btn/button/toggle/trigger + интерактивность (cursor/onclick/data-toggle)
+        // 2) tabindex="0" + подменю рядом (dropdown без role)
+        const isFakeButton = hasBtnClass && (hasDataToggle || hasCursor || hasOnclick);
+        const isFakeMenu = hasTabindex && hasSubmenu && !el.getAttribute('aria-expanded');
+
+        if (!isFakeButton && !isFakeMenu) continue;
 
         suspects.push({
             tag: el.tagName,
             text: text,
             cls: cls.slice(0, 80),
             hasRole: false,
-            hasTabindex: el.hasAttribute('tabindex'),
+            hasTabindex: hasTabindex,
             ariaExpanded: el.getAttribute('aria-expanded'),
             hasDataToggle: hasDataToggle,
+            hasSubmenu: hasSubmenu,
+            type: isFakeMenu ? 'menu-trigger-no-aria' : 'fake-button',
             html: el.outerHTML.slice(0, 250),
-            selector: selector,
+            selector: getSelector(el),
         });
     }
     return suspects;
@@ -197,9 +207,15 @@ class CheckAria(GostCheck):
                         "impact": "serious",
                         "failure_summary": (
                             f"Элемент <{fb['tag'].lower()} class=\"{fb['cls']}\"> "
-                            f"выглядит как кнопка, но не имеет role=\"button\" и "
-                            f"aria-expanded. Скринридер не сможет объявить его как "
-                            f"интерактивный элемент."
+                            + (
+                                f"раскрывает подменю, но не имеет role=\"button\" и "
+                                f"aria-expanded=\"true/false\". Скринридер не объявит "
+                                f"его как элемент управления с подменю."
+                                if fb.get("type") == "menu-trigger-no-aria"
+                                else
+                                f"выглядит как кнопка, но не имеет role=\"button\". "
+                                f"Скринридер не распознает его как интерактивный элемент."
+                            )
                         ),
                     }
                     for fb in fake_buttons[:10]
