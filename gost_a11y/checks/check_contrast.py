@@ -143,12 +143,13 @@ class CheckContrast(GostCheck):
                 **base_kwargs,
             )
 
+        total_checked = info["passes_nodes"] + info["total_nodes"]
         impact_str = ", ".join(f"{k}: {v}" for k, v in info["by_impact"].items())
         return CheckResult(
             verdict=Verdict.FAIL,
             reason=(
                 f"{info['total_nodes']} элементов с недостаточным контрастом "
-                f"({impact_str})"
+                f"({impact_str}) из {total_checked} проверенных"
             ),
             details=info,
             **base_kwargs,
