@@ -1,0 +1,15 @@
+{
+  "url": "https://example.com/title-whitespace",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "   \t  ",
+  "images": [],
+  "axeViolations": [],
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

@@ -1,0 +1,168 @@
+/* Minimal accessible styles for the GOST A11y DevTools panel.
+   Honors prefers-color-scheme; sufficient contrast on both themes.
+   See principle: the tool itself must be accessible (we audit a11y; our UI must pass it too). */
+
+:root {
+  --fg: #1a1a1a;
+  --bg: #ffffff;
+  --accent: #0050b3;
+  --accent-fg: #ffffff;
+  --muted: #5c5c5c;
+  --border: #cccccc;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fg: #f0f0f0;
+    --bg: #1e1e1e;
+    --accent: #4d9aff;
+    --accent-fg: #0a0a0a;
+    --muted: #a8a8a8;
+    --border: #444444;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--fg);
+  background: var(--bg);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+main {
+  padding: 16px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+header h1 {
+  margin: 0 0 4px;
+  font-size: 20px;
+}
+
+header .subtitle {
+  margin: 0 0 16px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+h2 {
+  font-size: 15px;
+  margin: 16px 0 8px;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 4px;
+}
+
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+button {
+  font: inherit;
+  padding: 8px 14px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  border: 2px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover:not([disabled]) {
+  filter: brightness(1.1);
+}
+
+button:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+}
+
+button[disabled] {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+#status {
+  margin: 12px 0;
+  color: var(--muted);
+}
+
+#downloads {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-left: 12px;
+}
+
+#downloads button {
+  background: transparent;
+  color: var(--accent);
+  border: 1px solid var(--accent);
+}
+
+#downloads button:hover:not([disabled]) {
+  background: var(--accent);
+  color: var(--accent-fg);
+  filter: none;
+}
+
+#results {
+  margin-top: 12px;
+}
+
+#results iframe {
+  background: var(--bg);
+}
+
+#log-section {
+  margin-top: 24px;
+}
+
+#log-section details {
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 8px 12px;
+}
+
+#log-section summary {
+  cursor: pointer;
+  font-weight: 600;
+  user-select: none;
+}
+
+#log-section summary:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+}
+
+#log-section .log-hint {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 8px 0;
+}
+
+#log-output {
+  background: rgba(127, 127, 127, 0.08);
+  padding: 8px 10px;
+  border-radius: 3px;
+  font-family: "SF Mono", Consolas, Menlo, monospace;
+  font-size: 12px;
+  line-height: 1.45;
+  max-height: 50vh;
+  overflow: auto;
+  white-space: pre;
+  margin: 8px 0 0;
+}

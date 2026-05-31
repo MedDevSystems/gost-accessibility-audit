@@ -1,0 +1,37 @@
+{
+  "url": "https://example.com/single-serious",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast",
+      "tags": [
+        "wcag2aa",
+        "wcag143"
+      ],
+      "nodes": [
+        {
+          "html": "<a class=\"link\" href=\"/about\">О компании</a>",
+          "target": [
+            "a.link"
+          ],
+          "impact": "serious",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 2.1 (foreground color: #999999, background color: #ffffff, font size: 12.0pt (16.0px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ]
+    }
+  ],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

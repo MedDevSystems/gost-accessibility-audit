@@ -1,0 +1,37 @@
+{
+  "url": "https://example.com/minor-impact",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "color-contrast",
+      "impact": "minor",
+      "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast",
+      "tags": [
+        "wcag2aa",
+        "wcag143"
+      ],
+      "nodes": [
+        {
+          "html": "<span class=\"minor\">Едва заметный текст</span>",
+          "target": [
+            ".minor"
+          ],
+          "impact": "minor",
+          "failureSummary": "Element has insufficient color contrast of 4.4"
+        }
+      ]
+    }
+  ],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

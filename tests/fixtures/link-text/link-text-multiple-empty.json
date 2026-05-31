@@ -1,0 +1,45 @@
+{
+  "url": "https://example.com/link-text-multiple",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Каталог",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "link-name",
+      "impact": "serious",
+      "description": "Ensures links have discernible text",
+      "help": "Links must have discernible text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/link-name",
+      "tags": [
+        "wcag2a",
+        "wcag244"
+      ],
+      "nodes": [
+        {
+          "html": "<a href=\"/a\"></a>",
+          "target": [
+            "a[href=\"/a\"]"
+          ],
+          "impact": "serious",
+          "failureSummary": "Element does not have text that is visible to screen readers"
+        },
+        {
+          "html": "<a href=\"/b\"><img src=\"icon.svg\"></a>",
+          "target": [
+            "a[href=\"/b\"]"
+          ],
+          "impact": "serious",
+          "failureSummary": "Element does not have text that is visible to screen readers"
+        }
+      ]
+    }
+  ],
+  "headings": [],
+  "keyboardConcerns": []
+}

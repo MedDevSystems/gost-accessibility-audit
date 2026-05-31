@@ -1,0 +1,28 @@
+{
+  "url": "https://example.com/headings-no-h1",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Документация",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [
+    {
+      "level": 2,
+      "text": "Раздел A",
+      "selector": "h2",
+      "visible": true
+    },
+    {
+      "level": 2,
+      "text": "Раздел B",
+      "selector": "h2",
+      "visible": true
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "keyboardConcerns": []
+}

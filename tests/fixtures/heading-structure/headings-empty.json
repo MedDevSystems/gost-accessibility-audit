@@ -1,0 +1,15 @@
+{
+  "url": "https://example.com/headings-empty",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Пустая",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "images": [],
+  "axeViolations": [],
+  "keyboardConcerns": []
+}

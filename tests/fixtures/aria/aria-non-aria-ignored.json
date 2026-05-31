@@ -1,0 +1,58 @@
+{
+  "url": "https://example.com/aria-non-aria-ignored",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Контраст",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast",
+      "tags": [
+        "wcag2aa",
+        "wcag143"
+      ],
+      "nodes": [
+        {
+          "html": "<p style=\"color:#aaa\">Текст</p>",
+          "target": [
+            "p"
+          ],
+          "impact": "serious",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast"
+        }
+      ]
+    },
+    {
+      "id": "image-alt",
+      "impact": "critical",
+      "description": "Ensures <img> elements have alternate text",
+      "help": "Images must have alternate text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/image-alt",
+      "tags": [
+        "wcag2a",
+        "wcag111"
+      ],
+      "nodes": [
+        {
+          "html": "<img src=\"logo.png\">",
+          "target": [
+            "img"
+          ],
+          "impact": "critical",
+          "failureSummary": "Element does not have an alt attribute"
+        }
+      ]
+    }
+  ],
+  "headings": [],
+  "keyboardConcerns": []
+}

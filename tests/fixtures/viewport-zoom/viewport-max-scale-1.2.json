@@ -1,0 +1,15 @@
+{
+  "url": "https://example.com/viewport-max-scale-1.2",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "О сайте",
+  "viewportMeta": "width=device-width, initial-scale=1, maximum-scale=1.2",
+  "images": [],
+  "axeViolations": [],
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

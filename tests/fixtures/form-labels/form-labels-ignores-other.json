@@ -1,0 +1,36 @@
+{
+  "url": "https://example.com/form-labels-ignores",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Контакты",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "description": "Color contrast",
+      "help": "...",
+      "helpUrl": "...",
+      "tags": [
+        "wcag2aa"
+      ],
+      "nodes": [
+        {
+          "html": "<p>x</p>",
+          "target": [
+            "p"
+          ],
+          "impact": "serious",
+          "failureSummary": "x"
+        }
+      ]
+    }
+  ],
+  "keyboardConcerns": []
+}

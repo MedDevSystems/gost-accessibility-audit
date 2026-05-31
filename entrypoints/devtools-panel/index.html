@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GOST A11y</title>
+    <link rel="stylesheet" href="./style.css" />
+  </head>
+  <body>
+    <main id="app" aria-labelledby="title">
+      <header>
+        <h1 id="title">GOST A11y</h1>
+        <p class="subtitle">
+          Аудит доступности по ГОСТ Р 52872-2019
+        </p>
+      </header>
+      <section aria-labelledby="actions-title">
+        <h2 id="actions-title" class="visually-hidden">Действия</h2>
+        <button id="run-audit" type="button">Запустить аудит</button>
+        <div id="downloads" hidden>
+          <button id="download-html" type="button">Скачать HTML</button>
+          <button id="download-json" type="button">Скачать JSON</button>
+          <button id="download-snapshot" type="button">Скачать снимок</button>
+          <button id="download-log" type="button">Скачать журнал</button>
+        </div>
+      </section>
+      <section aria-labelledby="results-title">
+        <h2 id="results-title">Результаты</h2>
+        <p id="status" aria-live="polite">Откройте страницу и нажмите «Запустить аудит».</p>
+        <div id="results" hidden></div>
+      </section>
+      <section aria-labelledby="log-title" id="log-section" hidden>
+        <details>
+          <summary id="log-title">Журнал работы (LDD-трейс)</summary>
+          <p class="log-hint">
+            Если что-то идёт не так — раскройте, скопируйте лог и пришлите разработчику.
+            Вместе со снимком (кнопка «Скачать снимок») этого достаточно для воспроизведения.
+          </p>
+          <pre id="log-output" aria-live="polite"></pre>
+        </details>
+      </section>
+    </main>
+    <script type="module" src="./main.ts"></script>
+  </body>
+</html>

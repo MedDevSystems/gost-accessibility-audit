@@ -1,0 +1,40 @@
+{
+  "url": "https://example.com/headings-descending-no-skip",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Возврат на верхний уровень",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [
+    {
+      "level": 1,
+      "text": "Главная",
+      "selector": "h1",
+      "visible": true
+    },
+    {
+      "level": 2,
+      "text": "Раздел A",
+      "selector": "h2:nth-of-type(1)",
+      "visible": true
+    },
+    {
+      "level": 3,
+      "text": "Подраздел A.1",
+      "selector": "h3",
+      "visible": true
+    },
+    {
+      "level": 2,
+      "text": "Раздел B",
+      "selector": "h2:nth-of-type(2)",
+      "visible": true
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "keyboardConcerns": []
+}

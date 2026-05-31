@@ -1,0 +1,27 @@
+{
+  "url": "https://example.com/invisible",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [
+    {
+      "src": "https://example.com/img/lazy.jpg",
+      "alt": null,
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 800,
+      "height": 600,
+      "visible": false,
+      "selector": "div.carousel > img[hidden]"
+    }
+  ],
+  "axeViolations": [],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

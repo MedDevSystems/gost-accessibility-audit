@@ -1,0 +1,21 @@
+{
+  "url": "https://example.com/smartcaptcha",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Заявка",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [
+    {
+      "type": "smartcaptcha",
+      "source": "https://captcha-api.yandex.ru/captcha.js",
+      "selector": "script[src=\"https://captcha-api.yandex.ru/captcha.js\"]"
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

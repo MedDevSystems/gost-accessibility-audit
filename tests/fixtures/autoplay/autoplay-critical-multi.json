@@ -1,0 +1,45 @@
+{
+  "url": "https://example.com/autoplay-critical-multi",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Медиатека",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "no-autoplay-audio",
+      "impact": "serious",
+      "description": "Ensures audio or video does not autoplay for more than 3 seconds without a control mechanism",
+      "help": "<audio> or <video> elements must not play automatically",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/no-autoplay-audio",
+      "tags": [
+        "wcag2a",
+        "wcag142"
+      ],
+      "nodes": [
+        {
+          "html": "<audio src=\"jingle.mp3\" autoplay></audio>",
+          "target": [
+            "audio.intro"
+          ],
+          "impact": "critical",
+          "failureSummary": "Element plays audio automatically for more than 3 seconds and has no controls"
+        },
+        {
+          "html": "<video src=\"ad.mp4\" autoplay></video>",
+          "target": [
+            "video.ad"
+          ],
+          "impact": "minor",
+          "failureSummary": "Element plays audio automatically for more than 3 seconds and has no controls"
+        }
+      ]
+    }
+  ],
+  "headings": [],
+  "keyboardConcerns": []
+}

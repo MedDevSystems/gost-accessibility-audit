@@ -1,0 +1,27 @@
+{
+  "url": "https://example.com/aria-hidden",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [
+    {
+      "src": "https://example.com/img/decorative-flourish.png",
+      "alt": null,
+      "ariaLabel": "",
+      "ariaHidden": true,
+      "role": "",
+      "width": 600,
+      "height": 200,
+      "visible": true,
+      "selector": "section > img[aria-hidden=true]"
+    }
+  ],
+  "axeViolations": [],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

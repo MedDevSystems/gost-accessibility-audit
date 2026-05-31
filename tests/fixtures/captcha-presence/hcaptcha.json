@@ -1,0 +1,21 @@
+{
+  "url": "https://example.com/hcaptcha",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Вход",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [
+    {
+      "type": "hcaptcha",
+      "source": "https://js.hcaptcha.com/1/api.js",
+      "selector": "script[src=\"https://js.hcaptcha.com/1/api.js\"]"
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

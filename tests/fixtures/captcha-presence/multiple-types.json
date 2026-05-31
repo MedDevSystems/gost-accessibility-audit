@@ -1,0 +1,26 @@
+{
+  "url": "https://example.com/multiple-captchas",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Форма с несколькими шагами",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [
+    {
+      "type": "recaptcha",
+      "source": "https://www.google.com/recaptcha/api.js",
+      "selector": "script[src=\"https://www.google.com/recaptcha/api.js\"]"
+    },
+    {
+      "type": "turnstile",
+      "source": "https://challenges.cloudflare.com/turnstile/v0/api.js",
+      "selector": "script[src=\"https://challenges.cloudflare.com/turnstile/v0/api.js\"]"
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

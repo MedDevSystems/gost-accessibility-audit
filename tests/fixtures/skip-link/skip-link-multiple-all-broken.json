@@ -1,0 +1,28 @@
+{
+  "url": "https://example.com/skip-link-multiple-all-broken",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Главная — Пример",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [
+    {
+      "href": "#main",
+      "text": "Перейти к содержанию",
+      "selector": "a[href=\"#main\"]",
+      "targetExists": false
+    },
+    {
+      "href": "#nav",
+      "text": "Перейти к навигации",
+      "selector": "a[href=\"#nav\"]",
+      "targetExists": false
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

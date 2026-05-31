@@ -1,0 +1,40 @@
+{
+  "url": "https://example.com/headings-multiple-skips",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Несколько скачков",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [
+    {
+      "level": 1,
+      "text": "Заголовок",
+      "selector": "h1",
+      "visible": true
+    },
+    {
+      "level": 3,
+      "text": "Первый скачок h1->h3",
+      "selector": "main > h3",
+      "visible": true
+    },
+    {
+      "level": 4,
+      "text": "Нормальный шаг h3->h4",
+      "selector": "main > h4",
+      "visible": true
+    },
+    {
+      "level": 6,
+      "text": "Второй скачок h4->h6",
+      "selector": "footer > h6",
+      "visible": true
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "keyboardConcerns": []
+}

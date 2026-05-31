@@ -1,0 +1,38 @@
+{
+  "url": "https://example.com/all-good",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [
+    {
+      "src": "https://example.com/img/hero.jpg",
+      "alt": "Открытие новой школы для слабовидящих в Казани",
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 800,
+      "height": 450,
+      "visible": true,
+      "selector": "main > article > img.hero"
+    },
+    {
+      "src": "https://example.com/img/portrait.jpg",
+      "alt": "Директор школы Анна Иванова",
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 240,
+      "height": 320,
+      "visible": true,
+      "selector": "main > aside > img"
+    }
+  ],
+  "axeViolations": [],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

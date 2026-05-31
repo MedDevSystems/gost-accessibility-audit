@@ -1,0 +1,37 @@
+{
+  "url": "https://example.com/aria-button-no-name",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Поиск",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "button-name",
+      "impact": "critical",
+      "description": "Ensures buttons have discernible text",
+      "help": "Buttons must have discernible text",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/button-name",
+      "tags": [
+        "wcag2a",
+        "wcag412"
+      ],
+      "nodes": [
+        {
+          "html": "<button><img src=\"icon.svg\"></button>",
+          "target": [
+            "button"
+          ],
+          "impact": "critical",
+          "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty"
+        }
+      ]
+    }
+  ],
+  "headings": [],
+  "keyboardConcerns": []
+}

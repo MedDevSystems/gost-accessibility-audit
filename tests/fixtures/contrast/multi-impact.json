@@ -1,0 +1,76 @@
+{
+  "url": "https://example.com/multi-impact",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "color-contrast",
+      "impact": "critical",
+      "description": "...",
+      "help": "...",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast",
+      "tags": [
+        "wcag2aa"
+      ],
+      "nodes": [
+        {
+          "html": "<span class=\"critical\">Critical text</span>",
+          "target": [
+            ".critical"
+          ],
+          "impact": "critical",
+          "failureSummary": "Element has insufficient color contrast of 1.2"
+        }
+      ]
+    },
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "description": "...",
+      "help": "...",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast",
+      "tags": [
+        "wcag2aa"
+      ],
+      "nodes": [
+        {
+          "html": "<span class=\"serious\">Serious text</span>",
+          "target": [
+            ".serious"
+          ],
+          "impact": "serious",
+          "failureSummary": "Element has insufficient color contrast of 3.0"
+        }
+      ]
+    },
+    {
+      "id": "color-contrast",
+      "impact": "moderate",
+      "description": "...",
+      "help": "...",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast",
+      "tags": [
+        "wcag2aa"
+      ],
+      "nodes": [
+        {
+          "html": "<span class=\"moderate\">Moderate text</span>",
+          "target": [
+            ".moderate"
+          ],
+          "impact": "moderate",
+          "failureSummary": "Element has insufficient color contrast of 4.2"
+        }
+      ]
+    }
+  ],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

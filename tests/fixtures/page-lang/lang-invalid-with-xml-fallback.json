@@ -1,0 +1,15 @@
+{
+  "url": "https://example.com/invalid-with-xml",
+  "timestamp": 1700000000000,
+  "documentLang": "qq123!",
+  "documentXmlLang": "ru",
+  "metaContentLanguage": "",
+  "images": [],
+  "axeViolations": [],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

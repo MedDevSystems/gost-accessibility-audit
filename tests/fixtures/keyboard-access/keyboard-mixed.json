@@ -1,0 +1,34 @@
+{
+  "url": "https://example.com/keyboard-mixed",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Смешанные дефекты",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": [
+    {
+      "reason": "onclick-no-keyboard",
+      "tag": "div",
+      "text": "Купить",
+      "selector": "div.buy-btn"
+    },
+    {
+      "reason": "negative-tabindex-interactive",
+      "tag": "a",
+      "text": "Профиль",
+      "selector": "a.profile[tabindex=\"-1\"]"
+    },
+    {
+      "reason": "onclick-no-keyboard",
+      "tag": "span",
+      "text": "",
+      "selector": "span.icon"
+    }
+  ],
+  "images": [],
+  "axeViolations": []
+}

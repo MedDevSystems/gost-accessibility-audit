@@ -1,0 +1,45 @@
+{
+  "url": "https://example.com/duplicate-id-active",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Меню",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "duplicate-id-active",
+      "impact": "serious",
+      "description": "Ensures every id attribute value of active elements is unique",
+      "help": "IDs of active elements must be unique",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/duplicate-id-active",
+      "tags": [
+        "wcag2a",
+        "wcag411"
+      ],
+      "nodes": [
+        {
+          "html": "<button id=\"go\">Перейти</button>",
+          "target": [
+            "button#go"
+          ],
+          "impact": "serious",
+          "failureSummary": "Document has multiple active elements with the same id attribute: go"
+        },
+        {
+          "html": "<button id=\"go\">Назад</button>",
+          "target": [
+            "button#go:nth-of-type(2)"
+          ],
+          "impact": "serious",
+          "failureSummary": "Document has multiple active elements with the same id attribute: go"
+        }
+      ]
+    }
+  ],
+  "headings": [],
+  "keyboardConcerns": []
+}

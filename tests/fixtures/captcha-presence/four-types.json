@@ -1,0 +1,36 @@
+{
+  "url": "https://example.com/four-captchas",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Страница с четырьмя капчами",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [
+    {
+      "type": "turnstile",
+      "source": "https://challenges.cloudflare.com/turnstile/v0/api.js",
+      "selector": "script[src=\"https://challenges.cloudflare.com/turnstile/v0/api.js\"]"
+    },
+    {
+      "type": "smartcaptcha",
+      "source": "https://smartcaptcha.yandexcloud.net/captcha.js",
+      "selector": "script[src=\"https://smartcaptcha.yandexcloud.net/captcha.js\"]"
+    },
+    {
+      "type": "recaptcha",
+      "source": "https://www.google.com/recaptcha/api.js",
+      "selector": "script[src=\"https://www.google.com/recaptcha/api.js\"]"
+    },
+    {
+      "type": "hcaptcha",
+      "source": "https://js.hcaptcha.com/1/api.js",
+      "selector": "script[src=\"https://js.hcaptcha.com/1/api.js\"]"
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

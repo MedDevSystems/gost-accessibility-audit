@@ -1,0 +1,21 @@
+{
+  "url": "https://example.com/recaptcha",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Регистрация",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [
+    {
+      "type": "recaptcha",
+      "source": "https://www.google.com/recaptcha/api.js?render=explicit",
+      "selector": "script[src=\"https://www.google.com/recaptcha/api.js?render=explicit\"]"
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

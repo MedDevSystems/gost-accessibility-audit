@@ -1,0 +1,22 @@
+{
+  "url": "https://example.com/keyboard-negative-tabindex",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Меню",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": [
+    {
+      "reason": "negative-tabindex-interactive",
+      "tag": "button",
+      "text": "Скрыть",
+      "selector": "button.toggle[tabindex=\"-1\"]"
+    }
+  ],
+  "images": [],
+  "axeViolations": []
+}

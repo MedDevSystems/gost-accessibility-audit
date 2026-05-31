@@ -1,0 +1,27 @@
+{
+  "url": "https://example.com/meaningless-whitespace",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [
+    {
+      "src": "https://example.com/img/article.png",
+      "alt": "  image  ",
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 600,
+      "height": 400,
+      "visible": true,
+      "selector": "article > img.padded"
+    }
+  ],
+  "axeViolations": [],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

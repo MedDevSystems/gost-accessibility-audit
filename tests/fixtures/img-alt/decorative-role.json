@@ -1,0 +1,27 @@
+{
+  "url": "https://example.com/decorative-role",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [
+    {
+      "src": "https://example.com/img/divider.svg",
+      "alt": null,
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "presentation",
+      "width": 800,
+      "height": 30,
+      "visible": true,
+      "selector": "section > img[role=presentation]"
+    }
+  ],
+  "axeViolations": [],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

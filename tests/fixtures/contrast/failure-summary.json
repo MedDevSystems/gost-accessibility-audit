@@ -1,0 +1,37 @@
+{
+  "url": "https://example.com/failure-summary",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast",
+      "tags": [
+        "wcag2aa",
+        "wcag143"
+      ],
+      "nodes": [
+        {
+          "html": "<p class=\"hint\">Подсказка по форме</p>",
+          "target": [
+            "p.hint"
+          ],
+          "impact": "serious",
+          "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 1.85 (foreground color: #bbbbbb, background color: #ffffff, font size: 11.0pt (14.6667px), font weight: normal). Expected contrast ratio of 4.5:1"
+        }
+      ]
+    }
+  ],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

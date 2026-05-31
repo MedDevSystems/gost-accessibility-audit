@@ -1,0 +1,38 @@
+{
+  "url": "https://example.com/meaningless-word",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [
+    {
+      "src": "https://example.com/img/article-1.png",
+      "alt": "image",
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 600,
+      "height": 400,
+      "visible": true,
+      "selector": "article > img"
+    },
+    {
+      "src": "https://example.com/img/article-2.png",
+      "alt": "фото",
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 600,
+      "height": 400,
+      "visible": true,
+      "selector": "article > img + img"
+    }
+  ],
+  "axeViolations": [],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

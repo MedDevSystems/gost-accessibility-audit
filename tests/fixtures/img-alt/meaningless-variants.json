@@ -1,0 +1,82 @@
+{
+  "url": "https://example.com/meaningless-variants",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [
+    {
+      "src": "https://example.com/img/a.png",
+      "alt": "12345",
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 600,
+      "height": 400,
+      "visible": true,
+      "selector": "article > img.num"
+    },
+    {
+      "src": "https://example.com/img/b.png",
+      "alt": "a1b2c3d4",
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 600,
+      "height": 400,
+      "visible": true,
+      "selector": "article > img.hex"
+    },
+    {
+      "src": "https://example.com/img/c.png",
+      "alt": "IMG_0001",
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 600,
+      "height": 400,
+      "visible": true,
+      "selector": "article > img.imgnum"
+    },
+    {
+      "src": "https://example.com/img/d.png",
+      "alt": "untitled",
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 600,
+      "height": 400,
+      "visible": true,
+      "selector": "article > img.untitled"
+    },
+    {
+      "src": "https://example.com/img/e.png",
+      "alt": "картинка",
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 600,
+      "height": 400,
+      "visible": true,
+      "selector": "article > img.kartinka"
+    },
+    {
+      "src": "https://example.com/img/f.svg",
+      "alt": "logo.svg",
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 600,
+      "height": 400,
+      "visible": true,
+      "selector": "article > img.svgname"
+    }
+  ],
+  "axeViolations": [],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

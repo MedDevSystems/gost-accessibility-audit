@@ -1,0 +1,28 @@
+{
+  "url": "https://example.com/headings-no-h1-and-skip",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Без h1 и со скачком",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [
+    {
+      "level": 2,
+      "text": "Раздел верхнего уровня",
+      "selector": "h2",
+      "visible": true
+    },
+    {
+      "level": 4,
+      "text": "Подраздел (пропущен h3)",
+      "selector": "h4",
+      "visible": true
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "keyboardConcerns": []
+}

@@ -1,0 +1,21 @@
+{
+  "url": "https://example.com/turnstile",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Защита Cloudflare",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [
+    {
+      "type": "turnstile",
+      "source": "https://challenges.cloudflare.com/turnstile/v0/api.js",
+      "selector": "script[src=\"https://challenges.cloudflare.com/turnstile/v0/api.js\"]"
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

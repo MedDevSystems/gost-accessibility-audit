@@ -1,0 +1,58 @@
+{
+  "url": "https://example.com/aria-mixed",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Мультидефект",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "aria-valid-attr",
+      "impact": "critical",
+      "description": "Ensures attributes that begin with aria- are valid ARIA attributes",
+      "help": "ARIA attributes must conform to valid names",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/aria-valid-attr",
+      "tags": [
+        "wcag2a",
+        "wcag412"
+      ],
+      "nodes": [
+        {
+          "html": "<button aria-labelby=\"x\">A</button>",
+          "target": [
+            "button[aria-labelby]"
+          ],
+          "impact": "critical",
+          "failureSummary": "Invalid ARIA attribute: aria-labelby (did you mean aria-labelledby?)"
+        }
+      ]
+    },
+    {
+      "id": "aria-required-attr",
+      "impact": "critical",
+      "description": "Ensures elements with ARIA roles have all required ARIA attributes",
+      "help": "Required ARIA attributes must be provided",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/aria-required-attr",
+      "tags": [
+        "wcag2a",
+        "wcag412"
+      ],
+      "nodes": [
+        {
+          "html": "<div role=\"slider\">Volume</div>",
+          "target": [
+            "div[role=\"slider\"]"
+          ],
+          "impact": "critical",
+          "failureSummary": "Required ARIA attribute not present: aria-valuenow"
+        }
+      ]
+    }
+  ],
+  "headings": [],
+  "keyboardConcerns": []
+}

@@ -1,0 +1,27 @@
+{
+  "url": "https://example.com/size-boundary-pass",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [
+    {
+      "src": "https://example.com/img/exactly-min.png",
+      "alt": null,
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 50,
+      "height": 20,
+      "visible": true,
+      "selector": "main > img.exact-min"
+    }
+  ],
+  "axeViolations": [],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

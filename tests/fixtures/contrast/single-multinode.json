@@ -1,0 +1,53 @@
+{
+  "url": "https://example.com/single-multinode",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "description": "Ensures the contrast between foreground and background colors meets WCAG 2 AA contrast ratio thresholds",
+      "help": "Elements must meet minimum color contrast ratio thresholds",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast",
+      "tags": [
+        "wcag2aa",
+        "wcag143"
+      ],
+      "nodes": [
+        {
+          "html": "<a href=\"/a\">A</a>",
+          "target": [
+            "#nav a:nth-child(1)"
+          ],
+          "impact": "serious",
+          "failureSummary": "Element has insufficient color contrast of 2.5 (foreground color: #aaaaaa, background color: #ffffff)"
+        },
+        {
+          "html": "<a href=\"/b\">B</a>",
+          "target": [
+            "#nav a:nth-child(2)"
+          ],
+          "impact": "serious",
+          "failureSummary": "Element has insufficient color contrast of 2.5 (foreground color: #aaaaaa, background color: #ffffff)"
+        },
+        {
+          "html": "<a href=\"/c\">C</a>",
+          "target": [
+            "#nav a:nth-child(3)"
+          ],
+          "impact": "serious",
+          "failureSummary": "Element has insufficient color contrast of 2.5 (foreground color: #aaaaaa, background color: #ffffff)"
+        }
+      ]
+    }
+  ],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

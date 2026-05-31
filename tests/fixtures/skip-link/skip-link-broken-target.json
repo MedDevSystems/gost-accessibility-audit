@@ -1,0 +1,22 @@
+{
+  "url": "https://example.com/skip-link-broken-target",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Главная — Пример",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [
+    {
+      "href": "#content",
+      "text": "Skip to content",
+      "selector": "a[href=\"#content\"]",
+      "targetExists": false
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

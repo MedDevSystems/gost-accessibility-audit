@@ -1,0 +1,48 @@
+{
+  "url": "https://example.com/mixed",
+  "timestamp": 1700000000000,
+  "documentLang": "",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [
+    {
+      "src": "https://example.com/banner.jpg",
+      "alt": null,
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 1200,
+      "height": 400,
+      "visible": true,
+      "selector": "header > img.banner"
+    }
+  ],
+  "axeViolations": [
+    {
+      "id": "color-contrast",
+      "impact": "critical",
+      "description": "...",
+      "help": "...",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/color-contrast",
+      "tags": [
+        "wcag2aa"
+      ],
+      "nodes": [
+        {
+          "html": "<span class=\"hint\">Hint</span>",
+          "target": [
+            ".hint"
+          ],
+          "impact": "critical",
+          "failureSummary": "Element has insufficient color contrast of 1.5"
+        }
+      ]
+    }
+  ],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

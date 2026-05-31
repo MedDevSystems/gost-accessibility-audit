@@ -1,0 +1,60 @@
+{
+  "url": "https://example.com/mixed-defects",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [
+    {
+      "src": "https://example.com/img/good.jpg",
+      "alt": "Фотография открытия выставки тактильных книг",
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 800,
+      "height": 450,
+      "visible": true,
+      "selector": "main > img.good"
+    },
+    {
+      "src": "https://example.com/img/no-alt.jpg",
+      "alt": null,
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 800,
+      "height": 450,
+      "visible": true,
+      "selector": "main > img.noalt"
+    },
+    {
+      "src": "https://example.com/img/DSC_0099.jpg",
+      "alt": "DSC_0099.jpg",
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 800,
+      "height": 450,
+      "visible": true,
+      "selector": "main > img.meaningless"
+    },
+    {
+      "src": "https://example.com/img/icon.svg",
+      "alt": null,
+      "ariaLabel": "",
+      "ariaHidden": true,
+      "role": "",
+      "width": 24,
+      "height": 24,
+      "visible": true,
+      "selector": "main > img.icon"
+    }
+  ],
+  "axeViolations": [],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

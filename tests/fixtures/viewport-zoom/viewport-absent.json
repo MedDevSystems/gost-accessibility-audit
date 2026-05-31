@@ -1,0 +1,15 @@
+{
+  "url": "https://example.com/viewport-absent",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Главная",
+  "viewportMeta": "",
+  "images": [],
+  "axeViolations": [],
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

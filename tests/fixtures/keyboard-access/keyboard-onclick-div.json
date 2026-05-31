@@ -1,0 +1,28 @@
+{
+  "url": "https://example.com/keyboard-onclick-div",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Каталог",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": [
+    {
+      "reason": "onclick-no-keyboard",
+      "tag": "div",
+      "text": "Купить",
+      "selector": "div.buy-btn"
+    },
+    {
+      "reason": "onclick-no-keyboard",
+      "tag": "span",
+      "text": "Закрыть",
+      "selector": "span.modal-close"
+    }
+  ],
+  "images": [],
+  "axeViolations": []
+}

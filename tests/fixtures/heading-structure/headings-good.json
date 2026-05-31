@@ -1,0 +1,40 @@
+{
+  "url": "https://example.com/headings-good",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Главная",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [
+    {
+      "level": 1,
+      "text": "Главная страница",
+      "selector": "h1",
+      "visible": true
+    },
+    {
+      "level": 2,
+      "text": "Новости",
+      "selector": "h2",
+      "visible": true
+    },
+    {
+      "level": 3,
+      "text": "Релиз 2.1",
+      "selector": "h3",
+      "visible": true
+    },
+    {
+      "level": 2,
+      "text": "О проекте",
+      "selector": "h2",
+      "visible": true
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "keyboardConcerns": []
+}

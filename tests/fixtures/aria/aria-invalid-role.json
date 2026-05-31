@@ -1,0 +1,37 @@
+{
+  "url": "https://example.com/aria-invalid-role",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Каталог",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "aria-roles",
+      "impact": "serious",
+      "description": "Ensures all elements with a role attribute use a valid value",
+      "help": "ARIA roles used must conform to valid values",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/aria-roles",
+      "tags": [
+        "wcag2a",
+        "wcag412"
+      ],
+      "nodes": [
+        {
+          "html": "<div role=\"slidebar\">Slider</div>",
+          "target": [
+            "div[role=\"slidebar\"]"
+          ],
+          "impact": "serious",
+          "failureSummary": "Role must be one of the valid ARIA roles: slidebar"
+        }
+      ]
+    }
+  ],
+  "headings": [],
+  "keyboardConcerns": []
+}

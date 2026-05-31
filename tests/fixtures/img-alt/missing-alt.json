@@ -1,0 +1,27 @@
+{
+  "url": "https://example.com/missing-alt",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [
+    {
+      "src": "https://example.com/img/banner.jpg",
+      "alt": null,
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 1200,
+      "height": 400,
+      "visible": true,
+      "selector": "header > img.banner"
+    }
+  ],
+  "axeViolations": [],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

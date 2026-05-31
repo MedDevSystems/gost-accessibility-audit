@@ -1,0 +1,34 @@
+{
+  "url": "https://example.com/headings-level-skip",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Статья",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [
+    {
+      "level": 1,
+      "text": "Заголовок статьи",
+      "selector": "h1",
+      "visible": true
+    },
+    {
+      "level": 3,
+      "text": "Подраздел (пропущен h2)",
+      "selector": "h3",
+      "visible": true
+    },
+    {
+      "level": 4,
+      "text": "Глубже",
+      "selector": "h4",
+      "visible": true
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "keyboardConcerns": []
+}

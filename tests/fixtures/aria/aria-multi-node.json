@@ -1,0 +1,46 @@
+{
+  "url": "https://example.com/aria-multi-node",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Несколько ролей",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "aria-roles",
+      "impact": "serious",
+      "description": "Ensures all elements with a role attribute use a valid value",
+      "help": "ARIA roles used must conform to valid values",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/aria-roles",
+      "tags": [
+        "wcag2a",
+        "wcag412"
+      ],
+      "nodes": [
+        {
+          "html": "<div role=\"slidebar\">A</div>",
+          "target": [
+            "main",
+            "div[role=\"slidebar\"]"
+          ],
+          "impact": "serious",
+          "failureSummary": "Role must be one of the valid ARIA roles: slidebar"
+        },
+        {
+          "html": "<div role=\"buton\">B</div>",
+          "target": [
+            "div[role=\"buton\"]"
+          ],
+          "impact": "serious",
+          "failureSummary": "Role must be one of the valid ARIA roles: buton"
+        }
+      ]
+    }
+  ],
+  "headings": [],
+  "keyboardConcerns": []
+}

@@ -1,0 +1,36 @@
+{
+  "url": "https://example.com/link-text-ignores-contrast",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Контакты",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "description": "Color contrast",
+      "help": "...",
+      "helpUrl": "...",
+      "tags": [
+        "wcag2aa"
+      ],
+      "nodes": [
+        {
+          "html": "<p>low contrast</p>",
+          "target": [
+            "p"
+          ],
+          "impact": "serious",
+          "failureSummary": "Element has insufficient color contrast of 2.5"
+        }
+      ]
+    }
+  ],
+  "headings": [],
+  "keyboardConcerns": []
+}

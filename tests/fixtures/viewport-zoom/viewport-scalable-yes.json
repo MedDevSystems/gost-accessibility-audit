@@ -1,0 +1,15 @@
+{
+  "url": "https://example.com/viewport-scalable-yes",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Доступная",
+  "viewportMeta": "width=device-width, initial-scale=1, user-scalable=yes",
+  "images": [],
+  "axeViolations": [],
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

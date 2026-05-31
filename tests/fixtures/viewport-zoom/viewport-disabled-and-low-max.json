@@ -1,0 +1,15 @@
+{
+  "url": "https://example.com/viewport-both",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Оба",
+  "viewportMeta": "width=device-width, user-scalable=no, maximum-scale=1",
+  "images": [],
+  "axeViolations": [],
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

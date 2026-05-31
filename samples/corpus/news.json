@@ -1,0 +1,11 @@
+{
+  "name": "news-tiny",
+  "description": "Tiny seed corpus: Russian news/feed homepages. Tests the pipeline against real-world SPA/SSR mixes before we scale up to government and bank sites.",
+  "urls": [
+    { "id": "dzen", "url": "https://dzen.ru/", "kind": "feed-spa", "notes": "Yandex Dzen — lazy-loaded card feed; reference for the auto-scroll backlog item" },
+    { "id": "lenta", "url": "https://lenta.ru/", "kind": "news-ssr", "notes": "Lenta.ru — classic SSR-heavy news portal" },
+    { "id": "ria", "url": "https://ria.ru/", "kind": "news-mixed", "notes": "RIA Novosti — state agency, mixed SSR + hydration" },
+    { "id": "rbc", "url": "https://www.rbc.ru/", "kind": "news-spa", "notes": "RBC — heavy SPA, lots of widgets and ad slots" },
+    { "id": "tass", "url": "https://tass.ru/", "kind": "news-ssr", "notes": "TASS — state news agency, mostly SSR" }
+  ]
+}

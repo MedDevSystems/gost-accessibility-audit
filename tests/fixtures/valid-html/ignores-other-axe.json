@@ -1,0 +1,56 @@
+{
+  "url": "https://example.com/valid-html-ignores-other",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Контакты",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "description": "Color contrast",
+      "help": "...",
+      "helpUrl": "...",
+      "tags": [
+        "wcag2aa"
+      ],
+      "nodes": [
+        {
+          "html": "<p>x</p>",
+          "target": [
+            "p"
+          ],
+          "impact": "serious",
+          "failureSummary": "Element has insufficient color contrast of 2.0"
+        }
+      ]
+    },
+    {
+      "id": "link-name",
+      "impact": "serious",
+      "description": "Link name",
+      "help": "...",
+      "helpUrl": "...",
+      "tags": [
+        "wcag2a"
+      ],
+      "nodes": [
+        {
+          "html": "<a></a>",
+          "target": [
+            "a"
+          ],
+          "impact": "serious",
+          "failureSummary": "no name"
+        }
+      ]
+    }
+  ],
+  "headings": [],
+  "keyboardConcerns": []
+}

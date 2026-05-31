@@ -1,0 +1,22 @@
+{
+  "url": "https://example.com/skip-link-good",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Главная — Пример",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [
+    {
+      "href": "#main",
+      "text": "Перейти к содержанию",
+      "selector": "a[href=\"#main\"]",
+      "targetExists": true
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

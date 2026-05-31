@@ -1,0 +1,53 @@
+{
+  "url": "https://example.com/form-labels-impact-variants",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Уровни серьёзности",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "label",
+      "impact": "serious",
+      "description": "Ensures every form element has a label",
+      "help": "Form elements must have labels",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/label",
+      "tags": [
+        "wcag2a",
+        "wcag332"
+      ],
+      "nodes": [
+        {
+          "html": "<input type=\"text\" name=\"fallback\">",
+          "target": [
+            "input[name=\"fallback\"]"
+          ],
+          "impact": null,
+          "failureSummary": "node impact null; falls back to violation.impact serious"
+        },
+        {
+          "html": "<input type=\"text\" name=\"moderate\">",
+          "target": [
+            "input[name=\"moderate\"]"
+          ],
+          "impact": "moderate",
+          "failureSummary": "node impact moderate"
+        },
+        {
+          "html": "<input type=\"text\" name=\"minor\">",
+          "target": [
+            "input[name=\"minor\"]"
+          ],
+          "impact": "minor",
+          "failureSummary": "node impact minor"
+        }
+      ]
+    }
+  ],
+  "keyboardConcerns": []
+}

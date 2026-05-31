@@ -1,0 +1,27 @@
+{
+  "url": "https://example.com/decorative-empty",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [
+    {
+      "src": "https://example.com/img/flourish.svg",
+      "alt": "",
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 600,
+      "height": 80,
+      "visible": true,
+      "selector": "section > hr + img"
+    }
+  ],
+  "axeViolations": [],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

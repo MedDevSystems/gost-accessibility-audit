@@ -1,9 +1,35 @@
-__pycache__/
-*.pyc
-*.pyo
-.pytest_cache/
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+output
+stats.html
+stats-*.json
+.wxt
+web-ext.config.ts
+
+# Ad-hoc audit reports (regression baselines live elsewhere)
 reports/
-*.egg-info/
-dist/
-build/
-.env
+
+# Captured HTML corpus for regression testing — large + copyrighted,
+# regenerate locally via `pnpm grab-html <url>`. The samples/ folder
+# itself stays in repo (TESTING.md, manual-audit.md live there), only
+# the raw HTML files are excluded.
+samples/html/
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

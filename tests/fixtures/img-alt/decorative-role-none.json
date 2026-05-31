@@ -1,0 +1,27 @@
+{
+  "url": "https://example.com/decorative-role-none",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [
+    {
+      "src": "https://example.com/img/spacer.gif",
+      "alt": null,
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "none",
+      "width": 800,
+      "height": 100,
+      "visible": true,
+      "selector": "section > img[role=none]"
+    }
+  ],
+  "axeViolations": [],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

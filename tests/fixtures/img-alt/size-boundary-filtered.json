@@ -1,0 +1,38 @@
+{
+  "url": "https://example.com/size-boundary-filtered",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [
+    {
+      "src": "https://example.com/img/narrow.png",
+      "alt": null,
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 49,
+      "height": 400,
+      "visible": true,
+      "selector": "main > img.narrow"
+    },
+    {
+      "src": "https://example.com/img/short.png",
+      "alt": null,
+      "ariaLabel": "",
+      "ariaHidden": false,
+      "role": "",
+      "width": 400,
+      "height": 19,
+      "visible": true,
+      "selector": "main > img.short"
+    }
+  ],
+  "axeViolations": [],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

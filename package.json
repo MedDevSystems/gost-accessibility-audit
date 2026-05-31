@@ -1,0 +1,32 @@
+{
+  "name": "gost-a11y",
+  "description": "Chrome DevTools extension for accessibility audit per ГОСТ Р 52872-2019",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "wxt",
+    "dev:firefox": "wxt -b firefox",
+    "build": "wxt build",
+    "build:firefox": "wxt build -b firefox",
+    "zip": "wxt zip",
+    "zip:firefox": "wxt zip -b firefox",
+    "compile": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "grab-snapshot": "tsx scripts/grab-snapshot.ts",
+    "grab-html": "tsx scripts/grab-html.ts",
+    "gost-audit": "tsx scripts/audit-url.ts",
+    "audit-snapshot": "tsx scripts/audit-snapshot.ts",
+    "audit-corpus": "tsx scripts/audit-corpus.ts",
+    "postinstall": "wxt prepare"
+  },
+  "devDependencies": {
+    "axe-core": "^4.11.4",
+    "playwright": "^1.60.0",
+    "tsx": "^4.22.3",
+    "typescript": "^5.9.3",
+    "vitest": "^4.1.7",
+    "wxt": "^0.20.26"
+  }
+}

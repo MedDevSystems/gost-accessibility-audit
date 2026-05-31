@@ -1,0 +1,36 @@
+{
+  "url": "https://example.com/autoplay-ignores-other",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Каталог",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "color-contrast",
+      "impact": "serious",
+      "description": "Color contrast",
+      "help": "...",
+      "helpUrl": "...",
+      "tags": [
+        "wcag2aa"
+      ],
+      "nodes": [
+        {
+          "html": "<p>x</p>",
+          "target": [
+            "p"
+          ],
+          "impact": "serious",
+          "failureSummary": "low"
+        }
+      ]
+    }
+  ],
+  "headings": [],
+  "keyboardConcerns": []
+}

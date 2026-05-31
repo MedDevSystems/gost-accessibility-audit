@@ -1,0 +1,32 @@
+{
+  "url": "https://example.com/impact-null-default",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Нет impact",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "duplicate-id-aria",
+      "impact": null,
+      "description": "Ensures every id attribute value used in ARIA and in labels is unique",
+      "help": "IDs used in ARIA and labels must be unique",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/duplicate-id-aria",
+      "tags": ["wcag2a", "wcag411"],
+      "nodes": [
+        {
+          "html": "<div id=\"x\" aria-labelledby=\"x\">y</div>",
+          "target": ["div#x"],
+          "impact": null,
+          "failureSummary": "Document has multiple static elements with the same id attribute: x"
+        }
+      ]
+    }
+  ],
+  "headings": [],
+  "keyboardConcerns": []
+}

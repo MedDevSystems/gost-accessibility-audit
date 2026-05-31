@@ -1,0 +1,34 @@
+{
+  "url": "https://example.com/headings-multiple-h1",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Лента",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [
+    {
+      "level": 1,
+      "text": "Сегодня",
+      "selector": "h1",
+      "visible": true
+    },
+    {
+      "level": 1,
+      "text": "Вчера",
+      "selector": "h1",
+      "visible": true
+    },
+    {
+      "level": 1,
+      "text": "Архив",
+      "selector": "h1",
+      "visible": true
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "keyboardConcerns": []
+}

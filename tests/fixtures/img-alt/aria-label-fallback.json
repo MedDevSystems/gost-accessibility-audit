@@ -1,0 +1,27 @@
+{
+  "url": "https://example.com/aria-label-fallback",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [
+    {
+      "src": "https://example.com/img/logo.svg",
+      "alt": null,
+      "ariaLabel": "Логотип Всероссийского общества слепых",
+      "ariaHidden": false,
+      "role": "",
+      "width": 200,
+      "height": 60,
+      "visible": true,
+      "selector": "header > a > img.logo"
+    }
+  ],
+  "axeViolations": [],
+  "documentTitle": "",
+  "viewportMeta": "",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

@@ -1,0 +1,34 @@
+{
+  "url": "https://example.com/headings-ignores-hidden",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Главная",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [
+    {
+      "level": 1,
+      "text": "Скрытый служебный h1",
+      "selector": "h1",
+      "visible": false
+    },
+    {
+      "level": 1,
+      "text": "Видимый главный h1",
+      "selector": "h1",
+      "visible": true
+    },
+    {
+      "level": 2,
+      "text": "Раздел",
+      "selector": "h2",
+      "visible": true
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "keyboardConcerns": []
+}

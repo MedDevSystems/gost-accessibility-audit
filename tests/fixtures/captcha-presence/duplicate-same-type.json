@@ -1,0 +1,26 @@
+{
+  "url": "https://example.com/duplicate-recaptcha",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Две формы с reCAPTCHA",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [
+    {
+      "type": "recaptcha",
+      "source": "https://www.google.com/recaptcha/api.js",
+      "selector": "form#login script[src=\"https://www.google.com/recaptcha/api.js\"]"
+    },
+    {
+      "type": "recaptcha",
+      "source": "https://www.google.com/recaptcha/api.js",
+      "selector": "form#signup script[src=\"https://www.google.com/recaptcha/api.js\"]"
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "headings": [],
+  "keyboardConcerns": []
+}

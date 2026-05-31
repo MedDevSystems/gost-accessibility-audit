@@ -1,0 +1,79 @@
+{
+  "url": "https://example.com/aria-impact-fallback",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Степени серьёзности",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "aria-valid-attr",
+      "impact": "moderate",
+      "description": "Ensures attributes that begin with aria- are valid ARIA attributes",
+      "help": "ARIA attributes must conform to valid names",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/aria-valid-attr",
+      "tags": [
+        "wcag2a",
+        "wcag412"
+      ],
+      "nodes": [
+        {
+          "html": "<div aria-foo=\"x\">node-without-impact</div>",
+          "target": [
+            "div[aria-foo]"
+          ],
+          "impact": null,
+          "failureSummary": "Invalid ARIA attribute: aria-foo"
+        }
+      ]
+    },
+    {
+      "id": "aria-required-attr",
+      "impact": null,
+      "description": "Ensures elements with ARIA roles have all required ARIA attributes",
+      "help": "Required ARIA attributes must be provided",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/aria-required-attr",
+      "tags": [
+        "wcag2a",
+        "wcag412"
+      ],
+      "nodes": [
+        {
+          "html": "<div role=\"slider\">no-impact-anywhere</div>",
+          "target": [
+            "div[role=\"slider\"]"
+          ],
+          "impact": null,
+          "failureSummary": "Required ARIA attribute not present: aria-valuenow"
+        }
+      ]
+    },
+    {
+      "id": "aria-valid-attr-value",
+      "impact": "serious",
+      "description": "Ensures all ARIA attributes have valid values",
+      "help": "ARIA attributes must conform to valid values",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/aria-valid-attr-value",
+      "tags": [
+        "wcag2a",
+        "wcag412"
+      ],
+      "nodes": [
+        {
+          "html": "<div role=\"checkbox\" aria-checked=\"yes\">minor-node</div>",
+          "target": [
+            "div[role=\"checkbox\"]"
+          ],
+          "impact": "minor",
+          "failureSummary": "Invalid ARIA attribute value: aria-checked=\"yes\""
+        }
+      ]
+    }
+  ],
+  "headings": [],
+  "keyboardConcerns": []
+}

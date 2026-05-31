@@ -1,0 +1,40 @@
+{
+  "url": "https://example.com/headings-many-h1",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Много h1",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "headings": [
+    {
+      "level": 1,
+      "text": "Первый",
+      "selector": "h1:nth-of-type(1)",
+      "visible": true
+    },
+    {
+      "level": 1,
+      "text": "Второй",
+      "selector": "h1:nth-of-type(2)",
+      "visible": true
+    },
+    {
+      "level": 1,
+      "text": "Третий",
+      "selector": "h1:nth-of-type(3)",
+      "visible": true
+    },
+    {
+      "level": 1,
+      "text": "Четвёртый",
+      "selector": "h1:nth-of-type(4)",
+      "visible": true
+    }
+  ],
+  "images": [],
+  "axeViolations": [],
+  "keyboardConcerns": []
+}

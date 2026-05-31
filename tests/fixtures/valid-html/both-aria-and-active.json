@@ -1,0 +1,48 @@
+{
+  "url": "https://example.com/both-aria-and-active",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "documentTitle": "Смешанные дефекты",
+  "viewportMeta": "width=device-width, initial-scale=1",
+  "skipLinks": [],
+  "captchas": [],
+  "images": [],
+  "axeViolations": [
+    {
+      "id": "duplicate-id-aria",
+      "impact": "critical",
+      "description": "Ensures every id attribute value used in ARIA and in labels is unique",
+      "help": "IDs used in ARIA and labels must be unique",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/duplicate-id-aria",
+      "tags": ["wcag2a", "wcag411"],
+      "nodes": [
+        {
+          "html": "<label for=\"name\">Имя</label>",
+          "target": ["label[for=\"name\"]"],
+          "impact": "critical",
+          "failureSummary": "Document has multiple static elements with the same id attribute: name"
+        }
+      ]
+    },
+    {
+      "id": "duplicate-id-active",
+      "impact": "serious",
+      "description": "Ensures every id attribute value of active elements is unique",
+      "help": "IDs of active elements must be unique",
+      "helpUrl": "https://dequeuniversity.com/rules/axe/4.10/duplicate-id-active",
+      "tags": ["wcag2a", "wcag411"],
+      "nodes": [
+        {
+          "html": "<button id=\"go\">Перейти</button>",
+          "target": ["button#go"],
+          "impact": "serious",
+          "failureSummary": "Document has multiple active elements with the same id attribute: go"
+        }
+      ]
+    }
+  ],
+  "headings": [],
+  "keyboardConcerns": []
+}

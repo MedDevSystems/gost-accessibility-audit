@@ -1,0 +1,29 @@
+{
+  "url": "https://example.com/clean",
+  "timestamp": 1700000000000,
+  "documentLang": "ru",
+  "documentXmlLang": "",
+  "metaContentLanguage": "",
+  "images": [],
+  "axeViolations": [],
+  "documentTitle": "Эталонная чистая страница",
+  "viewportMeta": "",
+  "skipLinks": [
+    {
+      "href": "#main",
+      "text": "Перейти к содержанию",
+      "selector": "a[href=\"#main\"]",
+      "targetExists": true
+    }
+  ],
+  "captchas": [],
+  "headings": [
+    {
+      "level": 1,
+      "text": "Главная",
+      "selector": "h1",
+      "visible": true
+    }
+  ],
+  "keyboardConcerns": []
+}
